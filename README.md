@@ -84,6 +84,8 @@ To use an [exact version of Bun](/eas/json/#bun) with EAS, add the version numbe
 }
 ```
 
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](httpsnpx://docs.expo.dev/router/introduction).
+
 ## Trusted dependencies
 
 Unlike other package managers, Bun does not automatically execute lifecycle scripts from installed libraries, as this is considered a security risk. However, if a package you are installing has a `postinstall` script that you want to run, you have to explicitly state that by including that library in your [`trustedDependencies`](https://bun.sh/guides/install/trusted) array in your **package.json**.
