@@ -14,6 +14,13 @@ export default function Index() {
     >
       <Text style={styles.title}>Create a Reservation</Text>
       <View style={styles.formArea}>
+        <Input label={"Where to?"} defaultValue={"e.g. BNA"}></Input>
+        <Input label={"When are we leaving?"} inputType="time"></Input>
+        <Input
+          label={"Where to meet?"}
+          defaultValue={"e.g. Commons Lawn"}
+        ></Input>
+        <Input label={"How many people?"} defaultValue={"e.g. 4"}></Input>
       </View>
     </View>
   );
