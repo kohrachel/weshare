@@ -15,7 +15,7 @@ export default function Index() {
         flexDirection: "column",
       }}
     >
-      <Text style={styles.title}>Create a Reservation</Text>
+      <Text style={styles.title}>Create a Ride</Text>
       <View style={styles.formArea}>
         <Input label={"Where to?"} defaultValue={"e.g. BNA"}></Input>
         <Input label={"When are we leaving?"} inputType="time"></Input>
