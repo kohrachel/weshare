@@ -5,8 +5,10 @@ export default function Index() {
     <View
       style={{
         flex: 1,
-        justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "#181818",
+        width: "100%",
+        paddingTop: 50,
       }}
     >
       <Text>Edit app/createRide.tsx to edit this screen.</Text>
