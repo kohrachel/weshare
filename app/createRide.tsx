@@ -10,7 +10,9 @@ export default function Index() {
         alignItems: "center",
         backgroundColor: "#181818",
         width: "100%",
-        paddingTop: 50,
+        paddingVertical: 50,
+        paddingHorizontal: 30,
+        flexDirection: "column",
       }}
     >
       <Text style={styles.title}>Create a Reservation</Text>
@@ -40,7 +42,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     gap: 30,
     width: "100%",
-    paddingHorizontal: 30,
     paddingVertical: 20,
   },
 });
