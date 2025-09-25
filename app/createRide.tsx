@@ -11,7 +11,6 @@ export default function Index() {
         paddingTop: 50,
       }}
     >
-      <Text>Edit app/createRide.tsx to edit this screen.</Text>
     </View>
   );
 }
