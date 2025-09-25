@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, TextInput } from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 
 type InputProps = {
   label?: string;
@@ -9,14 +9,27 @@ type InputProps = {
 export default function Input({ label, defaultValue }: InputProps) {
   const [value, setValue] = useState("");
   return (
-    <>
-      {label && <Text>{label}:</Text>}
       <TextInput
         className="input-box"
         value={value}
         placeholder={defaultValue ?? ""}
         onChangeText={setValue}
       />
-    </>
+    <View style={styles.inputWrapper}>
+      {label && <Text style={styles.inputLabel}>{label}</Text>}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  inputWrapper: {
+    flexDirection: "column",
+    gap: 15,
+    width: "100%",
+  },
+  inputLabel: {
+    color: "#e7e7e7",
+    fontFamily: "Inter_700Bold",
+    fontSize: 16,
+  },
+});
