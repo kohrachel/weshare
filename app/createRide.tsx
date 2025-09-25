@@ -11,6 +11,7 @@ export default function Index() {
         paddingTop: 50,
       }}
     >
+      <Text style={styles.title}>Create a Reservation</Text>
     </View>
   );
 }
