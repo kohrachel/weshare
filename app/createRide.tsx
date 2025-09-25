@@ -14,3 +14,13 @@ export default function Index() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  title: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 24,
+    color: "#e7e7e7",
+    paddingBottom: 10,
+    paddingTop: 28,
+  },
+});
