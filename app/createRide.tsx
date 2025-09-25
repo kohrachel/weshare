@@ -1,3 +1,4 @@
+import { ButtonGreen } from "@/components/button-green";
 import Input from "@/components/Input";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -22,6 +23,7 @@ export default function Index() {
         ></Input>
         <Input label={"How many people?"} defaultValue={"e.g. 4"}></Input>
       </View>
+      <ButtonGreen title="Submit Ride" onPress={() => {}} />
     </View>
   );
 }
