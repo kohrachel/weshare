@@ -13,6 +13,8 @@ export default function Index() {
       }}
     >
       <Text style={styles.title}>Create a Reservation</Text>
+      <View style={styles.formArea}>
+      </View>
     </View>
   );
 }
@@ -24,5 +26,12 @@ const styles = StyleSheet.create({
     color: "#e7e7e7",
     paddingBottom: 10,
     paddingTop: 28,
+  },
+  formArea: {
+    flexDirection: "column",
+    gap: 30,
+    width: "100%",
+    paddingHorizontal: 30,
+    paddingVertical: 20,
   },
 });
