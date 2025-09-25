@@ -25,7 +25,7 @@ export default function Index() {
         ></Input>
         <Input label={"How many people?"} defaultValue={"e.g. 4"}></Input>
       </View>
-      <ButtonGreen title="Submit Ride" onPress={() => {}} />
+      <ButtonGreen title="Create New Ride" onPress={() => {}} />
     </View>
   );
 }
