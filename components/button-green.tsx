@@ -1,5 +1,4 @@
-import { Button } from 'react-native';
-
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 interface ButtonGreenProps {
   title: string;
   onPress: () => void;
@@ -7,10 +6,24 @@ interface ButtonGreenProps {
 
 export function ButtonGreen({ title, onPress }: ButtonGreenProps) {
   return (
-    <Button
-        title={title}
-        color="#529053"
-        onPress={onPress}
-    />
+    <TouchableOpacity style={styles.buttonContainer} onPress={onPress}>
+      <Text style={styles.buttonText}>{title}</Text>
+    </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  buttonContainer: {
+    alignItems: "center",
+    backgroundColor: "#529053",
+    borderRadius: 10,
+    marginHorizontal: 10,
+    padding: 15,
+    width: "100%",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 20,
+    fontFamily: "Inter_700Bold",
+  },
+});
