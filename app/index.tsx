@@ -5,7 +5,6 @@ import { Button } from 'react-native';
 // First screen - will be deleted in final product
 // Navigation info: docs.expo.dev/router/basics/navigation/
 export default function Index() {
-  //
   const router = useRouter();
 
   return (

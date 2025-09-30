@@ -1,7 +1,7 @@
 import { Text, View } from "react-native";
 
 // Main screen
-export default function Index() {
+export default function CreateRide() {
   return (
     <View
       style={{
