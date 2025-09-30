@@ -2,9 +2,10 @@
 // Main screen
 import { View, ScrollView } from 'react-native';
 import RidePost from '../components/RidePost'; // adjust the path if needed
+import {Text, StyleSheet } from 'react-native';
 import { ButtonGreen } from '../components/button-green';
 
-const HomeScreen = () => {
+const FeedScreen = () => {
   return (
     <ScrollView>
       <View>
@@ -18,17 +19,55 @@ const HomeScreen = () => {
         />
 
         <RidePost
-          firstName="Other"
-          lastName="Kevin Song"
-          destination="Sun Hair Salon"
-          departureTime="7:00 PM"
+          firstName="Other Kevin"
+          lastName="Song"
+          destination="BNA Airport (Southwest Airlines)"
+          departureTime="6:40 PM"
           currentPeople={1}
           maxPeople={6}
         />
+        <View style={styles.buttonWrapper}>
+                <ButtonGreen title="Create Post" onPress={() => console.log("Create post pressed!")} />
+                </View>
       </View>
     </ScrollView>
   );
 };
 
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 8,
+    marginHorizontal: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 12,
+    color: '#333',
+  },
+  detailRow: {
+    flexDirection: 'row',
+    marginBottom: 6,
+  },
+  label: {
+    fontWeight: '600',
+    color: '#555',
+  },
+  value: {
+    color: '#333',
+  },
+  buttonWrapper: {
+    marginTop: 16,
+    alignItems: 'flex-start',
+  },
+});
 
-export default HomeScreen;
+export default FeedScreen;
