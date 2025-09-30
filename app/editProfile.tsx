@@ -32,7 +32,9 @@ export default function EditProfile() {
         backgroundColor: "#181818"
       }}
     >
-      <Image source={require('@/assets/images/back-arrow.png')} style={{width: 10,  height: 10}}/>
+      <Image source={require('@/assets/images/back-arrow.png')}
+        style={{width: 10,  height: 10}}
+      />
       <Text style={{color: 'white'}}>Edit Profile</Text>
       <Image source={require('@/assets/images/camera-icon.png')} style={{width: 50,  height: 50}}/>
       <TextInput style={styles.input} value={name} />
