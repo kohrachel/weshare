@@ -30,6 +30,7 @@ export default function EditProfile() {
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#181818"
+        paddingHorizontal: 30,
       }}
     >
       <Image source={require('@/assets/images/back-arrow.png')}
