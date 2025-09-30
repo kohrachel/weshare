@@ -17,7 +17,7 @@ export default function Index() {
       }}
     >
       <Text>Edit app/index.tsx to edit this screen.</Text>
-      <Button title="Feed" onPress={() => router.navigate('/login')} />
+      <Button title="Feed" onPress={() => router.navigate('/feedPage')} />
       <Button title="Post a Ride" onPress={() => router.navigate('/createRide')} />
       <Button title="Edit Profile" onPress={() => router.navigate('/editProfile')} />
       <Button title="Login" onPress={() => router.navigate('/login')} />
