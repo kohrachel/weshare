@@ -13,12 +13,13 @@ export default function Login() {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        paddingHorizontal: 30,
         backgroundColor: "#181818",
       }}
     >
-      <Image source={require('@/assets/images/car-logo.png')} style={{width: 105,  height: 105}}/>
-      <Image source={require('@/assets/images/weshare-glowing.png')} style={{width: 256,  height: 70}}/>
-      <Text style={{color: 'white', fontSize: 30, textAlign: 'center'}}>Rideshare with other Vanderbilt students!</Text>
+      <Image source={require('@/assets/images/car-logo.png')} style={{width: 105,  height: 105, marginBottom: 5}}/>
+      <Image source={require('@/assets/images/weshare-glowing.png')} style={{width: 256,  height: 70, marginBottom: 5}}/>
+      <Text style={{color: 'white', fontSize: 30, textAlign: 'center', fontFamily: "Inter_700Bold", marginBottom: 50}}>Rideshare with other Vanderbilt students!</Text>
       <ButtonGreen  title="Login with VU SSO⚓"  onPress={() => router.navigate('/_sitemap')}/>
     </View>
   );
