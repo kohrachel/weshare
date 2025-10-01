@@ -142,7 +142,10 @@ Join our community of developers creating universal apps.
 
 ## Firebase
 Firebase project is named WeShare. (Firestore)[https://console.firebase.google.com/u/0/project/weshare-c1834/firestore/databases/-default-/data] is built within that Firebase project.
-(Primary docs)[https://firebase.google.com/docs/firestore/quickstart#node.js]
+(Official Firebase docs)[https://firebase.google.com/docs/firestore/quickstart#node.js] - code examples
+React Native Projects are considered Web modular API projects.
+(ReactNative + Expo specific docs)[https://rnfirebase.io/] - helpful for setup
+(Expo Specific Docs)[https://docs.expo.dev/guides/using-firebase/] - explain more about firebaseConfig.js
 
 On the free plan, we are currently [limited](https://firebase.google.com/pricing?authuser=0&_gl=1*snijf2*_ga*MjA2NDUwMjc0Ny4xNzU5MjUyMjE5*_ga_CW55HF8NVT*czE3NTkyNzExNTYkbzIkZzEkdDE3NTkyNzE0MTckajExJGwwJGgw)
 but should have enough free access for starting out.
