@@ -3,27 +3,35 @@ import Input from "@/components/Input";
 import { StyleSheet, Text, View } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
-
-async function storeRide(dest: string, date: string, time: string, meetLoc: string, numberPpl: number) {
-  try {
-    await addDoc(collection(db, "rides"), {
-      destination: dest,
-      date: date,
-      time: time,
-      meetLoc: meetLoc,
-      numberPpl: numberPpl
-    });
-
-    console.log("Success!");
-    return true;
-
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
-}
+import React, { useState } from "react";
 
 export default function Index() {
+  const [dest, setDest] = useState("");
+  const [time, setTime] = useState("");
+  const [meetLoc, setMeetLoc] = useState("");
+  const [numberPpl, setNumberPpl] = useState("");
+
+const storeRide = async () => {
+  try {
+    const docRef = await addDoc(collection(db, "rides"), {
+      destination: dest,
+      time: time,
+      meetLoc: meetLoc,
+      numberPpl: Number(numberPpl),
+    });
+
+    console.log("Ride stored with ID:", docRef.id);
+
+    // Reset form fields
+    setDest("");
+    setTime("");
+    setMeetLoc("");
+    setNumberPpl("");
+  } catch (error) {
+    console.error("Error adding ride: ", error);
+  }
+};
+
   return (
     <View
       style={{
@@ -38,15 +46,16 @@ export default function Index() {
     >
       <Text style={styles.title}>Create a Ride</Text>
       <View style={styles.formArea}>
-        <Input label={"Where to?"} defaultValue={"e.g. BNA"}></Input>
-        <Input label={"When are we leaving?"} inputType="time"></Input>
+        <Input label={"Where to?"} defaultValue={"e.g. BNA"}  onChangeText={setDest}></Input>
+        <Input label={"When are we leaving?"} inputType="time" onChangeText={setTime}></Input>
         <Input
           label={"Where to meet?"}
           defaultValue={"e.g. Commons Lawn"}
+          onChangeText={setMeetLoc}
         ></Input>
-        <Input label={"How many people?"} defaultValue={"e.g. 4"}></Input>
+        <Input label={"How many people?"} defaultValue={"e.g. 4"} onChangeText={setNumberPpl}></Input>
       </View>
-      <ButtonGreen title="Create New Ride" onPress={() => storeRide('BNA', '1/1/1', '8pm', 'Commons', 4)} />
+      <ButtonGreen title="Create New Ride" onPress={storeRide} />
     </View>
   );
 }
