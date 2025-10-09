@@ -29,7 +29,7 @@ export default function EditProfile() {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#181818"
+        backgroundColor: "#181818",
         paddingHorizontal: 30,
       }}
     >
