@@ -150,3 +150,8 @@ React Native Projects are considered Web modular API projects.
 On the free plan, we are currently [limited](https://firebase.google.com/pricing?authuser=0&_gl=1*snijf2*_ga*MjA2NDUwMjc0Ny4xNzU5MjUyMjE5*_ga_CW55HF8NVT*czE3NTkyNzExNTYkbzIkZzEkdDE3NTkyNzE0MTckajExJGwwJGgw) but should have enough free access for starting out.
 
 We are currently in test mode (The default security rules for test mode allow anyone with your database reference to view, edit and delete all data in your database for the next 30 days)
+
+## Security/Authentication
+- We are useing Expo [SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/) to store authentication data.
+- It will primarily just store the user id which will identify the user in the database.
+- [More info](https://reactnative.dev/docs/security) on handling sensitive data in ReactNative.
