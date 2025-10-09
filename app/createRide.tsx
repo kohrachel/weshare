@@ -1,9 +1,15 @@
 import { ButtonGreen } from "@/components/button-green";
 import Input from "@/components/Input";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TextInput } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import React, { useState } from "react";
+import * as SecureStore from 'expo-secure-store';
+
+// // TODO: Move this to login page, only here for proof of concept
+// async function save() {
+//   await SecureStore.setItemAsync("userid", "1234");
+// }
 
 export default function Index() {
   const [dest, setDest] = useState("");
@@ -13,22 +19,30 @@ export default function Index() {
 
 const storeRide = async () => {
   try {
+    let id = await SecureStore.getItemAsync("userid")
     const docRef = await addDoc(collection(db, "rides"), {
       destination: dest,
       time: time,
       meetLoc: meetLoc,
-      numberPpl: Number(numberPpl),
+      maxPpl: Number(numberPpl),
+      creationTime: new Date(),
+      currPpl: 1,
+      creator: id,
+      ppl: [id],
     });
 
     console.log("Ride stored with ID:", docRef.id);
+    alert("Ride saved!\n" + dest + "\n" + time + "\n" + meetLoc + "\n" + numberPpl);
 
     // Reset form fields
     setDest("");
     setTime("");
     setMeetLoc("");
     setNumberPpl("");
+
   } catch (error) {
     console.error("Error adding ride: ", error);
+    alert("Ride not saved, please try again.\n" + error);
   }
 };
 
@@ -46,14 +60,15 @@ const storeRide = async () => {
     >
       <Text style={styles.title}>Create a Ride</Text>
       <View style={styles.formArea}>
-        <Input label={"Where to?"} defaultValue={"e.g. BNA"}  onChangeText={setDest}></Input>
-        <Input label={"When are we leaving?"} inputType="time" onChangeText={setTime}></Input>
+        <Input label={"Where to?"} defaultValue={"e.g. BNA"} value={dest} setValue={setDest}></Input>
+        <Input label={"When are we leaving?"} inputType="time" value={time} setValue={setTime}></Input>
         <Input
           label={"Where to meet?"}
           defaultValue={"e.g. Commons Lawn"}
-          onChangeText={setMeetLoc}
+          value={meetLoc}
+          setValue={setMeetLoc}
         ></Input>
-        <Input label={"How many people?"} defaultValue={"e.g. 4"} onChangeText={setNumberPpl}></Input>
+        <Input label={"How many people?"} defaultValue={"e.g. 4"} value={numberPpl} setValue={setNumberPpl}></Input>
       </View>
       <ButtonGreen title="Create New Ride" onPress={storeRide} />
     </View>
