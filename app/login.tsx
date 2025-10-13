@@ -9,6 +9,8 @@ import * as SecureStore from "expo-secure-store";
 
 // Main screen
 export default function Login() {
+    const router = useRouter();
+
     const discovery = AuthSession.useAutoDiscovery("https://login.microsoftonline.com/common");
 
     const [request, response, promptAsync] = AuthSession.useAuthRequest(
@@ -27,14 +29,13 @@ export default function Login() {
           const { code } = response.params;
           save(code); // TODO: try to save something shorter
           console.log("Auth code:", code);
+          router.push('/feedPage');
         }
     }, [response]);
 
     async function save(code) {
         await SecureStore.setItemAsync("userid", code);
     }
-
-    const router = useRouter(); // TODO: redirect to diff page after sign in
 
     return (
         <View
