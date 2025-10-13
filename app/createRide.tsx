@@ -6,11 +6,6 @@ import { db } from "@/firebaseConfig";
 import React, { useState } from "react";
 import * as SecureStore from 'expo-secure-store';
 
-// // TODO: Move this to login page, only here for proof of concept
-// async function save() {
-//   await SecureStore.setItemAsync("userid", "1234");
-// }
-
 export default function Index() {
   const [dest, setDest] = useState("");
   const [time, setTime] = useState("");
