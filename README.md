@@ -152,7 +152,7 @@ On the free plan, we are currently [limited](https://firebase.google.com/pricing
 We are currently in test mode (The default security rules for test mode allow anyone with your database reference to view, edit and delete all data in your database for the next 30 days)
 
 ## Security/Authentication
-- We are useing Expo [SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/) to store authentication data.
+- We are using Expo [SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/) to store authentication data.
 - It will primarily just store the user id which will identify the user in the database.
 - [More info](https://reactnative.dev/docs/security) on handling sensitive data in ReactNative.
 - Using Microsoft login to require Vanderbilt login following [this document](https://medium.com/@shaikabbas101/microsoft-authentication-in-react-native-using-react-native-app-auth-3041565e914c)
