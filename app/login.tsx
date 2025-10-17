@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View, Image } from "react-native";
 import { ButtonGreen } from '../components/button-green';
 import { useRouter } from 'expo-router';
@@ -13,7 +13,7 @@ import * as SecureStore from "expo-secure-store";
 export default function Login() {
     const router = useRouter();
 
-    let enforceVanderbilt = false;
+    const [enforceVanderbilt, setEnforceVanderbilt] = useState(false);
 
     const discovery = AuthSession.useAutoDiscovery("https://login.microsoftonline.com/common");
 
@@ -61,7 +61,7 @@ export default function Login() {
           const name = user.name;
 
           if (!email.includes("vanderbilt")) {
-            enforceVanderbilt = true; // TODO implement
+            setEnforceVanderbilt(true);
           } else {
               await SecureStore.setItemAsync("userid", userId); // whole app can now access this
 
@@ -99,10 +99,23 @@ export default function Login() {
             backgroundColor: "#181818",
           }}
         >
-          <Image source={require('@/assets/images/car-logo.png')} style={{width: 105,  height: 105, marginBottom: 5}}/>
-          <Image source={require('@/assets/images/weshare-glowing.png')} style={{width: 256,  height: 70, marginBottom: 5}}/>
-          <Text style={{color: 'white', fontSize: 30, textAlign: 'center', fontFamily: "Inter_700Bold", marginBottom: 50}}>Rideshare with other Vanderbilt students!</Text>
-          <ButtonGreen  title="Login with VU SSO⚓"  onPress={() => promptAsync()} />
+        <Image source={require('@/assets/images/car-logo.png')} style={{width: 105,  height: 105, marginBottom: 5}}/>
+        <Image source={require('@/assets/images/weshare-glowing.png')} style={{width: 256,  height: 70, marginBottom: 5}}/>
+        <Text style={{color: 'white', fontSize: 30, textAlign: 'center', fontFamily: "Inter_700Bold", marginBottom: 50}}>Rideshare with other Vanderbilt students!</Text>
+        <ButtonGreen  title="Login with VU SSO⚓"  onPress={() => promptAsync()} />
+        {enforceVanderbilt && (
+          <Text
+            style={{
+              color: 'red',
+              fontSize: 15,
+              textAlign: 'center',
+              fontFamily: 'Inter_700',
+              marginBottom: 50,
+            }}
+          >
+            Error: Please use your Vanderbilt account.
+          </Text>
+        )}
         </View>
     );
 }
