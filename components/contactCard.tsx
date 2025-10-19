@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
+import ContactCard from '../components/contactCard'
 import { ButtonGreen } from './button-green';
 
 type ContactCardProps = {
@@ -8,7 +9,7 @@ type ContactCardProps = {
   email: string;
 };
 
-const ContactCard: React.FC<ContactCardProps> = ({
+const ContactsCard: React.FC<ContactCardProps> = ({
   firstName,
   lastName,
   phoneNum,
@@ -72,4 +73,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ContactCard;
+export default ContactsCard;

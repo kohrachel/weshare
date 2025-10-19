@@ -7,6 +7,7 @@ const PostRSVP = () => {
   return (
     <ScrollView>
       <View>
+        
         <RidePost
           firstName="Kevin"
           lastName="Song"
@@ -21,6 +22,12 @@ const PostRSVP = () => {
             lastName="Song"
             phoneNum={1234567890}
             email="kevin.song@vanderbilt.edu"
+            />
+        <ContactCard
+            firstName="Kevin"
+            lastName="Song 2"
+            phoneNum={987654321}
+            email="kevin.song2@vanderbilt.edu"
             />
 
       </View>
