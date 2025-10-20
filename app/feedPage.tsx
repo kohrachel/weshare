@@ -65,7 +65,8 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     marginTop: 16,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
+    paddingHorizontal: 12,
   },
 });
 
