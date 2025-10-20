@@ -1,10 +1,7 @@
-
-// Main screen
-import { View, ScrollView } from 'react-native';
-import RidePost from '../components/RidePost'; // adjust the path if needed
-import {Text, StyleSheet } from 'react-native';
-import { ButtonGreen } from '../components/button-green';
-import Input from '../components/Input';
+import { ScrollView, StyleSheet, View } from "react-native";
+import { ButtonGreen } from "../components/button-green";
+import Input from "../components/Input";
+import RidePost from "../components/RidePost"; // adjust the path if needed
 
 const SearchScreen = () => {
   return (
