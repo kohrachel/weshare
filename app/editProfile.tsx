@@ -1,3 +1,9 @@
+/**
+ Contributors
+ Emma Reid: 1 hour
+ Jonny Yang: 3 hours
+ */
+
 import { ButtonGreen } from "@/components/button-green";
 import Input from "@/components/Input";
 import { Ionicons } from "@expo/vector-icons";
