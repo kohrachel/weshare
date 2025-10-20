@@ -5,7 +5,11 @@ import RidePost from "../components/RidePost"; // adjust the path if needed
 
 const SearchScreen = () => {
   return (
-    <ScrollView>
+    <ScrollView
+        style={{
+          backgroundColor: "#181818",
+        }}
+    >
       <View>
         <Input
         label="Search"
