@@ -1,13 +1,14 @@
-import { ButtonGreen } from "@/components/button-green";
 import Input from "@/components/Input";
+import { ButtonGreen } from "@/components/button-green";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import BackButton from "../components/backbutton";
 
 export default function EditProfile() {
   const router = useRouter();
-  const [profilePic, setProfilePic] = useState(null); // store profile pic URI
+  const [profilePic, setProfilePic] = useState<string | null>(null);
 
   const handleSave = () => {
     console.log("Profile saved");
@@ -15,7 +16,7 @@ export default function EditProfile() {
   };
 
   const handleChangePic = () => {
-    console.log("Change profilfe pic pressed");
+    console.log("Change profile pic pressed");
     // later: integrate image picker
   };
 
@@ -23,15 +24,17 @@ export default function EditProfile() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={28} color="#00ff9d" />
-        </TouchableOpacity>
+        <BackButton onPress={undefined}/> {/* no undefined */}
         <Text style={styles.headerText}>Edit Profile</Text>
-        <View style={{ width: 28 }} /> {/* Spacer */}
+        <View style={{ width: 28 }} />
       </View>
 
-      {/* Profile Pic */}
-      <TouchableOpacity style={styles.profilePicContainer} onPress={handleChangePic}>
+      {/* Profile Picture */}
+      <TouchableOpacity
+        style={styles.profilePicContainer}
+        onPress={handleChangePic}
+        activeOpacity={0.7}
+      >
         {profilePic ? (
           <Image source={{ uri: profilePic }} style={styles.profilePic} />
         ) : (
@@ -39,7 +42,7 @@ export default function EditProfile() {
         )}
       </TouchableOpacity>
 
-      {/* Input Fields */}
+      {/* Form Inputs */}
       <View style={styles.formArea}>
         <Input label="Full Name" />
         <Input label="Email" />
@@ -61,13 +64,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#181818",
     paddingHorizontal: 30,
     paddingTop: 50,
-    width: "100%",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    width: "100%",
     marginBottom: 20,
   },
   headerText: {
@@ -95,8 +96,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     gap: 30,
-    width: "100%",
-    paddingVertical: 10,
   },
   buttonContainer: {
     width: "100%",
