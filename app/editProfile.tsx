@@ -90,9 +90,9 @@ const styles = StyleSheet.create({
   formArea: {
     flex: 1,
     flexDirection: "column",
-    gap: 30,
+    gap: 10,
     width: "100%",
-    paddingVertical: 10,
+    paddingVertical: 0,
   },
   buttonContainer: {
     width: "100%",
