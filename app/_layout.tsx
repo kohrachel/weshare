@@ -38,12 +38,6 @@ export default function RootLayout() {
       }}
     >
       <Stack.Screen
-        name="rsvp"
-        options={{
-          title: "RSVP",
-        }}
-      />
-      <Stack.Screen
         name="login"
         options={{
           title: "Login",
