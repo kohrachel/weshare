@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Emma Reid: 1 hour
+ */
+
 import { Text, View } from "react-native";
 import { useRouter } from 'expo-router';
 import { Button } from 'react-native';

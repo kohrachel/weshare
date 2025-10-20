@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Emma Reid: 1 hour
+ */
+
 import React from 'react';
 import { Image, Text, View, TextInput, StyleSheet } from "react-native";
 import { useRouter } from 'expo-router';

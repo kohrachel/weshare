@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Emma Reid: 5 hours
+ */
+
 import React, { useEffect, useState } from "react";
 import { Text, View, Image } from "react-native";
 import { ButtonGreen } from '../components/button-green';

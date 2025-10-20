@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Emma Reid: 3 hours
+ */
+
 import { ButtonGreen } from "@/components/button-green";
 import Input from "@/components/Input";
 import { StyleSheet, Text, View, TextInput } from "react-native";
