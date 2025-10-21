@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { ButtonGreen } from './button-green';
+import { StyleSheet, Text, View } from "react-native";
+import { ButtonGreen } from "./button-green";
 
 type RidePostProps = {
   firstName: string;
@@ -63,20 +63,23 @@ const RidePost: React.FC<RidePostProps> = ({
 
       {/* RSVP Button */}
       <View style={styles.buttonWrapper}>
-        <ButtonGreen title="RSVP" onPress={() => console.log("RSVP pressed!")} />
-        </View>
+        <ButtonGreen
+          title="RSVP"
+          onPress={() => console.log("RSVP pressed!")}
+        />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginVertical: 8,
     marginHorizontal: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -84,24 +87,24 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 12,
-    color: '#333',
+    color: "#333",
   },
   detailRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 6,
   },
   label: {
-    fontWeight: '600',
-    color: '#555',
+    fontWeight: "600",
+    color: "#555",
   },
   value: {
-    color: '#333',
+    color: "#333",
   },
   buttonWrapper: {
     marginTop: 16,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
 });
 
