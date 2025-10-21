@@ -38,9 +38,9 @@ export default function RootLayout() {
       }}
     >
       <Stack.Screen
-        name="rsvp"
+        name="index"
         options={{
-          title: "RSVP",
+          title: "index",
         }}
       />
       <Stack.Screen
