@@ -3,10 +3,17 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import { ButtonGreen } from "../components/button-green";
 import RidePost from "../components/RidePost"; // adjust the path if needed
+import { Text } from "react-native";
 
 const FeedScreen = () => {
   return (
-    <ScrollView>
+    <ScrollView
+    style={{
+          backgroundColor: "#181818",
+          paddingVertical: 50,
+          paddingHorizontal: 10
+        }}>
+          <Text style={styles.title}>Rideshares at Vanderbilt</Text>
       <View>
         <RidePost
           firstName="Kevin"
@@ -52,6 +59,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     color: '#333',
   },
+  title: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 24,
+    color: "#e7e7e7",
+    paddingBottom: 20,
+    paddingTop: 28,
+    textAlign: "center"
+  },
   detailRow: {
     flexDirection: 'row',
     marginBottom: 6,
@@ -65,8 +80,8 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     marginTop: 16,
-    alignItems: "flex-start",
-    paddingHorizontal: 12,
+    alignItems: "center",
+    paddingHorizontal: 0,
   },
 });
 

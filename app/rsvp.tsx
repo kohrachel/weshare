@@ -1,11 +1,17 @@
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import RidePost from '../components/RidePost';
 import ContactCard from '../components/contactCard'
-
+import { Text } from "react-native";
 
 const PostRSVP = () => {
   return (
-    <ScrollView>
+    <ScrollView
+    style={{
+          backgroundColor: "#181818",
+          paddingVertical: 50,
+          paddingHorizontal: 10
+        }}>
+          <Text style={styles.title}>Ride Details</Text>
       <View>
         
         <RidePost
@@ -34,5 +40,50 @@ const PostRSVP = () => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 8,
+    marginHorizontal: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 12,
+    color: '#333',
+  },
+  title: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 24,
+    color: "#e7e7e7",
+    paddingBottom: 20,
+    paddingTop: 28,
+    textAlign: "center"
+  },
+  detailRow: {
+    flexDirection: 'row',
+    marginBottom: 6,
+  },
+  label: {
+    fontWeight: '600',
+    color: '#555',
+  },
+  value: {
+    color: '#333',
+  },
+  buttonWrapper: {
+    marginTop: 16,
+    alignItems: "center",
+    paddingHorizontal: 0,
+  },
+});
 
 export default PostRSVP;

@@ -2,17 +2,21 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { ButtonGreen } from "../components/button-green";
 import Input from "../components/Input";
 import RidePost from "../components/RidePost"; // adjust the path if needed
+import { Text } from "react-native";
 
 const SearchScreen = () => {
   return (
     <ScrollView
         style={{
           backgroundColor: "#181818",
+          paddingVertical: 50,
+          paddingHorizontal: 10
         }}
     >
       <View>
+        <Text style={styles.title}>Search for a ride</Text>
         <Input
-        label="Search"
+        label=""
         defaultValue="Type here to search"
         
         />
@@ -33,9 +37,7 @@ const SearchScreen = () => {
           currentPeople={1}
           maxPeople={6}
         />
-        <View style={styles.buttonWrapper}>
-                <ButtonGreen title="Create Post" onPress={() => console.log("Create post pressed!")} />
-                </View>
+        
       </View>
     </ScrollView>
   );
@@ -53,6 +55,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  title: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 24,
+    color: "#e7e7e7",
+    paddingBottom: 20,
+    paddingTop: 28,
+    textAlign: "center"
   },
   name: {
     fontSize: 18,
