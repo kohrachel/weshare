@@ -1,6 +1,10 @@
 name: Auto Lint and Format
 
-on: [push, pull_request]
+on:
+  push:
+    branches: ["*"] # Runs on all branches
+  pull_request:
+    branches: ["main"]
 
 jobs:
   lint-and-format:
