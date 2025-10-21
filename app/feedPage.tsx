@@ -47,11 +47,12 @@ export default function RidesPage() {
 			id: rideDoc.id,
 			firstName: userData.name || "Inactive Account",
 			destination: ride.destination,
-			departureTime: ride.time,
 			currentPeople: ride.currPpl,
 			maxPeople: ride.maxPpl,
 		  });
 		}
+            departureDate: ride.time ? new Date(ride.time) : new Date(),
+            departureTime: ride.time ? new Date(ride.time) : new Date(),
 
 		setRides(ridesData);
 	  } catch (error) {
