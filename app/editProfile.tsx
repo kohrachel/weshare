@@ -6,7 +6,6 @@
 
 import { ButtonGreen } from "@/components/button-green";
 import Input from "@/components/Input";
-import { ButtonGreen } from "@/components/button-green";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -18,7 +17,6 @@ export default function EditProfile() {
   const [profilePic, setProfilePic] = useState<string | null>(null);
 
   const handleSave = () => {
-    console.log("Profile saved");
     router.back();
   };
 
@@ -30,9 +28,7 @@ export default function EditProfile() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={28} color="#00ff9d" />
-        </TouchableOpacity>
+        <BackButton/>
         <Text style={styles.headerText}>Edit Profile</Text>
         <View style={{ width: 28 }} />
       </View>
