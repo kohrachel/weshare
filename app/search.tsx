@@ -1,15 +1,13 @@
 /**
  Contributors
- Kevin Song: 2 hours
- Emma Reid: 2 hours
+ Kevin Song: 3 hours
  */
 
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import RidePost from "../components/RidePost";
-import ContactCard from "../components/contactCard";
+import Input from "../components/Input";
+import RidePost from "../components/RidePost"; // adjust the path if needed
 
-// Main screen
-export default function RSVP() {
+const SearchScreen = () => {
   return (
     <ScrollView
       style={{
@@ -18,8 +16,9 @@ export default function RSVP() {
         paddingHorizontal: 10,
       }}
     >
-      <Text style={styles.title}>Ride Details</Text>
       <View>
+        <Text style={styles.title}>Search for a ride</Text>
+        <Input label="" defaultValue="Type here to search" />
         <RidePost
           firstName="Kevin"
           lastName="Song"
@@ -29,22 +28,18 @@ export default function RSVP() {
           maxPeople={4}
         />
 
-        <ContactCard
-          firstName="Kevin"
+        <RidePost
+          firstName="Other Kevin"
           lastName="Song"
-          phoneNum={1234567890}
-          email="kevin.song@vanderbilt.edu"
-        />
-        <ContactCard
-          firstName="Kevin"
-          lastName="Song 2"
-          phoneNum={987654321}
-          email="kevin.song2@vanderbilt.edu"
+          destination="BNA Airport (Southwest Airlines)"
+          departureTime="6:40 PM"
+          currentPeople={1}
+          maxPeople={6}
         />
       </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   card: {
@@ -59,12 +54,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  name: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 12,
-    color: "#333",
-  },
   title: {
     fontFamily: "Inter_700Bold",
     fontSize: 24,
@@ -72,6 +61,12 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingTop: 28,
     textAlign: "center",
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 12,
+    color: "#333",
   },
   detailRow: {
     flexDirection: "row",
@@ -86,7 +81,8 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     marginTop: 16,
-    alignItems: "center",
-    paddingHorizontal: 0,
+    alignItems: "flex-start",
   },
 });
+
+export default SearchScreen;
