@@ -5,7 +5,8 @@ type RidePostProps = {
   firstName: string;
   lastName: string;
   destination: string;
-  departureTime: string;
+  departureDate: Date;
+  departureTime: Date;
   currentPeople: number;
   maxPeople: number;
 };
@@ -14,6 +15,7 @@ const RidePost: React.FC<RidePostProps> = ({
   firstName,
   lastName,
   destination,
+  departureDate,
   departureTime,
   currentPeople,
   maxPeople,
@@ -33,7 +35,11 @@ const RidePost: React.FC<RidePostProps> = ({
 
       <View style={styles.detailRow}>
         <Text style={styles.label}>Departure: </Text>
-        <Text style={styles.value}>{departureTime}</Text>
+        <Text style={styles.value}>
+          {formatDate(departureDate ?? new Date()) +
+            " " +
+            formatTime(departureTime ?? new Date())}
+        </Text>
       </View>
 
       <View style={styles.detailRow}>
