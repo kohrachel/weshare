@@ -7,6 +7,24 @@ export default function DateTimeInput({ label }: { label?: string }) {
   const [timeValue, setTimeValue] = useState(new Date());
 
   return (
+      <View style={styles.dateTimeCells}>
+        <RNDateTimePicker
+          value={dateValue}
+          mode="date"
+          onChange={(_, date) => {
+            if (!date) return;
+            setDateValue(date);
+          }}
+        />
+        <RNDateTimePicker
+          value={timeValue}
+          mode="time"
+          onChange={(_, date) => {
+            if (!date) return;
+            setTimeValue(date);
+          }}
+        />
+      </View>
   );
 }
 
