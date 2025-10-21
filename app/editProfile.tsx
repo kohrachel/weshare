@@ -4,51 +4,105 @@
  Jonny Yang: 3 hours
  */
 
-import React from 'react';
-import { Image, Text, View, TextInput, StyleSheet } from "react-native";
-import { useRouter } from 'expo-router';
-import { ButtonGreen } from '../components/button-green';
-
-const styles = StyleSheet.create({
-  input: {
-    color: 'gray',
-    borderColor: 'white',
-    height: 40,
-    margin: 6,
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 8,
-  },
-});
+import { ButtonGreen } from "@/components/button-green";
+import Input from "@/components/Input";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function EditProfile() {
-  const [name, onChangeName] = React.useState('Full name');
-  const [email, onChangeEmail] = React.useState('Email');
-  const [phone, onChangePhone] = React.useState('Phone');
-  const [gender, onChangeGender] = React.useState('Gender');
-
   const router = useRouter();
+  const [profilePic, setProfilePic] = useState(null); // store profile pic URI
+
+  const handleSave = () => {
+    console.log("Profile saved");
+    router.back();
+  };
+
+  const handleChangePic = () => {
+    console.log("Change profilfe pic pressed");
+    // later: integrate image picker
+  };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#181818",
-        paddingHorizontal: 30,
-      }}
-    >
-      <Image source={require('@/assets/images/back-arrow.png')}
-        style={{width: 10,  height: 10}}
-      />
-      <Text style={{color: 'white'}}>Edit Profile</Text>
-      <Image source={require('@/assets/images/camera-icon.png')} style={{width: 50,  height: 50}}/>
-      <TextInput style={styles.input} value={name} />
-      <TextInput style={styles.input} value={email} />
-      <TextInput style={styles.input} value={phone} />
-      <TextInput style={styles.input} value={gender} />
-      <ButtonGreen  title="Save Changes"  onPress={() => router.navigate('/_sitemap')}/>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={28} color="#00ff9d" />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Edit Profile</Text>
+        <View style={{ width: 28 }} />
+      </View>
+
+      <TouchableOpacity style={styles.profilePicContainer} onPress={handleChangePic}>
+        {profilePic ? (
+          <Image source={{ uri: profilePic }} style={styles.profilePic} />
+        ) : (
+          <Ionicons name="camera" size={28} color="#00ff9d" />
+        )}
+      </TouchableOpacity>
+
+      <View style={styles.formArea}>
+        <Input label="Full Name" />
+        <Input label="Email" />
+        <Input label="Phone Number" />
+        <Input label="Gender" />
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <ButtonGreen title="Save" onPress={handleSave} />
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#181818",
+    paddingHorizontal: 30,
+    paddingTop: 50,
+    width: "100%",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 20,
+  },
+  headerText: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 24,
+    color: "#e7e7e7",
+    textAlign: "center",
+  },
+  profilePicContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#2a2a2a",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    marginBottom: 40,
+  },
+  profilePic: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  formArea: {
+    flex: 1,
+    flexDirection: "column",
+    gap: 10,
+    width: "100%",
+    paddingVertical: 0,
+  },
+  buttonContainer: {
+    width: "100%",
+    alignItems: "center",
+    paddingBottom: 40,
+  },
+});
