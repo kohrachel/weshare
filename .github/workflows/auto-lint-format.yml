@@ -13,20 +13,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: "18"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run ESLint with auto-fix
-        run: npx eslint . --fix
-
-      - name: Run Prettier
-        run: npx prettier --write .
+          bun-version: latest
 
       - name: Check for changes
         id: verify-changed-files
