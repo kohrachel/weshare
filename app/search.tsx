@@ -27,7 +27,7 @@ const SearchScreen = () => {
           firstName="Kevin"
           lastName="Song"
           destination="BNA Airport (United Airlines)"
-          departureTime="6:30 PM"
+          departureTime={new Date()}
           currentPeople={2}
           maxPeople={4}
         />
@@ -36,7 +36,7 @@ const SearchScreen = () => {
           firstName="Other Kevin"
           lastName="Song"
           destination="BNA Airport (Southwest Airlines)"
-          departureTime="6:40 PM"
+          departureTime={new Date()}
           currentPeople={1}
           maxPeople={6}
         />

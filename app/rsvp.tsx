@@ -24,7 +24,7 @@ export default function RSVP() {
           firstName="Kevin"
           lastName="Song"
           destination="BNA Airport (United Airlines)"
-          departureTime="6:30 PM"
+          departureTime={new Date()}
           currentPeople={2}
           maxPeople={4}
         />
