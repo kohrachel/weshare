@@ -1,3 +1,9 @@
+/**
+ Contributors
+ Emma Reid: 1 hour
+ Jonny Yang: 3 hours
+ */
+
 import { ButtonGreen } from "@/components/button-green";
 import Input from "@/components/Input";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,16 +27,14 @@ export default function EditProfile() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={28} color="#00ff9d" />
         </TouchableOpacity>
         <Text style={styles.headerText}>Edit Profile</Text>
-        <View style={{ width: 28 }} /> {/* Spacer */}
+        <View style={{ width: 28 }} />
       </View>
 
-      {/* Profile Pic */}
       <TouchableOpacity style={styles.profilePicContainer} onPress={handleChangePic}>
         {profilePic ? (
           <Image source={{ uri: profilePic }} style={styles.profilePic} />
@@ -39,7 +43,6 @@ export default function EditProfile() {
         )}
       </TouchableOpacity>
 
-      {/* Input Fields */}
       <View style={styles.formArea}>
         <Input label="Full Name" />
         <Input label="Email" />
@@ -47,7 +50,6 @@ export default function EditProfile() {
         <Input label="Gender" />
       </View>
 
-      {/* Save Button */}
       <View style={styles.buttonContainer}>
         <ButtonGreen title="Save" onPress={handleSave} />
       </View>
@@ -94,9 +96,9 @@ const styles = StyleSheet.create({
   formArea: {
     flex: 1,
     flexDirection: "column",
-    gap: 30,
+    gap: 10,
     width: "100%",
-    paddingVertical: 10,
+    paddingVertical: 0,
   },
   buttonContainer: {
     width: "100%",
