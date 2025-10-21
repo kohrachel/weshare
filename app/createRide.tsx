@@ -64,7 +64,7 @@ const storeRide = async () => {
       <Text style={styles.title}>Create a Ride</Text>
       <View style={styles.formArea}>
         <Input label={"Where to?"} defaultValue={"e.g. BNA"} value={dest} setValue={setDest}></Input>
-        <DateTimeInput label={"When are we leaving?"} value={time} setValue={setTime}/>
+        <DateTimeInput label={"When are we leaving?"} dateValue={date} timeValue={time} setDateValue={setDate} setTimeValue={setTime}/>
         <Input
           label={"Where to meet?"}
           defaultValue={"e.g. Commons Lawn"}
