@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Emma Reid: 3 hours
+ */
+
 import React, { useEffect, useState } from "react";
 import { ScrollView, View, ActivityIndicator } from "react-native";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
