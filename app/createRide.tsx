@@ -4,6 +4,7 @@
  */
 
 import { ButtonGreen } from "@/components/button-green";
+import DateTimeInput from "@/components/DateTimeInput";
 import Input from "@/components/Input";
 import { StyleSheet, Text, View, TextInput } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
@@ -61,7 +62,7 @@ const storeRide = async () => {
       <Text style={styles.title}>Create a Ride</Text>
       <View style={styles.formArea}>
         <Input label={"Where to?"} defaultValue={"e.g. BNA"} value={dest} setValue={setDest}></Input>
-        <Input label={"When are we leaving?"} inputType="time" value={time} setValue={setTime}></Input>
+        <DateTimeInput label={"When are we leaving?"} value={time} setValue={setTime}/>
         <Input
           label={"Where to meet?"}
           defaultValue={"e.g. Commons Lawn"}
