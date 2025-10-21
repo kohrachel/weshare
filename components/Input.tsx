@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Rachel Huiqi: 3 hours
+ */
+
 import { StyleSheet, Text, TextInput, View } from "react-native";
 
 type InputProps = {

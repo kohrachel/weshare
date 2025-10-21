@@ -1,3 +1,9 @@
+/**
+ Contributors
+ Emma Reid: 3 hours
+ Rachel Huiqi: 1 hour
+ */
+
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 interface ButtonGreenProps {
   title: string;

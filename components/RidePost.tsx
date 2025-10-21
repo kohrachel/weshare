@@ -1,3 +1,10 @@
+/**
+ Contributors
+ Kevin Song: 3 hours
+ */
+
+import { useRoute } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { ButtonGreen } from "./button-green";
 
@@ -20,18 +27,64 @@ const RidePost: React.FC<RidePostProps> = ({
   currentPeople,
   maxPeople,
 }) => {
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString([], {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  };
+  const router = useRouter();
+  const route = useRoute();
 
-  const formatTime = (time: Date) => {
-    return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString([], {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+    };
 
+    const formatTime = (time: Date) => {
+      return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    };
+
+  if (route.name === 'rsvp') {
+
+
+  return (
+    <View style={styles.card}>
+      {/* Name Header */}
+      <Text style={styles.name}>
+        {firstName} {lastName}
+      </Text>
+
+      {/* Ride Details */}
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Destination: </Text>
+        <Text style={styles.value}>{destination}</Text>
+      </View>
+
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Departure: </Text>
+        <Text style={styles.value}>
+          {formatDate(departureDate ?? new Date()) +
+            " " +
+            formatTime(departureTime ?? new Date())}
+        </Text>
+      </View>
+
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Seats: </Text>
+        <Text style={styles.value}>
+          {currentPeople} / {maxPeople}
+        </Text>
+      </View>
+
+      {/* RSVP Button */}
+      <View style={styles.buttonWrapper}>
+        <ButtonGreen title="RSVP" onPress={() => console.log("RSVP pressed!")} />
+
+        </View>
+
+
+    </View>
+  );
+}
+else {
   return (
     <View style={styles.card}>
       {/* Name Header */}
@@ -67,9 +120,12 @@ const RidePost: React.FC<RidePostProps> = ({
           title="RSVP"
           onPress={() => console.log("RSVP pressed!")}
         />
+      <View style={styles.buttonWrapper}>
+        <ButtonGreen title="More Info" onPress={() => router.navigate('/rsvp')} />
       </View>
     </View>
   );
+}
 };
 
 const styles = StyleSheet.create({
@@ -104,7 +160,7 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     marginTop: 16,
-    alignItems: "flex-start",
+    alignItems: "center",
   },
 });
 

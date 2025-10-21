@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Rachel Huiqi: 3 hours
+ */
+
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { StyleSheet, Text, View } from "react-native";
 
