@@ -4,6 +4,7 @@
  Kevin Song: 1 hour
  */
 
+import Footer from "@/components/Footer";
 import { db } from "@/firebaseConfig";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
@@ -76,17 +77,20 @@ export default function RidesPage() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
-      {rides.map((ride) => (
-        <RidePost
-          key={ride.id}
-          firstName={ride.firstName}
-          destination={ride.destination}
-          departureTime={ride.departureTime}
-          currentPeople={ride.currentPeople}
-          maxPeople={ride.maxPeople}
-        />
-      ))}
-    </ScrollView>
+    <View style={{ flex: 1, backgroundColor: "#181818" }}>
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        {rides.map((ride) => (
+          <RidePost
+            key={ride.id}
+            firstName={ride.firstName}
+            destination={ride.destination}
+            departureTime={ride.departureTime}
+            currentPeople={ride.currentPeople}
+            maxPeople={ride.maxPeople}
+          />
+        ))}
+      </ScrollView>
+      <Footer />
+    </View>
   );
 }
