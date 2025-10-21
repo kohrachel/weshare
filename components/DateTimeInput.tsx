@@ -1,11 +1,22 @@
 import RNDateTimePicker from "@react-native-community/datetimepicker";
-import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-export default function DateTimeInput({ label }: { label?: string }) {
-  const [dateValue, setDateValue] = useState(new Date());
-  const [timeValue, setTimeValue] = useState(new Date());
+type DateTimeInputProps = {
+  label?: string;
+  value?: string;
+  dateValue: Date;
+  timeValue: Date;
+  setDateValue: React.Dispatch<React.SetStateAction<Date>>;
+  setTimeValue: React.Dispatch<React.SetStateAction<Date>>;
+};
 
+export default function DateTimeInput({
+  label,
+  dateValue,
+  timeValue,
+  setDateValue,
+  setTimeValue,
+}: DateTimeInputProps) {
   return (
     <View style={styles.inputWrapper}>
       {label && <Text style={styles.inputLabel}>{label}</Text>}
