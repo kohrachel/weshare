@@ -11,8 +11,7 @@ export default function Footer() {
             style={styles.footerItem}
           />
         </Link>
-        {/* TODO: fix this behavior */}
-        <Link href="/">
+        <Link href="/search">
           <Image
             source={require("@/assets/images/search.png")}
             style={styles.footerItem}
