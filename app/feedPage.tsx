@@ -76,7 +76,7 @@ export default function RidesPage() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
+    <ScrollView style={{ padding: 16,  backgroundColor: "#181818"}}>
       {rides.map((ride) => (
         <RidePost
           key={ride.id}
