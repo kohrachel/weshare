@@ -31,15 +31,25 @@ const RidePost: React.FC<RidePostProps> = ({
   const route = useRoute();
 
     const formatDate = (date: Date) => {
-      return date.toLocaleDateString([], {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
+        try {
+          return date.toLocaleDateString([], {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          });
+        } catch (e) {
+            console.error(e);
+            return new Date();
+        }
     };
 
     const formatTime = (time: Date) => {
-      return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        try {
+          return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        } catch(e) {
+            console.error(e);
+            return new Date();
+        }
     };
 
   if (route.name === 'rsvp') {
@@ -114,12 +124,14 @@ else {
         </Text>
       </View>
 
-      {/* RSVP Button */}
+      {/* Buttons */}
       <View style={styles.buttonWrapper}>
         <ButtonGreen
           title="RSVP"
           onPress={() => console.log("RSVP pressed!")}
         />
+      </View>
+
       <View style={styles.buttonWrapper}>
         <ButtonGreen title="More Info" onPress={() => router.navigate('/rsvp')} />
       </View>
