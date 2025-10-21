@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Jonny Yang: 4 hours
+ */
+
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";

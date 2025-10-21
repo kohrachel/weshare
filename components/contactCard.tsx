@@ -1,6 +1,11 @@
 import { View, Text, StyleSheet } from 'react-native';
 import ContactCard from '../components/contactCard'
 import { ButtonGreen } from './button-green';
+/**
+ Contributors
+ Kevin Song: 3 hours
+ */
+
 
 type ContactCardProps = {
   firstName: string;

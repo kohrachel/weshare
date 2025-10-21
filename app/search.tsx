@@ -1,5 +1,10 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import { ButtonGreen } from "../components/button-green";
+/**
+ Contributors
+ Kevin Song: 3 hours
+ */
+
 import Input from "../components/Input";
 import RidePost from "../components/RidePost"; // adjust the path if needed
 import { Text } from "react-native";

@@ -1,3 +1,9 @@
+<!--
+Contributors:
+  Rachel Koh - 3 hours
+  Emma Reid - 1 hour
+-->
+
 # Using Bun
 
 A guide on using Bun with Expo and EAS.

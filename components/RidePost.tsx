@@ -2,6 +2,11 @@ import { View, Text, StyleSheet } from 'react-native';
 import { ButtonGreen } from './button-green';
 import { useRouter } from 'expo-router';
 import { useRoute } from '@react-navigation/native';
+/**
+ Contributors
+ Kevin Song: 3 hours
+ */
+
 
 type RidePostProps = {
   firstName: string;
