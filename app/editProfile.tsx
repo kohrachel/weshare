@@ -5,6 +5,7 @@
  */
 
 import { ButtonGreen } from "@/components/button-green";
+import Footer from "@/components/Footer";
 import Input from "@/components/Input";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -54,6 +55,7 @@ export default function EditProfile() {
       <View style={styles.buttonContainer}>
         <ButtonGreen title="Save" onPress={handleSave} />
       </View>
+      <Footer />
     </View>
   );
 }
@@ -104,6 +106,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: "100%",
     alignItems: "center",
-    paddingBottom: 40,
+    paddingBottom: 90,
   },
 });
