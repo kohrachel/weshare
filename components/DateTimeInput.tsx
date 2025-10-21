@@ -14,6 +14,7 @@ export default function DateTimeInput({ label }: { label?: string }) {
         <RNDateTimePicker
           value={dateValue}
           mode="date"
+          themeVariant="dark"
           onChange={(_, date) => {
             if (!date) return;
             setDateValue(date);
@@ -22,6 +23,7 @@ export default function DateTimeInput({ label }: { label?: string }) {
         <RNDateTimePicker
           value={timeValue}
           mode="time"
+          themeVariant="dark"
           onChange={(_, date) => {
             if (!date) return;
             setTimeValue(date);
