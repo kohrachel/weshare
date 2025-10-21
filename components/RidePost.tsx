@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { ButtonGreen } from './button-green';
+import { useRouter } from 'expo-router';
+import { useRoute } from '@react-navigation/native';
 
 type RidePostProps = {
   firstName: string;
@@ -18,6 +20,12 @@ const RidePost: React.FC<RidePostProps> = ({
   currentPeople,
   maxPeople,
 }) => {
+  const router = useRouter();
+  const route = useRoute();
+
+  if (route.name === 'rsvp') {
+
+  
   return (
     <View style={styles.card}>
       {/* Name Header */}
@@ -46,9 +54,51 @@ const RidePost: React.FC<RidePostProps> = ({
       {/* RSVP Button */}
       <View style={styles.buttonWrapper}>
         <ButtonGreen title="RSVP" onPress={() => console.log("RSVP pressed!")} />
+        
         </View>
+        
+    
     </View>
   );
+}
+else {
+  return (
+    <View style={styles.card}>
+      {/* Name Header */}
+      <Text style={styles.name}>
+        {firstName} {lastName}
+      </Text>
+
+      {/* Ride Details */}
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Destination: </Text>
+        <Text style={styles.value}>{destination}</Text>
+      </View>
+
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Departure: </Text>
+        <Text style={styles.value}>{departureTime}</Text>
+      </View>
+
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Seats: </Text>
+        <Text style={styles.value}>
+          {currentPeople} / {maxPeople}
+        </Text>
+      </View>
+
+      {/* RSVP Button */}
+      <View style={styles.buttonWrapper}>
+        <ButtonGreen title="RSVP" onPress={() => console.log("RSVP pressed!")} />
+        
+        </View>
+        
+      <View style={styles.buttonWrapper}>
+        <ButtonGreen title="More Info" onPress={() => router.navigate('/rsvp')} />
+      </View>
+    </View>
+  );
+}
 };
 
 const styles = StyleSheet.create({
@@ -57,7 +107,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginVertical: 8,
-    marginHorizontal: 12,
+    marginHorizontal: 0,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
@@ -83,7 +133,7 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     marginTop: 16,
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
 });
 

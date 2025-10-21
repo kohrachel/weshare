@@ -26,6 +26,7 @@ export default function Index() {
       <Button title="Edit Profile" onPress={() => router.navigate('/editProfile')} />
       <Button title="Login" onPress={() => router.navigate('/login')} />
       <Button title="RSVP" onPress={() => router.navigate('/rsvp')} />
+      <Button title="Search" onPress={() => router.navigate('/search')} />
     </View>
   );
 }
