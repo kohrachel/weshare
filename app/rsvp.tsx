@@ -3,7 +3,8 @@ import RidePost from '../components/RidePost';
 import ContactCard from '../components/contactCard'
 import { Text } from "react-native";
 
-const PostRSVP = () => {
+// Main screen
+export default function RSVP() {
   return (
     <ScrollView
     style={{
@@ -85,5 +86,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
 });
-
-export default PostRSVP;

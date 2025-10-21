@@ -1,3 +1,7 @@
+/**
+ Contributors
+ Emma Reid: 3 hours
+ */
 
 // Main screen
 import { ScrollView, StyleSheet, View } from "react-native";
