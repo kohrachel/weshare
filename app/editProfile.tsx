@@ -10,27 +10,25 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import BackButton from "../components/backbutton";
 
 export default function EditProfile() {
   const router = useRouter();
-  const [profilePic, setProfilePic] = useState(null); // store profile pic URI
+  const [profilePic, setProfilePic] = useState<string | null>(null);
 
   const handleSave = () => {
-    console.log("Profile saved");
     router.back();
   };
 
   const handleChangePic = () => {
-    console.log("Change profilfe pic pressed");
+    console.log("Change profile pic pressed");
     // later: integrate image picker
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={28} color="#00ff9d" />
-        </TouchableOpacity>
+        <BackButton/>
         <Text style={styles.headerText}>Edit Profile</Text>
         <View style={{ width: 28 }} />
       </View>
