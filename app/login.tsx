@@ -95,29 +95,9 @@ export default function Login() {
     };
 
     return (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            paddingHorizontal: 30,
-            backgroundColor: "#181818",
-          }}
-        >
-        <Image source={require('@/assets/images/car-logo.png')} style={{width: 105,  height: 105, marginBottom: 5}}/>
-        <Image source={require('@/assets/images/weshare-glowing.png')} style={{width: 256,  height: 70, marginBottom: 5}}/>
-        <Text style={{color: 'white', fontSize: 30, textAlign: 'center', fontFamily: "Inter_700Bold", marginBottom: 50}}>Rideshare with other Vanderbilt students!</Text>
         <ButtonGreen  title="Login with VU SSO⚓"  onPress={() => promptAsync()} />
         {enforceVanderbilt && (
-          <Text
-            style={{
-              color: 'red',
-              fontSize: 15,
-              textAlign: 'center',
-              fontFamily: 'Inter_700',
-              marginBottom: 50,
-            }}
-          >
+          <Text>
             Error: Please use your Vanderbilt account.
           </Text>
         )}

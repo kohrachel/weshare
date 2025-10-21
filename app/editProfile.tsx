@@ -26,13 +26,6 @@ export default function EditProfile() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <BackButton/>
-        <Text style={styles.headerText}>Edit Profile</Text>
-        <View style={{ width: 28 }} />
-      </View>
-
       <TouchableOpacity style={styles.profilePicContainer} onPress={handleChangePic}>
         {profilePic ? (
           <Image source={{ uri: profilePic }} style={styles.profilePic} />
@@ -41,66 +34,7 @@ export default function EditProfile() {
         )}
       </TouchableOpacity>
 
-      <View style={styles.formArea}>
-        <Input label="Full Name" />
-        <Input label="Email" />
-        <Input label="Phone Number" />
-        <Input label="Gender" />
-      </View>
-
-      <View style={styles.buttonContainer}>
         <ButtonGreen title="Save" onPress={handleSave} />
-      </View>
-    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#181818",
-    paddingHorizontal: 30,
-    paddingTop: 50,
-    width: "100%",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-    marginBottom: 20,
-  },
-  headerText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 24,
-    color: "#e7e7e7",
-    textAlign: "center",
-  },
-  profilePicContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#2a2a2a",
-    justifyContent: "center",
-    alignItems: "center",
-    alignSelf: "center",
-    marginBottom: 40,
-  },
-  profilePic: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
-  formArea: {
-    flex: 1,
-    flexDirection: "column",
-    gap: 10,
-    width: "100%",
-    paddingVertical: 0,
-  },
-  buttonContainer: {
-    width: "100%",
-    alignItems: "center",
-    paddingBottom: 40,
-  },
 });

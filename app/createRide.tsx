@@ -49,19 +49,6 @@ const storeRide = async () => {
 };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: "center",
-        backgroundColor: "#181818",
-        width: "100%",
-        paddingVertical: 50,
-        paddingHorizontal: 30,
-        flexDirection: "column",
-      }}
-    >
-      <Text style={styles.title}>Create a Ride</Text>
-      <View style={styles.formArea}>
         <Input label={"Where to?"} defaultValue={"e.g. BNA"} value={dest} setValue={setDest}></Input>
         <DateTimeInput label={"When are we leaving?"} value={time} setValue={setTime}/>
         <Input
@@ -73,22 +60,6 @@ const storeRide = async () => {
         <Input label={"How many people?"} defaultValue={"e.g. 4"} value={numberPpl} setValue={setNumberPpl}></Input>
       </View>
       <ButtonGreen title="Create New Ride" onPress={storeRide} />
-    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  title: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 24,
-    color: "#e7e7e7",
-    paddingBottom: 10,
-    paddingTop: 28,
-  },
-  formArea: {
-    flexDirection: "column",
-    gap: 30,
-    width: "100%",
-    paddingVertical: 40,
-  },
 });

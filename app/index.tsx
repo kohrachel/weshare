@@ -14,14 +14,7 @@ export default function Index() {
   const router = useRouter();
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
+    <View>
       <Button title="Feed" onPress={() => router.navigate('/feedPage')} />
       <Button title="Post a Ride" onPress={() => router.navigate('/createRide')} />
       <Button title="Edit Profile" onPress={() => router.navigate('/editProfile')} />
