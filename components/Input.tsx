@@ -1,4 +1,3 @@
-import { useState } from "react";
 /**
  Contributors
  Rachel Huiqi: 3 hours

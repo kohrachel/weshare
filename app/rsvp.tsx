@@ -1,12 +1,12 @@
-import { View, ScrollView, StyleSheet } from 'react-native';
-import RidePost from '../components/RidePost';
-import ContactCard from '../components/contactCard'
-import { Text } from "react-native";
 /**
  Contributors
  Kevin Song: 2 hours
  Emma Reid: 2 hours
  */
+
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import RidePost from "../components/RidePost";
+import ContactCard from "../components/contactCard";
 
 // Main screen
 export default function RSVP() {
