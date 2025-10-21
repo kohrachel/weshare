@@ -1,4 +1,15 @@
 import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
+
+export default function DateTimeInput({ label }: { label?: string }) {
+  const [dateValue, setDateValue] = useState(new Date());
+  const [timeValue, setTimeValue] = useState(new Date());
+
+  return (
+  );
+}
+
 const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: "column",
