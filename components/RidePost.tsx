@@ -20,6 +20,18 @@ const RidePost: React.FC<RidePostProps> = ({
   currentPeople,
   maxPeople,
 }) => {
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString([], {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
+
+  const formatTime = (time: Date) => {
+    return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
   return (
     <View style={styles.card}>
       {/* Name Header */}
