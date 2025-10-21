@@ -14,7 +14,8 @@ import * as SecureStore from 'expo-secure-store';
 
 export default function Index() {
   const [dest, setDest] = useState("");
-  const [time, setTime] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [time, setTime] = useState(new Date());
   const [meetLoc, setMeetLoc] = useState("");
   const [numberPpl, setNumberPpl] = useState("");
 
@@ -23,6 +24,7 @@ const storeRide = async () => {
     let id = await SecureStore.getItemAsync("userid")
     const docRef = await addDoc(collection(db, "rides"), {
       destination: dest,
+      date: date,
       time: time,
       meetLoc: meetLoc,
       maxPpl: Number(numberPpl),
@@ -37,7 +39,7 @@ const storeRide = async () => {
 
     // Reset form fields
     setDest("");
-    setTime("");
+    setTime(new Date());
     setMeetLoc("");
     setNumberPpl("");
 
