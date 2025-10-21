@@ -1,6 +1,7 @@
 /**
  Contributors
  Emma Reid: 1 hour
+ Kevin Song: 1 hour
  */
 
 import { Text, View } from "react-native";
