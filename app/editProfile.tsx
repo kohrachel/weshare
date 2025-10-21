@@ -11,18 +11,42 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import BackButton from "../components/backbutton";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "@/firebaseConfig";
+import * as SecureStore from "expo-secure-store";
 
 export default function EditProfile() {
   const router = useRouter();
   const [profilePic, setProfilePic] = useState<string | null>(null);
 
-  const handleSave = () => {
-    router.back();
-  };
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [gender, setGender] = useState("");
 
-  const handleChangePic = () => {
-    console.log("Change profile pic pressed");
-    // later: integrate image picker
+  const storeInfo = async () => {
+    try {
+      let id = await SecureStore.getItemAsync("userid")
+      const docRef = await addDoc(collection(db, "users"), {
+        name: name,
+        email: email,
+        phone: phone,
+        gender: gender
+      });
+
+      console.log("Info stored to ID:", docRef.id);
+      alert("Info saved!\n" + name + "\n" + email + "\n" + phone + "\n" + gender);
+
+      // Reset form fields
+      setName("");
+      setEmail("");
+      setPhone("");
+      setGender("");
+
+    } catch (error) {
+      console.error("Error adding info: ", error);
+      alert("Info not saved, please try again.\n" + error);
+    }
   };
 
   return (
@@ -35,7 +59,6 @@ export default function EditProfile() {
 
       <TouchableOpacity
         style={styles.profilePicContainer}
-        onPress={handleChangePic}
       >
         {profilePic ? (
           <Image source={{ uri: profilePic }} style={styles.profilePic} />
@@ -45,14 +68,33 @@ export default function EditProfile() {
       </TouchableOpacity>
 
       <View style={styles.formArea}>
-        <Input label="Full Name" />
-        <Input label="Email" />
-        <Input label="Phone Number" />
-        <Input label="Gender" />
+        <Input
+          label={"Name"}
+          defaultValue={""}
+          value={name}
+          setValue={setName}
+        ></Input>
+        <Input
+          label={"Email"}
+          value={email}
+          setValue={setEmail}
+        />
+        <Input
+          label={"Phone"}
+          defaultValue={""}
+          value={phone}
+          setValue={setPhone}
+        ></Input>
+        <Input
+          label={"Gender"}
+          defaultValue={""}
+          value={gender}
+          setValue={setGender}
+        ></Input>
       </View>
 
       <View style={styles.buttonContainer}>
-        <ButtonGreen title="Save" onPress={handleSave} />
+        <ButtonGreen title="Save" onPress={storeInfo} />
       </View>
     </View>
   );
