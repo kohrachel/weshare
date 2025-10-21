@@ -7,6 +7,9 @@ export default function DateTimeInput({ label }: { label?: string }) {
   const [timeValue, setTimeValue] = useState(new Date());
 
   return (
+    <View style={styles.inputWrapper}>
+      {label && <Text style={styles.inputLabel}>{label}</Text>}
+
       <View style={styles.dateTimeCells}>
         <RNDateTimePicker
           value={dateValue}
@@ -25,6 +28,7 @@ export default function DateTimeInput({ label }: { label?: string }) {
           }}
         />
       </View>
+    </View>
   );
 }
 
