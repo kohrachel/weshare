@@ -4,6 +4,7 @@
  Emma Reid: 2 hours
  */
 
+import Footer from "@/components/Footer";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import RidePost from "../components/RidePost";
 import ContactCard from "../components/contactCard";
@@ -11,38 +12,35 @@ import ContactCard from "../components/contactCard";
 // Main screen
 export default function RSVP() {
   return (
-    <ScrollView
-      style={{
-        backgroundColor: "#181818",
-        paddingVertical: 50,
-        paddingHorizontal: 10,
-      }}
-    >
-      <Text style={styles.title}>Ride Details</Text>
-      <View>
-        <RidePost
-          firstName="Kevin"
-          lastName="Song"
-          destination="BNA Airport (United Airlines)"
-          departureTime="6:30 PM"
-          currentPeople={2}
-          maxPeople={4}
-        />
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        style={{
+          backgroundColor: "#181818",
+          paddingVertical: 50,
+          paddingHorizontal: 10,
+        }}
+      >
+        <Text style={styles.title}>Ride Details</Text>
+        <View>
+          <RidePost
+            firstName="Kevin"
+            lastName="Song"
+            destination="BNA Airport (United Airlines)"
+            departureTime="6:30 PM"
+            currentPeople={2}
+            maxPeople={4}
+          />
 
-        <ContactCard
-          firstName="Kevin"
-          lastName="Song"
-          phoneNum={1234567890}
-          email="kevin.song@vanderbilt.edu"
-        />
-        <ContactCard
-          firstName="Kevin"
-          lastName="Song 2"
-          phoneNum={987654321}
-          email="kevin.song2@vanderbilt.edu"
-        />
-      </View>
-    </ScrollView>
+          <ContactCard
+            firstName="Kevin"
+            lastName="Song"
+            phoneNum={1234567890}
+            email="kevin.song@vanderbilt.edu"
+          />
+        </View>
+      </ScrollView>
+      <Footer />
+    </View>
   );
 }
 
