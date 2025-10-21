@@ -6,7 +6,7 @@
 import { ButtonGreen } from "@/components/button-green";
 import DateTimeInput from "@/components/DateTimeInput";
 import Input from "@/components/Input";
-import { StyleSheet, Text, View, TextInput } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import React, { useState } from "react";
