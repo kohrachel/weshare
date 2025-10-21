@@ -31,12 +31,10 @@ To create a new app using Bun, [install Bun on your local machine](https://bun.s
    ```
 
    From here, you can open the app in your mobile emulators using:
-
    - <kbd>a</kbd> for Android
    - <kbd>i</kbd> for iOS
 
    The full output lists the full options. Links to docs:
-
    - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
    - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
    - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
@@ -147,9 +145,10 @@ Join our community of developers creating universal apps.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
 ## Firebase
+
 - Firebase project is named WeShare. [Firestore](https://console.firebase.google.com/u/0/project/weshare-c1834/firestore/databases/-default-/data) is built within that Firebase project.
 - [Official Firebase docs](https://firebase.google.com/docs/firestore/quickstart#node.js) - code examples
-React Native Projects are considered Web modular API projects.
+  React Native Projects are considered Web modular API projects.
 - [ReactNative + Expo specific docs](https://rnfirebase.io/]) - helpful for setup
 - [Expo Specific Docs](https://docs.expo.dev/guides/using-firebase/) - explain more about firebaseConfig.js
 
@@ -158,6 +157,7 @@ On the free plan, we are currently [limited](https://firebase.google.com/pricing
 We are currently in test mode (The default security rules for test mode allow anyone with your database reference to view, edit and delete all data in your database for the next 30 days)
 
 ## Security/Authentication
+
 - We are using Expo [SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/) to store authentication data.
 - It will primarily just store the user id which will identify the user in the database.
 - [More info](https://reactnative.dev/docs/security) on handling sensitive data in ReactNative.
@@ -165,4 +165,4 @@ We are currently in test mode (The default security rules for test mode allow an
 - Using expo-auth-session instead of react-native-app-auth due to compatibility issues with Expo
 - Redirect URI: com.wesharenative://oauth/auth/
 - Weshare login secret will be valid for 6 months (until 11 April 2026)
-- 
+-

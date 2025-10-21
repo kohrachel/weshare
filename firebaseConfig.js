@@ -13,7 +13,7 @@ const firebaseConfig = {
   storageBucket: "weshare-c1834.firebasestorage.app",
   messagingSenderId: "696075099543",
   appId: "1:696075099543:web:dae492b0023ee4ff8cf8d2",
-  measurementId: "G-PZEZ68XJQG"
+  measurementId: "G-PZEZ68XJQG",
 };
 
 // Initialize Firebase

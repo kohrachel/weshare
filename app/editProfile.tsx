@@ -28,12 +28,15 @@ export default function EditProfile() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <BackButton/>
+        <BackButton />
         <Text style={styles.headerText}>Edit Profile</Text>
         <View style={{ width: 28 }} />
       </View>
 
-      <TouchableOpacity style={styles.profilePicContainer} onPress={handleChangePic}>
+      <TouchableOpacity
+        style={styles.profilePicContainer}
+        onPress={handleChangePic}
+      >
         {profilePic ? (
           <Image source={{ uri: profilePic }} style={styles.profilePic} />
         ) : (

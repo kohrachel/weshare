@@ -13,7 +13,13 @@ type InputProps = {
   inputType?: "time";
 };
 
-export default function Input({ label, value, setValue, defaultValue, inputType }: InputProps) {
+export default function Input({
+  label,
+  value,
+  setValue,
+  defaultValue,
+  inputType,
+}: InputProps) {
   return (
     <View style={styles.inputWrapper}>
       {label && <Text style={styles.inputLabel}>{label}</Text>}
