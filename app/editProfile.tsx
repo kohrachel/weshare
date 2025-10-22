@@ -8,46 +8,74 @@ import { ButtonGreen } from "@/components/button-green";
 import Input from "@/components/Input";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
 import BackButton from "../components/backbutton";
-import { addDoc, collection } from "firebase/firestore";
+import { setDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import * as SecureStore from "expo-secure-store";
 
 export default function EditProfile() {
   const router = useRouter();
   const [profilePic, setProfilePic] = useState<string | null>(null);
-
+  const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [gender, setGender] = useState("");
 
+  useEffect(() => {
+    fetchInfo();
+  }, []);
+
+  const fetchInfo = async () => {
+    setLoading(true);
+    try {
+      let id = await SecureStore.getItemAsync("userid")
+      const userInfo = await getDoc(doc(db, "users", id));
+
+      setName(userInfo.data().name || "");
+      setEmail(userInfo.data().email || "");
+      setPhone(userInfo.data().phone || "");
+      setGender(userInfo.data().gender || "");
+
+    } catch (error) {
+      console.error("Error fetching user:", error);
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const storeInfo = async () => {
     try {
       let id = await SecureStore.getItemAsync("userid")
-      const docRef = await addDoc(collection(db, "users"), {
+      const docRef = await setDoc(doc(db, "users", id), {
         name: name,
         email: email,
         phone: phone,
         gender: gender
       });
 
-      console.log("Info stored to ID:", docRef.id);
+      console.log("Info stored to ID:", id);
       alert("Info saved!\n" + name + "\n" + email + "\n" + phone + "\n" + gender);
 
       // Reset form fields
-      setName("");
-      setEmail("");
-      setPhone("");
-      setGender("");
+      fetchInfo();
 
     } catch (error) {
       console.error("Error adding info: ", error);
       alert("Info not saved, please try again.\n" + error);
     }
   };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
