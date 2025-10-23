@@ -12,6 +12,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import React, { useState } from "react";
 import * as SecureStore from 'expo-secure-store';
+import BackButton from "../components/backbutton";
 
 export default function Index() {
   const [dest, setDest] = useState("");
@@ -62,6 +63,7 @@ const storeRide = async () => {
         flexDirection: "column",
       }}
     >
+      <BackButton/>
       <Text style={styles.title}>Create a Ride</Text>
       <View style={styles.formArea}>
         <Input label={"Where to?"} defaultValue={"e.g. BNA"} value={dest} setValue={setDest}></Input>

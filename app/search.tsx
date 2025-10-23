@@ -6,6 +6,7 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Input from "../components/Input";
 import RidePost from "../components/RidePost"; // adjust the path if needed
+import BackButton from "../components/backbutton";
 
 const SearchScreen = () => {
   return (
@@ -17,6 +18,7 @@ const SearchScreen = () => {
         }}
     >
       <View>
+        <BackButton/>
         <Text style={styles.title}>Search for a ride</Text>
         <Input
         label=""
