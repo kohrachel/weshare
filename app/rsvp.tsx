@@ -6,8 +6,8 @@
 
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import RidePost from "../components/RidePost";
-import ContactCard from "../components/contactCard";
 import BackButton from "../components/backbutton";
+import ContactCard from "../components/contactCard";
 
 // Main screen
 export default function RSVP() {
