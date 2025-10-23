@@ -6,6 +6,7 @@
 
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import RidePost from "../components/RidePost";
+import BackButton from "../components/backbutton";
 import ContactCard from "../components/contactCard";
 
 // Main screen
@@ -17,6 +18,7 @@ export default function RSVP() {
           paddingVertical: 50,
           paddingHorizontal: 10
         }}>
+          <BackButton/>
           <Text style={styles.title}>Ride Details</Text>
       <View>
         
