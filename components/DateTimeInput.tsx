@@ -36,25 +36,24 @@ export default function DateTimeInput({
           <Text style={styles.dateTimeBox}>{formatDate(dateValue)}</Text>
         </Pressable>
         {datePickerVisible && (
-          <RNDateTimePicker
+          <Picker
             value={dateValue}
             mode="date"
-            themeVariant="dark"
-            onChange={(_, date) => {
-              if (!date) return;
-              setDateValue(date);
-            }}
+            setValue={setDateValue}
+            setVisible={setDatePickerVisible}
           />
         )}
-        <RNDateTimePicker
-          value={timeValue}
-          mode="time"
-          themeVariant="dark"
-          onChange={(_, date) => {
-            if (!date) return;
-            setTimeValue(date);
-          }}
-        />
+        <Pressable onPress={() => setTimePickerVisible(true)}>
+          <Text style={styles.dateTimeBox}>{formatTime(timeValue)}</Text>
+        </Pressable>
+        {timePickerVisible && (
+          <Picker
+            value={timeValue}
+            mode="time"
+            setValue={setTimeValue}
+            setVisible={setTimePickerVisible}
+          />
+        )}
       </View>
     </View>
   );
