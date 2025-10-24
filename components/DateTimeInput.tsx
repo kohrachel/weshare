@@ -62,6 +62,28 @@ export default function DateTimeInput({
   );
 }
 
+type PickerProps = {
+  value: Date;
+  mode: "date" | "time";
+  setValue: (date: Date) => void;
+  setVisible: (visible: boolean) => void;
+};
+
+function Picker({ value, mode, setValue, setVisible }: PickerProps) {
+  return (
+    <RNDateTimePicker
+      value={value}
+      mode={mode}
+      onChange={(_, date) => {
+        if (!date) return;
+        console.log({ date });
+        setValue(date);
+        setVisible(false);
+      }}
+    />
+  );
+}
+
 const styles = StyleSheet.create({
   dateTimeWrapper: {
     flexDirection: "row",
