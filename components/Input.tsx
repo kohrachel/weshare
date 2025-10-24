@@ -33,7 +33,7 @@ export default function Input({
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: "column",
     gap: 15,
@@ -42,9 +42,9 @@ const styles = StyleSheet.create({
   inputBox: {
     width: "100%",
     height: "auto",
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
     paddingVertical: 12,
-    borderRadius: 10,
+    borderRadius: 13,
     outlineColor: "#e7e7e7",
     outlineStyle: "solid",
     outlineWidth: 1,
