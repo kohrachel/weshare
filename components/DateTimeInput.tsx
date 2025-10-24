@@ -26,17 +26,16 @@ export default function DateTimeInput({
   setTimeValue,
 }: DateTimeInputProps) {
   const [datePickerVisible, setDatePickerVisible] = useState(false);
+  const [timePickerVisible, setTimePickerVisible] = useState(false);
   return (
-    <View style={styles.inputWrapper}>
-      {label && <Text style={styles.inputLabel}>{label}</Text>}
+    <View style={inputStyles.inputWrapper}>
+      {label && <Text style={inputStyles.inputLabel}>{label}</Text>}
 
-      <View style={styles.dateTimeCells}>
-        <Pressable
-          onPress={() => {
-            setDatePickerVisible(true);
-          }}
-        >
-          <Text style={styles.inputLabel}>Date</Text>
+      <View style={styles.dateTimeWrapper}>
+        <Pressable onPress={() => setDatePickerVisible(true)}>
+          <Text style={styles.dateTimeBox}>
+            {dateValue.toLocaleDateString()}
+          </Text>
         </Pressable>
         {datePickerVisible && (
           <RNDateTimePicker
@@ -64,18 +63,13 @@ export default function DateTimeInput({
 }
 
 const styles = StyleSheet.create({
-  inputWrapper: {
-    flexDirection: "column",
-    gap: 15,
+  dateTimeWrapper: {
+    flexDirection: "row",
+    gap: 20,
     width: "100%",
   },
-  dateTimeCells: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  inputLabel: {
-    color: "#e7e7e7",
-    fontFamily: "Inter_700Bold",
-    fontSize: 16,
+  dateTimeBox: {
+    ...inputStyles.inputBox,
+    textAlign: "center",
   },
 });
