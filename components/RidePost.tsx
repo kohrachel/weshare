@@ -30,114 +30,117 @@ const RidePost: React.FC<RidePostProps> = ({
   const router = useRouter();
   const route = useRoute();
 
-    const formatDate = (date: Date) => {
-        try {
-          return date.toLocaleDateString([], {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          });
-        } catch (e) {
-            console.error(e);
-            return new Date();
-        }
-    };
+  const formatDate = (date: Date) => {
+    try {
+      return date.toLocaleDateString([], {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+    } catch (e) {
+      console.error(e);
+      return new Date();
+    }
+  };
 
-    const formatTime = (time: Date) => {
-        try {
-          return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        } catch(e) {
-            console.error(e);
-            return new Date();
-        }
-    };
+  const formatTime = (time: Date) => {
+    try {
+      return time.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (e) {
+      console.error(e);
+      return new Date();
+    }
+  };
 
-  if (route.name === 'rsvp') {
-
-
-  return (
-    <View style={styles.card}>
-      {/* Name Header */}
-      <Text style={styles.name}>
-        {firstName} {lastName}
-      </Text>
-
-      {/* Ride Details */}
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Destination: </Text>
-        <Text style={styles.value}>{destination}</Text>
-      </View>
-
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Departure: </Text>
-        <Text style={styles.value}>
-          {formatDate(departureDate ?? new Date()) +
-            " " +
-            formatTime(departureTime ?? new Date())}
+  if (route.name === "rsvp") {
+    return (
+      <View style={styles.card}>
+        {/* Name Header */}
+        <Text style={styles.name}>
+          {firstName} {lastName}
         </Text>
-      </View>
 
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Seats: </Text>
-        <Text style={styles.value}>
-          {currentPeople} / {maxPeople}
-        </Text>
-      </View>
-
-      {/* RSVP Button */}
-      <View style={styles.buttonWrapper}>
-        <ButtonGreen title="RSVP" onPress={() => console.log("RSVP pressed!")} />
-
+        {/* Ride Details */}
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>Destination: </Text>
+          <Text style={styles.value}>{destination}</Text>
         </View>
 
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>Departure: </Text>
+          <Text style={styles.value}>
+            {formatDate(departureDate ?? new Date()) +
+              " " +
+              formatTime(departureTime ?? new Date())}
+          </Text>
+        </View>
 
-    </View>
-  );
-}
-else {
-  return (
-    <View style={styles.card}>
-      {/* Name Header */}
-      <Text style={styles.name}>
-        {firstName} {lastName}
-      </Text>
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>Seats: </Text>
+          <Text style={styles.value}>
+            {currentPeople} / {maxPeople}
+          </Text>
+        </View>
 
-      {/* Ride Details */}
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Destination: </Text>
-        <Text style={styles.value}>{destination}</Text>
+        {/* RSVP Button */}
+        <View style={styles.buttonWrapper}>
+          <ButtonGreen
+            title="RSVP"
+            onPress={() => console.log("RSVP pressed!")}
+          />
+        </View>
       </View>
-
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Departure: </Text>
-        <Text style={styles.value}>
-          {formatDate(departureDate ?? new Date()) +
-            " " +
-            formatTime(departureTime ?? new Date())}
+    );
+  } else {
+    return (
+      <View style={styles.card}>
+        {/* Name Header */}
+        <Text style={styles.name}>
+          {firstName} {lastName}
         </Text>
-      </View>
 
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Seats: </Text>
-        <Text style={styles.value}>
-          {currentPeople} / {maxPeople}
-        </Text>
-      </View>
+        {/* Ride Details */}
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>Destination: </Text>
+          <Text style={styles.value}>{destination}</Text>
+        </View>
 
-      {/* Buttons */}
-      <View style={styles.buttonWrapper}>
-        <ButtonGreen
-          title="RSVP"
-          onPress={() => console.log("RSVP pressed!")}
-        />
-      </View>
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>Departure: </Text>
+          <Text style={styles.value}>
+            {formatDate(departureDate ?? new Date()) +
+              " " +
+              formatTime(departureTime ?? new Date())}
+          </Text>
+        </View>
 
-      <View style={styles.buttonWrapper}>
-        <ButtonGreen title="More Info" onPress={() => router.navigate('/rsvp')} />
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>Seats: </Text>
+          <Text style={styles.value}>
+            {currentPeople} / {maxPeople}
+          </Text>
+        </View>
+
+        {/* Buttons */}
+        <View style={styles.buttonWrapper}>
+          <ButtonGreen
+            title="RSVP"
+            onPress={() => console.log("RSVP pressed!")}
+          />
+        </View>
+
+        <View style={styles.buttonWrapper}>
+          <ButtonGreen
+            title="More Info"
+            onPress={() => router.navigate("/rsvp")}
+          />
+        </View>
       </View>
-    </View>
-  );
-}
+    );
+  }
 };
 
 const styles = StyleSheet.create({

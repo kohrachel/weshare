@@ -11,7 +11,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import React, { useState } from "react";
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 import BackButton from "../components/backbutton";
 
 export default function Index() {
@@ -21,35 +21,43 @@ export default function Index() {
   const [meetLoc, setMeetLoc] = useState("");
   const [numberPpl, setNumberPpl] = useState("");
 
-const storeRide = async () => {
-  try {
-    let id = await SecureStore.getItemAsync("userid")
-    const docRef = await addDoc(collection(db, "rides"), {
-      destination: dest,
-      date: date,
-      time: time,
-      meetLoc: meetLoc,
-      maxPpl: Number(numberPpl),
-      creationTime: new Date(),
-      currPpl: 1,
-      creator: id,
-      ppl: [id],
-    });
+  const storeRide = async () => {
+    try {
+      let id = await SecureStore.getItemAsync("userid");
+      const docRef = await addDoc(collection(db, "rides"), {
+        destination: dest,
+        date: date,
+        time: time,
+        meetLoc: meetLoc,
+        maxPpl: Number(numberPpl),
+        creationTime: new Date(),
+        currPpl: 1,
+        creator: id,
+        ppl: [id],
+      });
 
-    console.log("Ride stored with ID:", docRef.id);
-    alert("Ride saved!\n" + dest + "\n" + time + "\n" + meetLoc + "\n" + numberPpl);
+      console.log("Ride stored with ID:", docRef.id);
+      alert(
+        "Ride saved!\n" +
+          dest +
+          "\n" +
+          time +
+          "\n" +
+          meetLoc +
+          "\n" +
+          numberPpl,
+      );
 
-    // Reset form fields
-    setDest("");
-    setTime(new Date());
-    setMeetLoc("");
-    setNumberPpl("");
-
-  } catch (error) {
-    console.error("Error adding ride: ", error);
-    alert("Ride not saved, please try again.\n" + error);
-  }
-};
+      // Reset form fields
+      setDest("");
+      setTime(new Date());
+      setMeetLoc("");
+      setNumberPpl("");
+    } catch (error) {
+      console.error("Error adding ride: ", error);
+      alert("Ride not saved, please try again.\n" + error);
+    }
+  };
 
   return (
     <View
@@ -63,18 +71,34 @@ const storeRide = async () => {
         flexDirection: "column",
       }}
     >
-      <BackButton/>
+      <BackButton />
       <Text style={styles.title}>Create a Ride</Text>
       <View style={styles.formArea}>
-        <Input label={"Where to?"} defaultValue={"e.g. BNA"} value={dest} setValue={setDest}></Input>
-        <DateTimeInput label={"When are we leaving?"} dateValue={date} timeValue={time} setDateValue={setDate} setTimeValue={setTime}/>
+        <Input
+          label={"Where to?"}
+          defaultValue={"e.g. BNA"}
+          value={dest}
+          setValue={setDest}
+        ></Input>
+        <DateTimeInput
+          label={"When are we leaving?"}
+          dateValue={date}
+          timeValue={time}
+          setDateValue={setDate}
+          setTimeValue={setTime}
+        />
         <Input
           label={"Where to meet?"}
           defaultValue={"e.g. Commons Lawn"}
           value={meetLoc}
           setValue={setMeetLoc}
         ></Input>
-        <Input label={"How many people?"} defaultValue={"e.g. 4"} value={numberPpl} setValue={setNumberPpl}></Input>
+        <Input
+          label={"How many people?"}
+          defaultValue={"e.g. 4"}
+          value={numberPpl}
+          setValue={setNumberPpl}
+        ></Input>
       </View>
       <ButtonGreen title="Create New Ride" onPress={storeRide} />
     </View>

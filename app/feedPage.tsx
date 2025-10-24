@@ -35,7 +35,7 @@ export default function RidesPage() {
                 userData = userSnap.data();
               } else {
                 console.warn(
-                  `User doc not found for creator ID: ${ride.creator}`
+                  `User doc not found for creator ID: ${ride.creator}`,
                 );
               }
             } catch (err) {
@@ -76,7 +76,9 @@ export default function RidesPage() {
   }
 
   return (
-    <ScrollView style={{ padding: 16,  backgroundColor: "#181818", paddingVertical: 50}}>
+    <ScrollView
+      style={{ padding: 16, backgroundColor: "#181818", paddingVertical: 50 }}
+    >
       {rides.map((ride) => (
         <RidePost
           key={ride.id}

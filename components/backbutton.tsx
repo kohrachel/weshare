@@ -9,8 +9,8 @@ import React from "react";
 import { TouchableOpacity } from "react-native";
 
 type BackButtonProps = {
-  onPress?: () => {}
-}
+  onPress?: () => {};
+};
 
 export default function BackButton({ onPress }: BackButtonProps) {
   const router = useRouter();

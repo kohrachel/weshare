@@ -11,20 +11,16 @@ import BackButton from "../components/backbutton";
 const SearchScreen = () => {
   return (
     <ScrollView
-        style={{
-          backgroundColor: "#181818",
-          paddingVertical: 50,
-          paddingHorizontal: 10
-        }}
+      style={{
+        backgroundColor: "#181818",
+        paddingVertical: 50,
+        paddingHorizontal: 10,
+      }}
     >
       <View>
-        <BackButton/>
+        <BackButton />
         <Text style={styles.title}>Search for a ride</Text>
-        <Input
-        label=""
-        defaultValue="Type here to search"
-        
-        />
+        <Input label="" defaultValue="Type here to search" />
         <RidePost
           firstName="Kevin"
           lastName="Song"
@@ -42,7 +38,6 @@ const SearchScreen = () => {
           currentPeople={1}
           maxPeople={6}
         />
-        
       </View>
     </ScrollView>
   );
@@ -50,12 +45,12 @@ const SearchScreen = () => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginVertical: 8,
     marginHorizontal: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -67,28 +62,28 @@ const styles = StyleSheet.create({
     color: "#e7e7e7",
     paddingBottom: 20,
     paddingTop: 28,
-    textAlign: "center"
+    textAlign: "center",
   },
   name: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 12,
-    color: '#333',
+    color: "#333",
   },
   detailRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 6,
   },
   label: {
-    fontWeight: '600',
-    color: '#555',
+    fontWeight: "600",
+    color: "#555",
   },
   value: {
-    color: '#333',
+    color: "#333",
   },
   buttonWrapper: {
     marginTop: 16,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
 });
 

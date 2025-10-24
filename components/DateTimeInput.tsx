@@ -4,7 +4,8 @@
  */
 
 import RNDateTimePicker from "@react-native-community/datetimepicker";
-import { StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type DateTimeInputProps = {
   label?: string;
@@ -22,20 +23,30 @@ export default function DateTimeInput({
   setDateValue,
   setTimeValue,
 }: DateTimeInputProps) {
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
   return (
     <View style={styles.inputWrapper}>
       {label && <Text style={styles.inputLabel}>{label}</Text>}
 
       <View style={styles.dateTimeCells}>
-        <RNDateTimePicker
-          value={dateValue}
-          mode="date"
-          themeVariant="dark"
-          onChange={(_, date) => {
-            if (!date) return;
-            setDateValue(date);
+        <Pressable
+          onPress={() => {
+            setDatePickerVisible(true);
           }}
-        />
+        >
+          <Text style={styles.inputLabel}>Date</Text>
+        </Pressable>
+        {datePickerVisible && (
+          <RNDateTimePicker
+            value={dateValue}
+            mode="date"
+            themeVariant="dark"
+            onChange={(_, date) => {
+              if (!date) return;
+              setDateValue(date);
+            }}
+          />
+        )}
         <RNDateTimePicker
           value={timeValue}
           mode="time"
