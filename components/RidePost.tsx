@@ -3,6 +3,7 @@
  Kevin Song: 3 hours
  */
 
+import { formatDate, formatTime } from "@/utils";
 import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
@@ -29,31 +30,6 @@ const RidePost: React.FC<RidePostProps> = ({
 }) => {
   const router = useRouter();
   const route = useRoute();
-
-  const formatDate = (date: Date) => {
-    try {
-      return date.toLocaleDateString([], {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
-    } catch (e) {
-      console.error(e);
-      return new Date();
-    }
-  };
-
-  const formatTime = (time: Date) => {
-    try {
-      return time.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (e) {
-      console.error(e);
-      return new Date();
-    }
-  };
 
   if (route.name === "rsvp") {
     return (
