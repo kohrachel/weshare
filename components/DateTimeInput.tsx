@@ -33,9 +33,7 @@ export default function DateTimeInput({
 
       <View style={styles.dateTimeWrapper}>
         <Pressable onPress={() => setDatePickerVisible(true)}>
-          <Text style={styles.dateTimeBox}>
-            {dateValue.toLocaleDateString()}
-          </Text>
+          <Text style={styles.dateTimeBox}>{formatDate(dateValue)}</Text>
         </Pressable>
         {datePickerVisible && (
           <RNDateTimePicker
