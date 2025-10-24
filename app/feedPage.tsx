@@ -1,8 +1,10 @@
 /**
  Contributors
  Emma Reid: 3 hours
+ Kevin Song: 1 hour
  */
 
+import Footer from "@/components/Footer";
 import { db } from "@/firebaseConfig";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
@@ -23,7 +25,7 @@ export default function RidesPage() {
           const ride = rideDoc.data();
 
           // Get the user document for the ride
-          let userData: any = {};
+          let userData = {};
 
           // TODO validate entries either here or in create ride
           // TODO only display rides whose time is not < curr time (keep them sorted somehow?)
@@ -35,7 +37,7 @@ export default function RidesPage() {
                 userData = userSnap.data();
               } else {
                 console.warn(
-                  `User doc not found for creator ID: ${ride.creator}`,
+                  `User doc not found for creator ID: ${ride.creator}`
                 );
               }
             } catch (err) {
@@ -76,21 +78,20 @@ export default function RidesPage() {
   }
 
   return (
-    <ScrollView
-      style={{ padding: 16, backgroundColor: "#181818", paddingVertical: 50 }}
-    >
-      {rides.map((ride) => (
-        <RidePost
-          key={ride.id}
-          firstName={ride.firstName}
-          lastName=""
-          destination={ride.destination}
-          departureDate={ride.departureDate}
-          departureTime={ride.departureTime}
-          currentPeople={ride.currentPeople}
-          maxPeople={ride.maxPeople}
-        />
-      ))}
-    </ScrollView>
+    <View style={{ flex: 1, backgroundColor: "#181818" }}>
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        {rides.map((ride) => (
+          <RidePost
+            key={ride.id}
+            firstName={ride.firstName}
+            destination={ride.destination}
+            departureTime={ride.departureTime}
+            currentPeople={ride.currentPeople}
+            maxPeople={ride.maxPeople}
+          />
+        ))}
+      </ScrollView>
+      <Footer />
+    </View>
   );
 }

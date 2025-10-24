@@ -56,6 +56,18 @@ To create a new app using Bun, [install Bun on your local machine](https://bun.s
    bun run android
    ```
 
+## Formatting and Linting
+
+We use ESLint for linting and Prettier for formatting
+
+```
+# linting with ESLint
+bunx expo lint
+
+# formatting with prettier
+bunx prettier --write .
+```
+
 ## Miscellaneous
 
 To install any Expo library, you can use `bun expo install`:

@@ -3,43 +3,53 @@
  Kevin Song: 3 hours
  */
 
+import Footer from "@/components/Footer";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Input from "../components/Input";
 import RidePost from "../components/RidePost"; // adjust the path if needed
-import BackButton from "../components/backbutton";
 
 const SearchScreen = () => {
   return (
-    <ScrollView
+    <View
       style={{
+        flex: 1,
         backgroundColor: "#181818",
         paddingVertical: 50,
-        paddingHorizontal: 10,
       }}
     >
-      <View>
-        <BackButton />
-        <Text style={styles.title}>Search for a ride</Text>
-        <Input label="" defaultValue="Type here to search" />
-        <RidePost
-          firstName="Kevin"
-          lastName="Song"
-          destination="BNA Airport (United Airlines)"
-          departureTime={new Date()}
-          currentPeople={2}
-          maxPeople={4}
-        />
+      <ScrollView style={{ paddingHorizontal: 10 }}>
+        <View>
+          <Text style={styles.title}>Search for a ride</Text>
+          <Input label="" defaultValue="Type here to search" />
+          <RidePost
+            firstName="Kevin"
+            lastName="Song"
+            destination="BNA Airport (United Airlines)"
+            departureTime="6:30 PM"
+            currentPeople={2}
+            maxPeople={4}
+          />
 
-        <RidePost
-          firstName="Other Kevin"
-          lastName="Song"
-          destination="BNA Airport (Southwest Airlines)"
-          departureTime={new Date()}
-          currentPeople={1}
-          maxPeople={6}
-        />
-      </View>
-    </ScrollView>
+          <RidePost
+            firstName="Other Kevin"
+            lastName="Song"
+            destination="BNA Airport (Southwest Airlines)"
+            departureTime="6:40 PM"
+            currentPeople={1}
+            maxPeople={6}
+          />
+          <RidePost
+            firstName="Other Kevin"
+            lastName="Song"
+            destination="BNA Airport (Southwest Airlines)"
+            departureTime="6:40 PM"
+            currentPeople={1}
+            maxPeople={6}
+          />
+        </View>
+      </ScrollView>
+      <Footer />
+    </View>
   );
 };
 

@@ -1,17 +1,17 @@
 /**
  Contributors
- Emma Reid: 3 hours
+ Emma Reid: 5 hours
  Rachel Huiqi: 5 hours
  */
 
 import { ButtonGreen } from "@/components/button-green";
 import DateTimeInput from "@/components/DateTimeInput";
 import Input from "@/components/Input";
-import { StyleSheet, Text, View } from "react-native";
-import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
-import React, { useState } from "react";
 import * as SecureStore from "expo-secure-store";
+import { addDoc, collection } from "firebase/firestore";
+import React, { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import BackButton from "../components/backbutton";
 
 export default function Index() {
@@ -38,14 +38,7 @@ export default function Index() {
 
       console.log("Ride stored with ID:", docRef.id);
       alert(
-        "Ride saved!\n" +
-          dest +
-          "\n" +
-          time +
-          "\n" +
-          meetLoc +
-          "\n" +
-          numberPpl,
+        "Ride saved!\n" + dest + "\n" + time + "\n" + meetLoc + "\n" + numberPpl
       );
 
       // Reset form fields
