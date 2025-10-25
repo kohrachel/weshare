@@ -63,7 +63,7 @@ function Picker({ value, mode, setValue, visible, setVisible }: PickerProps) {
   return (
     <>
       <Pressable onPress={() => setVisible(true)}>
-        <Text style={styles.dateTimeBox}>
+        <Text style={mode === "date" ? styles.dateBox : styles.timeBox}>
           {mode === "date" ? formatDate(value) : formatTime(value)}
         </Text>
       </Pressable>
@@ -88,9 +88,14 @@ const styles = StyleSheet.create({
     gap: 20,
     width: "100%",
   },
-  dateTimeBox: {
+  dateBox: {
     ...inputStyles.inputBox,
     textAlign: "center",
-    height: 44,
+    width: 110,
+  },
+  timeBox: {
+    ...inputStyles.inputBox,
+    textAlign: "center",
+    width: 90,
   },
 });
