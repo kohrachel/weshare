@@ -32,14 +32,14 @@ export default function DateTimeInput({
       {label && <Text style={inputStyles.inputLabel}>{label}</Text>}
 
       <View style={styles.dateTimeWrapper}>
-        <LabeledPicker
+        <Picker
           visible={datePickerVisible}
           value={dateValue}
           mode="date"
           setValue={setDateValue}
           setVisible={setDatePickerVisible}
         />
-        <LabeledPicker
+        <Picker
           visible={timePickerVisible}
           value={timeValue}
           mode="time"
@@ -51,7 +51,7 @@ export default function DateTimeInput({
   );
 }
 
-type LabeledPickerProps = {
+type PickerProps = {
   value: Date;
   mode: "date" | "time";
   setValue: (date: Date) => void;
@@ -59,13 +59,7 @@ type LabeledPickerProps = {
   visible: boolean;
 };
 
-function LabeledPicker({
-  value,
-  mode,
-  setValue,
-  visible,
-  setVisible,
-}: LabeledPickerProps) {
+function Picker({ value, mode, setValue, visible, setVisible }: PickerProps) {
   return (
     <>
       <Pressable onPress={() => setVisible(true)}>
