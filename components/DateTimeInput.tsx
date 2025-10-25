@@ -98,5 +98,6 @@ const styles = StyleSheet.create({
   dateTimeBox: {
     ...inputStyles.inputBox,
     textAlign: "center",
+    height: 44,
   },
 });
