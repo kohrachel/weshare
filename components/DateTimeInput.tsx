@@ -32,52 +32,60 @@ export default function DateTimeInput({
       {label && <Text style={inputStyles.inputLabel}>{label}</Text>}
 
       <View style={styles.dateTimeWrapper}>
-        <Pressable onPress={() => setDatePickerVisible(true)}>
-          <Text style={styles.dateTimeBox}>{formatDate(dateValue)}</Text>
-        </Pressable>
-        {datePickerVisible && (
-          <Picker
-            value={dateValue}
-            mode="date"
-            setValue={setDateValue}
-            setVisible={setDatePickerVisible}
-          />
-        )}
-        <Pressable onPress={() => setTimePickerVisible(true)}>
-          <Text style={styles.dateTimeBox}>{formatTime(timeValue)}</Text>
-        </Pressable>
-        {timePickerVisible && (
-          <Picker
-            value={timeValue}
-            mode="time"
-            setValue={setTimeValue}
-            setVisible={setTimePickerVisible}
-          />
-        )}
+        <LabeledPicker
+          visible={datePickerVisible}
+          value={dateValue}
+          mode="date"
+          setValue={setDateValue}
+          setVisible={setDatePickerVisible}
+        />
+        <LabeledPicker
+          visible={timePickerVisible}
+          value={timeValue}
+          mode="time"
+          setValue={setTimeValue}
+          setVisible={setTimePickerVisible}
+        />
       </View>
     </View>
   );
 }
 
-type PickerProps = {
+type LabeledPickerProps = {
   value: Date;
   mode: "date" | "time";
   setValue: (date: Date) => void;
   setVisible: (visible: boolean) => void;
+  visible: boolean;
 };
 
-function Picker({ value, mode, setValue, setVisible }: PickerProps) {
+function LabeledPicker({
+  value,
+  mode,
+  setValue,
+  visible,
+  setVisible,
+}: LabeledPickerProps) {
   return (
-    <RNDateTimePicker
-      value={value}
-      mode={mode}
-      onChange={(_, date) => {
-        if (!date) return;
-        console.log({ date });
-        setValue(date);
-        setVisible(false);
-      }}
-    />
+    <>
+      <Pressable onPress={() => setVisible(true)}>
+        <Text style={styles.dateTimeBox}>
+          {mode === "date" ? formatDate(value) : formatTime(value)}
+        </Text>
+      </Pressable>
+      {visible && (
+        <RNDateTimePicker
+          value={value}
+          mode={mode}
+          onChange={(_, date) => {
+            if (!date) return;
+            console.log({ date });
+            setValue(date);
+            setVisible(false);
+          }}
+        />
+      )}
+    </>
   );
 }
 
