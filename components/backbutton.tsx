@@ -8,7 +8,11 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { TouchableOpacity } from "react-native";
 
-export default function BackButton({ color = "#00ff9d", size = 28, onPress }) {
+type BackButtonProps = {
+  onPress?: () => {};
+};
+
+export default function BackButton({ onPress }: BackButtonProps) {
   const router = useRouter();
 
   const handlePress = () => {
@@ -23,7 +27,7 @@ export default function BackButton({ color = "#00ff9d", size = 28, onPress }) {
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
-      <Ionicons name="arrow-back" size={size} color={color} />
+      <Ionicons name="arrow-back" size={28} color={"#00ff9d"} />
     </TouchableOpacity>
   );
 }

@@ -12,10 +12,12 @@ import * as SecureStore from "expo-secure-store";
 import { addDoc, collection } from "firebase/firestore";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import BackButton from "../components/backbutton";
 
 export default function Index() {
   const [dest, setDest] = useState("");
-  const [time, setTime] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [time, setTime] = useState(new Date());
   const [meetLoc, setMeetLoc] = useState("");
   const [numberPpl, setNumberPpl] = useState("");
 
@@ -24,6 +26,7 @@ export default function Index() {
       let id = await SecureStore.getItemAsync("userid");
       const docRef = await addDoc(collection(db, "rides"), {
         destination: dest,
+        date: date,
         time: time,
         meetLoc: meetLoc,
         maxPpl: Number(numberPpl),
@@ -35,19 +38,12 @@ export default function Index() {
 
       console.log("Ride stored with ID:", docRef.id);
       alert(
-        "Ride saved!\n" +
-          dest +
-          "\n" +
-          time +
-          "\n" +
-          meetLoc +
-          "\n" +
-          numberPpl,
+        "Ride saved!\n" + dest + "\n" + time + "\n" + meetLoc + "\n" + numberPpl
       );
 
       // Reset form fields
       setDest("");
-      setTime("");
+      setTime(new Date());
       setMeetLoc("");
       setNumberPpl("");
     } catch (error) {
@@ -68,6 +64,7 @@ export default function Index() {
         flexDirection: "column",
       }}
     >
+      <BackButton />
       <Text style={styles.title}>Create a Ride</Text>
       <View style={styles.formArea}>
         <Input
@@ -78,8 +75,10 @@ export default function Index() {
         ></Input>
         <DateTimeInput
           label={"When are we leaving?"}
-          value={time}
-          setValue={setTime}
+          dateValue={date}
+          timeValue={time}
+          setDateValue={setDate}
+          setTimeValue={setTime}
         />
         <Input
           label={"Where to meet?"}

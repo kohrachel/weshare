@@ -37,7 +37,7 @@ export default function RidesPage() {
                 userData = userSnap.data();
               } else {
                 console.warn(
-                  `User doc not found for creator ID: ${ride.creator}`,
+                  `User doc not found for creator ID: ${ride.creator}`
                 );
               }
             } catch (err) {
@@ -51,7 +51,8 @@ export default function RidesPage() {
             id: rideDoc.id,
             firstName: userData.name || "Inactive Account",
             destination: ride.destination,
-            departureTime: ride.time,
+            departureDate: ride.time ? new Date(ride.time) : new Date(),
+            departureTime: ride.time ? new Date(ride.time) : new Date(),
             currentPeople: ride.currPpl,
             maxPeople: ride.maxPpl,
           });

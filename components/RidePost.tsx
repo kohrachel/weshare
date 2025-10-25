@@ -3,6 +3,7 @@
  Kevin Song: 3 hours
  */
 
+import { formatDate, formatTime } from "@/utils";
 import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
@@ -12,7 +13,8 @@ type RidePostProps = {
   firstName: string;
   lastName: string;
   destination: string;
-  departureTime: string;
+  departureDate: Date;
+  departureTime: Date;
   currentPeople: number;
   maxPeople: number;
 };
@@ -21,6 +23,7 @@ const RidePost: React.FC<RidePostProps> = ({
   firstName,
   lastName,
   destination,
+  departureDate,
   departureTime,
   currentPeople,
   maxPeople,
@@ -44,7 +47,11 @@ const RidePost: React.FC<RidePostProps> = ({
 
         <View style={styles.detailRow}>
           <Text style={styles.label}>Departure: </Text>
-          <Text style={styles.value}>{departureTime}</Text>
+          <Text style={styles.value}>
+            {formatDate(departureDate ?? new Date()) +
+              " " +
+              formatTime(departureTime ?? new Date())}
+          </Text>
         </View>
 
         <View style={styles.detailRow}>
@@ -79,7 +86,11 @@ const RidePost: React.FC<RidePostProps> = ({
 
         <View style={styles.detailRow}>
           <Text style={styles.label}>Departure: </Text>
-          <Text style={styles.value}>{departureTime}</Text>
+          <Text style={styles.value}>
+            {formatDate(departureDate ?? new Date()) +
+              " " +
+              formatTime(departureTime ?? new Date())}
+          </Text>
         </View>
 
         <View style={styles.detailRow}>
@@ -89,7 +100,7 @@ const RidePost: React.FC<RidePostProps> = ({
           </Text>
         </View>
 
-        {/* RSVP Button */}
+        {/* Buttons */}
         <View style={styles.buttonWrapper}>
           <ButtonGreen
             title="RSVP"
@@ -114,7 +125,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginVertical: 8,
-    marginHorizontal: 0,
+    marginHorizontal: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
