@@ -73,7 +73,6 @@ function Picker({ value, mode, setValue, visible, setVisible }: PickerProps) {
           mode={mode}
           onChange={(_, date) => {
             if (!date) return;
-            console.log({ date });
             setValue(date);
             setVisible(false);
           }}
