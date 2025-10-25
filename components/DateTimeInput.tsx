@@ -1,6 +1,6 @@
 /**
  Contributors
- Rachel Huiqi: 3 hours
+ Rachel Huiqi: 6 hours
  */
 
 import { formatDate, formatTime } from "@/utils";

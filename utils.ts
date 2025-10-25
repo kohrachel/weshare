@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Rachel Huiqi: 1 hour
+ */
+
 export const formatDate = (date: Date) => {
   if (!date) {
     date = new Date();
