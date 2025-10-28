@@ -7,14 +7,21 @@
 import { ButtonGreen } from "@/components/button-green";
 import Footer from "@/components/Footer";
 import Input from "@/components/Input";
+import { db } from "@/firebaseConfig";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
-import BackButton from "../components/backbutton";
-import { setDoc, doc, getDoc } from "firebase/firestore";
-import { db } from "@/firebaseConfig";
 import * as SecureStore from "expo-secure-store";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import BackButton from "../components/backbutton";
 
 export default function EditProfile() {
   const router = useRouter();
@@ -32,17 +39,15 @@ export default function EditProfile() {
   const fetchInfo = async () => {
     setLoading(true);
     try {
-      let id = await SecureStore.getItemAsync("userid")
+      let id = await SecureStore.getItemAsync("userid");
       const userInfo = await getDoc(doc(db, "users", id));
 
       setName(userInfo.data().name || "");
       setEmail(userInfo.data().email || "");
       setPhone(userInfo.data().phone || "");
       setGender(userInfo.data().gender || "");
-
     } catch (error) {
       console.error("Error fetching user:", error);
-
     } finally {
       setLoading(false);
     }
@@ -50,20 +55,21 @@ export default function EditProfile() {
 
   const storeInfo = async () => {
     try {
-      let id = await SecureStore.getItemAsync("userid")
+      let id = await SecureStore.getItemAsync("userid");
       const docRef = await setDoc(doc(db, "users", id), {
         name: name,
         email: email,
         phone: phone,
-        gender: gender
+        gender: gender,
       });
 
       console.log("Info stored to ID:", id);
-      alert("Info saved!\n" + name + "\n" + email + "\n" + phone + "\n" + gender);
+      alert(
+        "Info saved!\n" + name + "\n" + email + "\n" + phone + "\n" + gender
+      );
 
       // Reset form fields
       fetchInfo();
-
     } catch (error) {
       console.error("Error adding info: ", error);
       alert("Info not saved, please try again.\n" + error);
@@ -86,9 +92,7 @@ export default function EditProfile() {
         <View style={{ width: 28 }} />
       </View>
 
-      <TouchableOpacity
-        style={styles.profilePicContainer}
-      >
+      <TouchableOpacity style={styles.profilePicContainer}>
         {profilePic ? (
           <Image source={{ uri: profilePic }} style={styles.profilePic} />
         ) : (
@@ -103,11 +107,7 @@ export default function EditProfile() {
           value={name}
           setValue={setName}
         ></Input>
-        <Input
-          label={"Email"}
-          value={email}
-          setValue={setEmail}
-        />
+        <Input label={"Email"} value={email} setValue={setEmail} />
         <Input
           label={"Phone"}
           defaultValue={""}

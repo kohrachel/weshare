@@ -2,7 +2,7 @@
  Contributors
  Emma Reid: 3 hours
  Kevin Song: 4 hours
- Rachel Huiqi: 2 hours
+ Rachel Huiqi: 3 hours
  */
 
 import Footer from "@/components/Footer";
@@ -55,9 +55,10 @@ export default function FeedPage() {
 
           ridesData.push({
             id: rideDoc.id,
-            firstName: userData.name || "Inactive Account",
-            destination: ride.destination,
-            departureTime: ride.time,
+            name: userData.name || "Inactive Account",
+            destination: ride.destination || "Unknown Destination",
+            departureDate: ride.date.toDate() ?? new Date(),
+            departureTime: ride.time.toDate() ?? new Date(),
             currentPeople: ride.currPpl,
             maxPeople: ride.maxPpl,
           });
@@ -93,13 +94,15 @@ export default function FeedPage() {
       }}
     >
       <Input defaultValue="Search rides by destination (e.g. BNA)" />
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+      >
         {rides.map((ride) => (
           <RidePost
             key={ride.id}
-            firstName={ride.firstName}
-            lastName="LastName"
+            name={ride.name}
             destination={ride.destination}
+            departureDate={ride.departureDate}
             departureTime={ride.departureTime}
             currentPeople={ride.currentPeople}
             maxPeople={ride.maxPeople}
