@@ -51,8 +51,8 @@ export default function RidesPage() {
             id: rideDoc.id,
             name: userData.name || "Inactive Account",
             destination: ride.destination,
-            departureDate: ride.time ? new Date(ride.time) : new Date(),
-            departureTime: ride.time ? new Date(ride.time) : new Date(),
+            departureDate: ride.date.toDate() ?? new Date(),
+            departureTime: ride.time.toDate() ?? new Date(),
             currentPeople: ride.currPpl,
             maxPeople: ride.maxPpl,
           });
