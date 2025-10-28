@@ -10,8 +10,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { ButtonGreen } from "./button-green";
 
 type RidePostProps = {
-  firstName: string;
-  lastName: string;
+  name: string;
   destination: string;
   departureDate: Date;
   departureTime: Date;
@@ -20,8 +19,7 @@ type RidePostProps = {
 };
 
 const RidePost: React.FC<RidePostProps> = ({
-  firstName,
-  lastName,
+  name,
   destination,
   departureDate,
   departureTime,

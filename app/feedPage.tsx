@@ -49,7 +49,7 @@ export default function RidesPage() {
 
           ridesData.push({
             id: rideDoc.id,
-            firstName: userData.name || "Inactive Account",
+            name: userData.name || "Inactive Account",
             destination: ride.destination,
             departureDate: ride.time ? new Date(ride.time) : new Date(),
             departureTime: ride.time ? new Date(ride.time) : new Date(),
@@ -83,7 +83,7 @@ export default function RidesPage() {
         {rides.map((ride) => (
           <RidePost
             key={ride.id}
-            firstName={ride.firstName}
+            name={ride.firstName}
             destination={ride.destination}
             departureTime={ride.departureTime}
             currentPeople={ride.currentPeople}
