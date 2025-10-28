@@ -50,7 +50,7 @@ export default function RidesPage() {
           ridesData.push({
             id: rideDoc.id,
             name: userData.name || "Inactive Account",
-            destination: ride.destination,
+            destination: ride.destination || "Unknown Destination",
             departureDate: ride.date.toDate() ?? new Date(),
             departureTime: ride.time.toDate() ?? new Date(),
             currentPeople: ride.currPpl,
