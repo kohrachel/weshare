@@ -1,7 +1,7 @@
 /**
  Contributors
  Kevin Song: 3 hours
- Rachel Huiqi: 2 hours
+ Rachel Huiqi: 3 hours
  */
 
 import { formatDate, formatTime } from "@/utils";
@@ -37,84 +37,50 @@ const RidePost: React.FC<RidePostProps> = ({
     departureTime = new Date();
   }
 
-  if (route.name === "rsvp") {
-    return (
-      <View style={styles.card}>
-        {/* Name Header */}
-        <Text style={styles.name}>{name}</Text>
+  const isRsvpRoute = route.name === "rsvp";
+  return (
+    <View style={styles.card}>
+      {/* Name Header */}
+      <Text style={styles.name}>{name}</Text>
 
-        {/* Ride Details */}
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Destination: </Text>
-          <Text style={styles.value}>{destination}</Text>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Departure: </Text>
-          <Text style={styles.value}>
-            {formatDate(departureDate) + " " + formatTime(departureTime)}
-          </Text>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Seats: </Text>
-          <Text style={styles.value}>
-            {currentPeople} / {maxPeople}
-          </Text>
-        </View>
-
-        {/* RSVP Button */}
-        <View style={styles.buttonWrapper}>
-          <ButtonGreen
-            title="RSVP"
-            onPress={() => console.log("RSVP pressed!")}
-          />
-        </View>
+      {/* Ride Details */}
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Destination: </Text>
+        <Text style={styles.value}>{destination}</Text>
       </View>
-    );
-  } else {
-    return (
-      <View style={styles.card}>
-        {/* Name Header */}
-        <Text style={styles.name}>{name}</Text>
 
-        {/* Ride Details */}
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Destination: </Text>
-          <Text style={styles.value}>{destination}</Text>
-        </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Departure: </Text>
+        <Text style={styles.value}>
+          {formatDate(departureDate) + " " + formatTime(departureTime)}
+        </Text>
+      </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Departure: </Text>
-          <Text style={styles.value}>
-            {formatDate(departureDate) + " " + formatTime(departureTime)}
-          </Text>
-        </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Seats: </Text>
+        <Text style={styles.value}>
+          {currentPeople} / {maxPeople}
+        </Text>
+      </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Seats: </Text>
-          <Text style={styles.value}>
-            {currentPeople} / {maxPeople}
-          </Text>
-        </View>
+      {/* RSVP Button */}
+      <View style={styles.buttonWrapper}>
+        <ButtonGreen
+          title="RSVP"
+          onPress={() => console.log("RSVP pressed!")}
+        />
+      </View>
 
-        {/* Buttons */}
-        <View style={styles.buttonWrapper}>
-          <ButtonGreen
-            title="RSVP"
-            onPress={() => console.log("RSVP pressed!")}
-          />
-        </View>
-
+      {!isRsvpRoute && (
         <View style={styles.buttonWrapper}>
           <ButtonGreen
             title="More Info"
             onPress={() => router.navigate("/rsvp")}
           />
         </View>
-      </View>
-    );
-  }
+      )}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
