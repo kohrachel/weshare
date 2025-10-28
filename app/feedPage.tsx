@@ -8,7 +8,13 @@
 import Footer from "@/components/Footer";
 import Input from "@/components/Input";
 import { db } from "@/firebaseConfig";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  DocumentData,
+  getDoc,
+  getDocs,
+} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import RidePost from "../components/RidePost";
@@ -27,26 +33,24 @@ export default function FeedPage() {
           const ride = rideDoc.data();
 
           // Get the user document for the ride
-          let userData = {};
+          let userData: DocumentData = {};
 
           // TODO validate entries either here or in create ride
           // TODO only display rides whose time is not < curr time (keep them sorted somehow?)
-          if (ride.creator) {
-            try {
-              const userRef = doc(db, "users", ride.creator);
-              const userSnap = await getDoc(userRef);
-              if (userSnap.exists()) {
-                userData = userSnap.data();
-              } else {
-                console.warn(
-                  `User doc not found for creator ID: ${ride.creator}`,
-                );
-              }
-            } catch (err) {
-              console.error(`Error fetching user ${ride.creator}:`, err);
+          if (!ride.creator) console.warn("Ride is missing a creator field.");
+
+          try {
+            const userRef = doc(db, "users", ride.creator);
+            const userSnapshot = await getDoc(userRef);
+            if (!userSnapshot.exists()) {
+              console.warn(
+                `User doc not found for creator ID: ${ride.creator}`
+              );
             }
-          } else {
-            console.warn("Ride is missing a creator field.");
+
+            userData = userSnapshot.data() as DocumentData;
+          } catch (err) {
+            console.error(`Error fetching user ${ride.creator}:`, err);
           }
 
           ridesData.push({
