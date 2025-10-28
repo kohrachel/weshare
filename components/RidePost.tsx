@@ -1,6 +1,7 @@
 /**
  Contributors
  Kevin Song: 3 hours
+ Rachel Huiqi: 1 hours
  */
 
 import { formatDate, formatTime } from "@/utils";
