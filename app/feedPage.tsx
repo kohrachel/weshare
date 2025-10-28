@@ -13,7 +13,7 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import RidePost from "../components/RidePost";
 
-export default function RidesPage() {
+export default function FeedPage() {
   const [rides, setRides] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
