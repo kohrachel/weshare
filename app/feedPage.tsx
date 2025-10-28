@@ -79,7 +79,9 @@ export default function RidesPage() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#181818" }}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+      >
         {rides.map((ride) => (
           <RidePost
             key={ride.id}
