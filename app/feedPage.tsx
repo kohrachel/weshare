@@ -2,6 +2,7 @@
  Contributors
  Emma Reid: 3 hours
  Kevin Song: 1 hour
+ Rachel Huiqi: 3 hours
  */
 
 import Footer from "@/components/Footer";
