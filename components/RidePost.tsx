@@ -1,6 +1,7 @@
 /**
  Contributors
  Kevin Song: 3 hours
+ Rachel Huiqi: 3 hours
  */
 
 import { formatDate, formatTime } from "@/utils";
@@ -10,8 +11,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { ButtonGreen } from "./button-green";
 
 type RidePostProps = {
-  firstName: string;
-  lastName: string;
+  name: string;
   destination: string;
   departureDate: Date;
   departureTime: Date;
@@ -20,8 +20,7 @@ type RidePostProps = {
 };
 
 const RidePost: React.FC<RidePostProps> = ({
-  firstName,
-  lastName,
+  name,
   destination,
   departureDate,
   departureTime,
@@ -31,92 +30,57 @@ const RidePost: React.FC<RidePostProps> = ({
   const router = useRouter();
   const route = useRoute();
 
-  if (route.name === "rsvp") {
-    return (
-      <View style={styles.card}>
-        {/* Name Header */}
-        <Text style={styles.name}>
-          {firstName} {lastName}
-        </Text>
+  if (!departureDate || !(departureDate instanceof Date)) {
+    departureDate = new Date();
+  }
+  if (!departureTime || !(departureTime instanceof Date)) {
+    departureTime = new Date();
+  }
 
-        {/* Ride Details */}
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Destination: </Text>
-          <Text style={styles.value}>{destination}</Text>
-        </View>
+  const isRsvpRoute = route.name === "rsvp";
+  return (
+    <View style={styles.card}>
+      {/* Name Header */}
+      <Text style={styles.name}>{name}</Text>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Departure: </Text>
-          <Text style={styles.value}>
-            {formatDate(departureDate ?? new Date()) +
-              " " +
-              formatTime(departureTime ?? new Date())}
-          </Text>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Seats: </Text>
-          <Text style={styles.value}>
-            {currentPeople} / {maxPeople}
-          </Text>
-        </View>
-
-        {/* RSVP Button */}
-        <View style={styles.buttonWrapper}>
-          <ButtonGreen
-            title="RSVP"
-            onPress={() => console.log("RSVP pressed!")}
-          />
-        </View>
+      {/* Ride Details */}
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Destination: </Text>
+        <Text style={styles.value}>{destination}</Text>
       </View>
-    );
-  } else {
-    return (
-      <View style={styles.card}>
-        {/* Name Header */}
-        <Text style={styles.name}>
-          {firstName} {lastName}
+
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Departure: </Text>
+        <Text style={styles.value}>
+          {formatDate(departureDate) + " " + formatTime(departureTime)}
         </Text>
+      </View>
 
-        {/* Ride Details */}
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Destination: </Text>
-          <Text style={styles.value}>{destination}</Text>
-        </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Seats: </Text>
+        <Text style={styles.value}>
+          {currentPeople} / {maxPeople}
+        </Text>
+      </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Departure: </Text>
-          <Text style={styles.value}>
-            {formatDate(departureDate ?? new Date()) +
-              " " +
-              formatTime(departureTime ?? new Date())}
-          </Text>
-        </View>
+      {/* RSVP Button */}
+      <View style={styles.buttonWrapper}>
+        <ButtonGreen
+          title="RSVP"
+          onPress={() => console.log("RSVP pressed!")}
+        />
+      </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Seats: </Text>
-          <Text style={styles.value}>
-            {currentPeople} / {maxPeople}
-          </Text>
-        </View>
-
-        {/* Buttons */}
-        <View style={styles.buttonWrapper}>
-          <ButtonGreen
-            title="RSVP"
-            onPress={() => console.log("RSVP pressed!")}
-          />
-        </View>
-
+      {!isRsvpRoute && (
         <View style={styles.buttonWrapper}>
           <ButtonGreen
             title="More Info"
             onPress={() => router.navigate("/rsvp")}
           />
         </View>
-      </View>
-    );
-  }
+      )}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({

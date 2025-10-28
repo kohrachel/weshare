@@ -2,6 +2,7 @@
  Contributors
  Emma Reid: 3 hours
  Kevin Song: 1 hour
+ Rachel Huiqi: 3 hours
  */
 
 import Footer from "@/components/Footer";
@@ -49,10 +50,10 @@ export default function RidesPage() {
 
           ridesData.push({
             id: rideDoc.id,
-            firstName: userData.name || "Inactive Account",
-            destination: ride.destination,
-            departureDate: ride.time ? new Date(ride.time) : new Date(),
-            departureTime: ride.time ? new Date(ride.time) : new Date(),
+            name: userData.name || "Inactive Account",
+            destination: ride.destination || "Unknown Destination",
+            departureDate: ride.date.toDate() ?? new Date(),
+            departureTime: ride.time.toDate() ?? new Date(),
             currentPeople: ride.currPpl,
             maxPeople: ride.maxPpl,
           });
@@ -79,12 +80,15 @@ export default function RidesPage() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#181818" }}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+      >
         {rides.map((ride) => (
           <RidePost
             key={ride.id}
-            firstName={ride.firstName}
+            name={ride.name}
             destination={ride.destination}
+            departureDate={ride.departureDate}
             departureTime={ride.departureTime}
             currentPeople={ride.currentPeople}
             maxPeople={ride.maxPeople}
