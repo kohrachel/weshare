@@ -1,10 +1,10 @@
 /**
  Contributors
- Emma Reid: 5 hours
+ Emma Reid: 8 hours
  */
 
 import React, { useEffect, useState } from "react";
-import { Text, View, Image } from "react-native";
+import { Text, View, Image, ActivityIndicator } from "react-native";
 import { ButtonGreen } from "../components/button-green";
 import { useRouter } from "expo-router";
 import { Inter_700Bold } from "@expo-google-fonts/inter/700Bold";
@@ -12,78 +12,38 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import * as AuthSession from "expo-auth-session";
 import * as SecureStore from "expo-secure-store";
+import Input from "@/components/Input";
+import validator from "validator"
+import { getAuth, sendSignInLinkToEmail } from "firebase/auth";
 
 // Main screen
 export default function Login() {
   const router = useRouter();
 
-  const [enforceVanderbilt, setEnforceVanderbilt] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const discovery = AuthSession.useAutoDiscovery(
-    "https://login.microsoftonline.com/common",
-  );
-
-  const [request, response, promptAsync] = AuthSession.useAuthRequest(
-    {
-      clientId: "0b6e0e8a-0d83-459f-9262-cbe067b52bf3",
-      redirectUri: AuthSession.makeRedirectUri({
-        scheme: "com.wesharenative://oauth/auth/",
-      }),
-      scopes: ["openid", "profile", "email"],
-    },
-    discovery,
-  );
-
-  useEffect(() => {
-    if (response?.type === "success") {
-      const { code } = response.params;
-
-      const getUserInfo = async () => {
-        // Exchange authorization code for tokens
-        const tokenResponse = await AuthSession.exchangeCodeAsync(
-          {
-            clientId: "0b6e0e8a-0d83-459f-9262-cbe067b52bf3",
-            code,
-            redirectUri: AuthSession.makeRedirectUri({
-              scheme: "com.wesharenative://oauth/auth/",
-            }),
-            extraParams: {
-              code_verifier: request.codeVerifier,
-            },
-          },
-          discovery,
-        );
-
-        // Fetch user info using the access token
-        // Uses UserInfo endpoint https://learn.microsoft.com/en-us/entra/identity-platform/userinfo
-        const userInfoResponse = await fetch(discovery.userInfoEndpoint, {
-          headers: { Authorization: `Bearer ${tokenResponse.accessToken}` },
-        });
-        const user = await userInfoResponse.json();
-
-        // Extract user details
-        const userId = user.sub;
-        const email = user.email || user.upn || user.unique_name;
-        const name = user.name;
-
-        if (!email.includes("vanderbilt")) {
-          setEnforceVanderbilt(true);
-        } else {
-          await SecureStore.setItemAsync("userid", userId); // whole app can now access this
-
-          // essentially "signs up" every time in case information is updated
-          storeUser(userId, email, name);
-
-          router.push("/feedPage");
-        }
-      };
-
-      getUserInfo();
+  const checkUser = async () => {
+    try {
+      await SecureStore.setItemAsync("userid", "test"); // TODO: delete after testing
+      const id = await SecureStore.getItemAsync("userid");
+      if (id && id != "test") { // TODO: fix after testing
+        router.push("/editProfile");
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error checking user:", error);
     }
-  }, [response]);
+  };
 
   const storeUser = async (userId, email, name) => {
     try {
+      // This writes to local disk so persists until app is deleted
+      await SecureStore.setItemAsync("userid", userId); // whole app can now access this
+
       const docRef = await setDoc(doc(db, "users", userId), {
         name: name,
         email: email,
@@ -93,6 +53,30 @@ export default function Login() {
       alert("User info not saved. Please try signing in again.");
     }
   };
+
+  const signIn = async () => {
+    if (!validator.isEmail(email)) {
+      setError("Error: Please use a valid email.")
+      setShowError(true);
+    } else if (!email.includes("vanderbilt")) {
+      setError("Error: Please use a Vanderbilt email. This app is for Vanderbilt students only.")
+      setShowError(true);
+    } else {
+      authenticateEmail(email);
+
+      // If authentication successful:
+      const id = email.substring(0, email.find("@"));
+      storeUser(id, email, id);
+    }
+  }
+
+  const authenticateEmail = async (email) => {
+  // TODO: authenticate email
+  };
+
+  useEffect(() => {
+    checkUser();
+  }, []);
 
   return (
     <View
@@ -123,19 +107,33 @@ export default function Login() {
       >
         Rideshare with other Vanderbilt students!
       </Text>
-      <ButtonGreen title="Login with VU SSO⚓" onPress={() => promptAsync()} />
-      {enforceVanderbilt && (
-        <Text
-          style={{
-            color: "red",
-            fontSize: 15,
-            textAlign: "center",
-            fontFamily: "Inter_700",
-            marginBottom: 50,
-          }}
-        >
-          Error: Please use your Vanderbilt account.
-        </Text>
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator size="large" />
+        </View>
+      ) : (
+        <View>
+          <Input
+            label={"Email"}
+            defaultValue={""}
+            value={email}
+            setValue={setEmail}
+          ></Input>
+          <ButtonGreen title="Login with VU SSO⚓" onPress={() => signIn()} />
+          {showError && (
+            <Text
+              style={{
+                color: "red",
+                fontSize: 15,
+                textAlign: "center",
+                fontFamily: "Inter_700",
+                marginBottom: 50,
+              }}
+            >
+              {error}
+            </Text>
+          )}
+        </View>
       )}
     </View>
   );

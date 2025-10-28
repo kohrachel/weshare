@@ -173,8 +173,4 @@ We are currently in test mode (The default security rules for test mode allow an
 - We are using Expo [SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/) to store authentication data.
 - It will primarily just store the user id which will identify the user in the database.
 - [More info](https://reactnative.dev/docs/security) on handling sensitive data in ReactNative.
-- Using Microsoft login to require Vanderbilt login following [this document](https://medium.com/@shaikabbas101/microsoft-authentication-in-react-native-using-react-native-app-auth-3041565e914c)
-- Using expo-auth-session instead of react-native-app-auth due to compatibility issues with Expo
-- Redirect URI: com.wesharenative://oauth/auth/
-- Weshare login secret will be valid for 6 months (until 11 April 2026)
--
+- User login/validation is done through email. [Details](https://github.com/kohrachel/weshare/issues/31)
