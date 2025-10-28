@@ -23,10 +23,10 @@ export default function RSVP() {
         <Text style={styles.title}>Ride Details</Text>
         <View>
           <RidePost
-            firstName="Kevin"
-            lastName="Song"
+            name="Kevin Song"
             destination="BNA Airport (United Airlines)"
-            departureTime="6:30 PM"
+            departureDate={new Date()}
+            departureTime={new Date()}
             currentPeople={2}
             maxPeople={4}
           />
