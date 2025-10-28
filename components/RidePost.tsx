@@ -29,13 +29,18 @@ const RidePost: React.FC<RidePostProps> = ({
   const router = useRouter();
   const route = useRoute();
 
+  if (!departureDate || !(departureDate instanceof Date)) {
+    departureDate = new Date();
+  }
+  if (!departureTime || !(departureTime instanceof Date)) {
+    departureTime = new Date();
+  }
+
   if (route.name === "rsvp") {
     return (
       <View style={styles.card}>
         {/* Name Header */}
-        <Text style={styles.name}>
-          {firstName} {lastName}
-        </Text>
+        <Text style={styles.name}>{name}</Text>
 
         {/* Ride Details */}
         <View style={styles.detailRow}>
@@ -46,9 +51,7 @@ const RidePost: React.FC<RidePostProps> = ({
         <View style={styles.detailRow}>
           <Text style={styles.label}>Departure: </Text>
           <Text style={styles.value}>
-            {formatDate(departureDate ?? new Date()) +
-              " " +
-              formatTime(departureTime ?? new Date())}
+            {formatDate(departureDate) + " " + formatTime(departureTime)}
           </Text>
         </View>
 
@@ -72,9 +75,7 @@ const RidePost: React.FC<RidePostProps> = ({
     return (
       <View style={styles.card}>
         {/* Name Header */}
-        <Text style={styles.name}>
-          {firstName} {lastName}
-        </Text>
+        <Text style={styles.name}>{name}</Text>
 
         {/* Ride Details */}
         <View style={styles.detailRow}>
@@ -85,9 +86,7 @@ const RidePost: React.FC<RidePostProps> = ({
         <View style={styles.detailRow}>
           <Text style={styles.label}>Departure: </Text>
           <Text style={styles.value}>
-            {formatDate(departureDate ?? new Date()) +
-              " " +
-              formatTime(departureTime ?? new Date())}
+            {formatDate(departureDate) + " " + formatTime(departureTime)}
           </Text>
         </View>
 

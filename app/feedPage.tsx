@@ -85,6 +85,7 @@ export default function RidesPage() {
             key={ride.id}
             name={ride.firstName}
             destination={ride.destination}
+            departureDate={ride.departureDate}
             departureTime={ride.departureTime}
             currentPeople={ride.currentPeople}
             maxPeople={ride.maxPeople}
