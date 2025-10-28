@@ -83,7 +83,7 @@ export default function RidesPage() {
         {rides.map((ride) => (
           <RidePost
             key={ride.id}
-            name={ride.firstName}
+            name={ride.name}
             destination={ride.destination}
             departureDate={ride.departureDate}
             departureTime={ride.departureTime}
