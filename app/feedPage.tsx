@@ -1,10 +1,11 @@
 /**
  Contributors
  Emma Reid: 3 hours
- Kevin Song: 1 hour
+ Kevin Song: 4 hours
  */
 
 import Footer from "@/components/Footer";
+import Input from "@/components/Input";
 import { db } from "@/firebaseConfig";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
@@ -77,12 +78,22 @@ export default function RidesPage() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#181818" }}>
+    // TODO: fix styles for padding
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "#181818",
+        paddingVertical: 50,
+        paddingHorizontal: 20,
+      }}
+    >
+      <Input defaultValue="Search rides by destination (e.g. BNA)" />
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {rides.map((ride) => (
           <RidePost
             key={ride.id}
             firstName={ride.firstName}
+            lastName="LastName"
             destination={ride.destination}
             departureTime={ride.departureTime}
             currentPeople={ride.currentPeople}
