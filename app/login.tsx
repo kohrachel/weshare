@@ -40,7 +40,7 @@ export default function Login() {
       // await SecureStore.setItemAsync("userid", ""); // will require login (for user testing)
       const id = await SecureStore.getItemAsync("userid");
       if (id && id != "") {
-        router.push("/editProfile");
+        router.push("/feedPage");
       } else {
         setLoading(false);
       }

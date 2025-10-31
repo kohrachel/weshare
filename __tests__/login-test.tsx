@@ -6,7 +6,7 @@ import * as SecureStore from "expo-secure-store";
 import * as AuthSession from "expo-auth-session";
 import { setDoc, doc } from "firebase/firestore";
 
-// 🧩 Mocks
+// Mocks
 jest.mock("expo-router", () => ({
   useRouter: jest.fn(),
 }));
@@ -89,7 +89,7 @@ describe("Login Screen", () => {
     });
   });
 
-  it("navigates to /editProfile if user is already logged in", async () => {
+  it("navigates to /feedPage if user is already logged in", async () => {
     (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("existing-user");
     (AuthSession.useAuthRequest as jest.Mock).mockReturnValue([{}, {}, jest.fn()]);
     (AuthSession.useAutoDiscovery as jest.Mock).mockReturnValue({});
@@ -97,7 +97,7 @@ describe("Login Screen", () => {
     render(<Login />);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith("/editProfile");
+      expect(mockPush).toHaveBeenCalledWith("/feedPage");
     });
   });
 
