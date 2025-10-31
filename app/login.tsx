@@ -8,7 +8,7 @@ import { Text, View, Image, ActivityIndicator } from "react-native";
 import { ButtonGreen } from "../components/button-green";
 import { useRouter } from "expo-router";
 import { Inter_700Bold } from "@expo-google-fonts/inter/700Bold";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import * as AuthSession from "expo-auth-session";
 import * as SecureStore from "expo-secure-store";
@@ -40,10 +40,14 @@ export default function Login() {
       // await SecureStore.setItemAsync("userid", ""); // will require login (for user testing)
       const id = await SecureStore.getItemAsync("userid");
       if (id && id != "") {
-        router.push("/feedPage");
-      } else {
-        setLoading(false);
+        const user = await getDoc(doc(db, "users", id));
+        if (user.exists()) {
+          router.push("/feedPage");
+        }
       }
+
+      setLoading(false);
+
     } catch (error) {
       console.error("Error checking user:", error);
     }

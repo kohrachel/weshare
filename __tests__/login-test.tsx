@@ -9,7 +9,7 @@ import Login from "../app/Login"; // adjust path if needed
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import * as AuthSession from "expo-auth-session";
-import { setDoc, doc } from "firebase/firestore";
+import { setDoc, getDoc, doc } from "firebase/firestore";
 
 // Mocks
 jest.mock("expo-router", () => ({
@@ -31,6 +31,7 @@ jest.mock("expo-auth-session", () => ({
 jest.mock("firebase/firestore", () => ({
   setDoc: jest.fn(),
   doc: jest.fn(),
+  getDoc: jest.fn(),
 }));
 
 jest.mock("@/firebaseConfig", () => ({
@@ -68,10 +69,9 @@ describe("Login Screen", () => {
     });
   });
 
-  it("shows login button when no user ID is found", async () => {
-    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("");
-    (AuthSession.useAuthRequest as jest.Mock).mockReturnValue([{}, {}, jest.fn()]);
-    (AuthSession.useAutoDiscovery as jest.Mock).mockReturnValue({});
+  it("sets loading to false if no user ID is found", async () => {
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("123");
+    (getDoc as jest.Mock).mockResolvedValue({ exists: () => false });
 
     const { getByTestId } = render(<Login />);
 
@@ -80,7 +80,6 @@ describe("Login Screen", () => {
     });
   });
 
-  // TODO: Fix do button press is simulated and tested
   it("calls promptAsync() when login button is pressed", async () => {
     const mockPromptAsync = jest.fn();
     (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("");
@@ -94,10 +93,11 @@ describe("Login Screen", () => {
     });
   });
 
-  it("navigates to /feedPage if user is already logged in", async () => {
+  it("navigates to /feedPage if user is already logged in and exists in Firestore", async () => {
     (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("existing-user");
     (AuthSession.useAuthRequest as jest.Mock).mockReturnValue([{}, {}, jest.fn()]);
     (AuthSession.useAutoDiscovery as jest.Mock).mockReturnValue({});
+    (getDoc as jest.Mock).mockResolvedValue({ exists: () => true });
 
     render(<Login />);
 
@@ -105,6 +105,7 @@ describe("Login Screen", () => {
       expect(mockPush).toHaveBeenCalledWith("/feedPage");
     });
   });
+
 
   it("handles successful Microsoft login with Vanderbilt email", async () => {
     const mockDiscovery = { userInfoEndpoint: "https://example.com/userinfo" };
