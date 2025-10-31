@@ -75,19 +75,19 @@ describe("Login Screen", () => {
     });
   });
 
-//   // TODO: Fix do button press is simulated and tested
-//   it("calls promptAsync() when login button is pressed", async () => {
-//     const mockPromptAsync = jest.fn();
-//     (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("");
-//     (AuthSession.useAuthRequest as jest.Mock).mockReturnValue([{}, {}, mockPromptAsync]);
-//     (AuthSession.useAutoDiscovery as jest.Mock).mockReturnValue({});
-//
-//     const { getByTestId } = render(<Login />);
-//     await waitFor(() => {
-//       fireEvent.click(getByTestId("login-button"));
-//       expect(mockPromptAsync).toHaveBeenCalled();
-//     });
-//   });
+  // TODO: Fix do button press is simulated and tested
+  it("calls promptAsync() when login button is pressed", async () => {
+    const mockPromptAsync = jest.fn();
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("");
+    (AuthSession.useAuthRequest as jest.Mock).mockReturnValue([{}, {}, mockPromptAsync]);
+    (AuthSession.useAutoDiscovery as jest.Mock).mockReturnValue({});
+
+    const { getByTestId } = render(<Login />);
+    await waitFor(() => {
+      fireEvent.press(getByTestId("login-button"));
+      expect(mockPromptAsync).toHaveBeenCalled();
+    });
+  });
 
   it("navigates to /editProfile if user is already logged in", async () => {
     (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("existing-user");
