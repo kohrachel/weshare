@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 2 hours
+ Emma Reid: 3 hours
  */
 
 import React from "react";
