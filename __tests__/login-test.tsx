@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Emma Reid: 2 hours
+ */
+
 import React from "react";
 import { render, act, waitFor, fireEvent } from "@testing-library/react-native";
 import Login from "../app/Login"; // adjust path if needed
