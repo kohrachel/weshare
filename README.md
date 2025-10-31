@@ -178,3 +178,11 @@ We are currently in test mode (The default security rules for test mode allow an
 - Redirect URI: com.wesharenative://oauth/auth/
 - Expo Go always has a changing redirect uri which must be updated in Azure each time the project is run. This issue is specific to Expo Go and would not affect production as production would have a stable uri. 
 - Weshare login secret will be valid for 6 months (until 11 April 2026)
+
+## Testing
+
+- Unit tests: (Jest)[https://docs.expo.dev/develop/unit-testing/]
+   ```bash
+   bun run test
+   ```
+  - Check coverage in weshare/coverage/lcov-report/index.html (open in browser)

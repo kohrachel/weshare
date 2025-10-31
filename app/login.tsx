@@ -37,7 +37,7 @@ export default function Login() {
 
   const checkUser = async () => {
     try {
-      // await SecureStore.setItemAsync("userid", ""); // will require login (for testing)
+      // await SecureStore.setItemAsync("userid", ""); // will require login (for user testing)
       const id = await SecureStore.getItemAsync("userid");
       if (id && id != "") {
         router.push("/editProfile");
@@ -157,7 +157,7 @@ export default function Login() {
                 marginBottom: 50,
               }}
             >
-              {error}
+              Error: Please use a Vanderbilt email. This app is for the Vanderbilt community only.
             </Text>
           )}
         </View>
