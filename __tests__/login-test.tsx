@@ -138,6 +138,80 @@ describe("Login Screen", () => {
     });
   });
 
+  it("handles successful Microsoft login with upn", async () => {
+    const mockDiscovery = { userInfoEndpoint: "https://example.com/userinfo" };
+    const mockPromptAsync = jest.fn();
+    const mockResponse = { type: "success", params: { code: "123" } };
+    const mockRequest = { codeVerifier: "mockVerifier" };
+
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("");
+    (AuthSession.useAutoDiscovery as jest.Mock).mockReturnValue(mockDiscovery);
+    (AuthSession.useAuthRequest as jest.Mock).mockReturnValue([
+      mockRequest,
+      mockResponse,
+      mockPromptAsync,
+    ]);
+    (AuthSession.exchangeCodeAsync as jest.Mock).mockResolvedValue({
+      accessToken: "fake-token",
+    });
+
+    (fetch as jest.Mock).mockResolvedValue({
+      json: () =>
+        Promise.resolve({
+          sub: "123",
+          upn: "student@vanderbilt.edu",
+          name: "Test User",
+        }),
+    });
+
+    const { getByTestId } = render(<Login />);
+
+    await act(async () => {});
+
+    await waitFor(() => {
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith("userid", "123");
+      expect(setDoc).toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith("/feedPage");
+    });
+  });
+
+  it("handles successful Microsoft login with unique_name", async () => {
+    const mockDiscovery = { userInfoEndpoint: "https://example.com/userinfo" };
+    const mockPromptAsync = jest.fn();
+    const mockResponse = { type: "success", params: { code: "123" } };
+    const mockRequest = { codeVerifier: "mockVerifier" };
+
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("");
+    (AuthSession.useAutoDiscovery as jest.Mock).mockReturnValue(mockDiscovery);
+    (AuthSession.useAuthRequest as jest.Mock).mockReturnValue([
+      mockRequest,
+      mockResponse,
+      mockPromptAsync,
+    ]);
+    (AuthSession.exchangeCodeAsync as jest.Mock).mockResolvedValue({
+      accessToken: "fake-token",
+    });
+
+    (fetch as jest.Mock).mockResolvedValue({
+      json: () =>
+        Promise.resolve({
+          sub: "123",
+          unique_name: "student@vanderbilt.edu",
+          name: "Test User",
+        }),
+    });
+
+    const { getByTestId } = render(<Login />);
+
+    await act(async () => {});
+
+    await waitFor(() => {
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith("userid", "123");
+      expect(setDoc).toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith("/feedPage");
+    });
+  });
+
   it("shows error for non-Vanderbilt email", async () => {
     const mockDiscovery = { userInfoEndpoint: "https://example.com/userinfo" };
     const mockResponse = { type: "success", params: { code: "123" } };
