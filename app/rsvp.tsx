@@ -84,15 +84,14 @@ export default function RSVP() {
         rsvpedUserIds.map(async (userId) => {
           if (!userId || userId === "") return unknownUser;
           const userData = await getDoc(doc(db, "users", userId));
-          if (userData.exists()) {
-            return {
-              name: userData.data().name,
-              gender: userData.data().gender,
-              phoneNum: userData.data().phoneNum,
-              email: userData.data().email,
-            };
-          }
-          return unknownUser;
+          if (!userData.exists()) return unknownUser;
+
+          return {
+            name: userData.data().name,
+            gender: userData.data().gender,
+            phoneNum: userData.data().phoneNum,
+            email: userData.data().email,
+          };
         })
       );
       setRsvpedUsers(rsvpedUsers);
