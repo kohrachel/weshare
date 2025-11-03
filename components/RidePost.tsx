@@ -37,6 +37,8 @@ const RidePost: React.FC<RidePostProps> = ({
   currentPeople,
   maxPeople,
 }) => {
+  const [isUserRsvped, setIsUserRsvped] = useState(false);
+  const [userId, setUserId] = useState("");
   const router = useRouter();
   const route = useRoute();
 
