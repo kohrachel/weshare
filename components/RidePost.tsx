@@ -80,7 +80,6 @@ const RidePost: React.FC<RidePostProps> = ({
   const handleRSVP = async () => {
     try {
       if (isUserRsvped) {
-        console.log("User already RSVPed to ride: ", rideId);
         return;
       }
 
@@ -89,7 +88,6 @@ const RidePost: React.FC<RidePostProps> = ({
         ppl: arrayUnion(userId),
         currPpl: increment(1),
       });
-      console.log("RSVPed to ride: ", rideId);
       setIsUserRsvped(true);
     } catch (error) {
       console.error("Error RSVPing to ride: ", error);

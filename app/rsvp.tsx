@@ -43,7 +43,6 @@ export default function RSVP() {
       const rideData = await getDoc(rideDoc);
       if (rideData.exists()) {
         const ride = rideData.data();
-        console.log(ride);
         setRideData({
           creator: ride.creator,
           destination: ride.destination,
