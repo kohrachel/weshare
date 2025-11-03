@@ -25,6 +25,7 @@ export default function CreateRide() {
     try {
       const id = await SecureStore.getItemAsync("userid");
       let user;
+      let error = "";
 
       // Validate data
       if (id == "") {
@@ -38,44 +39,51 @@ export default function CreateRide() {
       }
 
       if (dest == "") {
-        throw new Error('Destination is required.');
+        console.log("no dest");
+        error += '\nDestination is required.';
       }
 
       if (meetLoc == "") {
-        throw new Error('Meeting location is required.');
+        error += '\nMeeting location is required.';
       }
 
       if (numberPpl < 2) {
-        throw new Error('Must allow 2 or more people (including yourself).');
+        error += '\nMust allow 2 or more people (including yourself).';
       }
 
-      // send data to database
-      const docRef = await addDoc(collection(db, "rides"), {
-        destination: dest,
-        date: date,
-        time: time,
-        meetLoc: meetLoc,
-        maxPpl: Number(numberPpl),
-        creationTime: new Date(),
-        currPpl: 1,
-        creator: id,
-        ppl: [id],
-      });
+      if (error == "") {
+        // send data to database
+        const docRef = await addDoc(collection(db, "rides"), {
+          destination: dest,
+          date: date,
+          time: time,
+          meetLoc: meetLoc,
+          maxPpl: Number(numberPpl),
+          creationTime: new Date(),
+          currPpl: 1,
+          creator: id,
+          ppl: [id],
+        });
 
-      console.log("Ride stored with ID:", docRef.id);
-      alert(
-        "Ride saved!\n" + dest + "\n" + time + "\n" + meetLoc + "\n" + numberPpl
-      );
+        console.log("Ride stored with ID:", docRef.id);
+        alert(
+          "Ride saved!\n" + dest + "\n" + time + "\n" + meetLoc + "\n" + numberPpl
+        );
 
-      // Reset form fields
-      setDest("");
-      setTime(new Date());
-      setDate(new Date());
-      setMeetLoc("");
-      setNumberPpl("");
-    } catch (error) {
-      console.error("Error adding ride: ", error);
-      alert("Ride not saved, please try again.\n" + error);
+        // Reset form fields
+        setDest("");
+        setTime(new Date());
+        setDate(new Date());
+        setMeetLoc("");
+        setNumberPpl("");
+      } else {
+        alert("Ride not saved, please fix error(s):\n" + error);
+        error = "";
+      }
+
+    } catch (systemError) {
+      console.error("Error adding ride: ", systemError);
+      alert("Ride not saved, please try again.\n" + systemError);
     }
   };
 
