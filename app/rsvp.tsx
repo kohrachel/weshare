@@ -6,10 +6,17 @@
  */
 
 import Footer from "@/components/Footer";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { db } from "@/firebaseConfig";
 import { useRoute } from "@react-navigation/native";
 import { doc, getDoc, Timestamp } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import RidePost from "../components/RidePost";
 import ContactCard from "../components/contactCard";
 
@@ -85,12 +92,13 @@ export default function RSVP() {
         <Text style={styles.title}>Ride Details</Text>
         <View>
           <RidePost
-            name="Kevin Song"
-            destination="BNA Airport (United Airlines)"
-            departureDate={new Date()}
-            departureTime={new Date()}
-            currentPeople={2}
-            maxPeople={4}
+            rideId={rideId}
+            name={rideCreator}
+            destination={rideData.destination}
+            departureDate={rideData.date.toDate()}
+            departureTime={rideData.time.toDate()}
+            currentPeople={rideData.currPpl}
+            maxPeople={rideData.maxPpl}
           />
 
           <ContactCard
@@ -148,5 +156,11 @@ const styles = StyleSheet.create({
     marginTop: 16,
     alignItems: "center",
     paddingHorizontal: 0,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#181818",
   },
 });
