@@ -32,7 +32,7 @@ type RideData = {
 
 type UserData = {
   name: string;
-  phoneNum: string;
+  phone: string;
   email: string;
   gender: string;
 };
@@ -40,7 +40,7 @@ type UserData = {
 const unknownUser: UserData = {
   name: "Unknown User",
   gender: "Unknown",
-  phoneNum: "1234567890",
+  phone: "1234567890",
   email: "Unknown",
 };
 
@@ -86,17 +86,12 @@ export default function RSVP() {
           if (!userData.exists()) return unknownUser;
 
           const user = userData.data();
-          const {
-            name,
-            gender = "Not set",
-            phoneNum = "Not set",
-            email,
-          } = user;
+          const { name, gender = "Not set", phone = "Not set", email } = user;
 
           return {
             name,
             gender,
-            phoneNum,
+            phone,
             email,
           };
         })
@@ -156,7 +151,7 @@ export default function RSVP() {
             key={index}
             firstName={user.name}
             lastName={""}
-            phoneNum={user.phoneNum}
+            phone={user.phone}
             email={user.email}
           />
         ))}
