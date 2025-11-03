@@ -16,7 +16,7 @@ import {
   increment,
   updateDoc,
 } from "firebase/firestore";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ButtonGreen } from "./button-green";
 
@@ -51,15 +51,6 @@ const RidePost: React.FC<RidePostProps> = ({
     departureTime = new Date();
   }
 
-  const checkIsUserRsvped = useCallback(async () => {
-    const rideDoc = doc(db, "rides", rideId);
-    const rideData = await getDoc(rideDoc);
-    if (rideData.exists()) {
-      const rsvpedUsers = rideData.data().ppl;
-      setIsUserRsvped(rsvpedUsers.includes(userId));
-    }
-  }, [rideId, userId]);
-
   useEffect(() => {
     const fetchUserId = async () => {
       const userId = await SecureStore.getItemAsync("userid");
@@ -75,8 +66,16 @@ const RidePost: React.FC<RidePostProps> = ({
   }, []);
 
   useEffect(() => {
+    const checkIsUserRsvped = async () => {
+      const rideDoc = doc(db, "rides", rideId);
+      const rideData = await getDoc(rideDoc);
+      if (rideData.exists()) {
+        const rsvpedUsers = rideData.data().ppl;
+        setIsUserRsvped(rsvpedUsers.includes(userId));
+      }
+    };
     checkIsUserRsvped();
-  }, [checkIsUserRsvped, rideId]);
+  }, [rideId, userId]);
 
   const handleRSVP = async () => {
     try {
