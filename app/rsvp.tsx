@@ -24,6 +24,7 @@ type RideData = {
 
 export default function RSVP() {
   const [rideData, setRideData] = useState<RideData | null>(null);
+  const [rideCreator, setRideCreator] = useState<string | null>(null);
 
   // Get ride ID from route params
   const route = useRoute();
@@ -50,6 +51,18 @@ export default function RSVP() {
     };
     fetchRideData();
   }, [rideId]);
+
+  useEffect(() => {
+    const fetchRideCreator = async () => {
+      if (!rideData) return;
+      const userId = doc(db, "users", rideData.creator);
+      const userData = await getDoc(userId);
+      if (userData.exists()) {
+        setRideCreator(userData.data().name);
+      }
+    };
+    fetchRideCreator();
+  }, [rideData]);
 
   return (
     <View style={{ flex: 1 }}>
