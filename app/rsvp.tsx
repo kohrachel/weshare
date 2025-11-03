@@ -7,14 +7,50 @@
 
 import Footer from "@/components/Footer";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { db } from "@/firebaseConfig";
+import { useRoute } from "@react-navigation/native";
+import { doc, getDoc, Timestamp } from "firebase/firestore";
 import RidePost from "../components/RidePost";
 import ContactCard from "../components/contactCard";
 
-// Main screen
+type RideData = {
+  creator: string;
+  destination: string;
+  date: Timestamp;
+  time: Timestamp;
+  currPpl: number;
+  maxPpl: number;
+};
+
 export default function RSVP() {
+  const [rideData, setRideData] = useState<RideData | null>(null);
+
   // Get ride ID from route params
   const route = useRoute();
   const { rideId } = route.params as { rideId: string };
+
+  useEffect(() => {
+    const fetchRideData = async () => {
+      const rideDoc = doc(db, "rides", rideId);
+      const rideData = await getDoc(rideDoc);
+      if (rideData.exists()) {
+        const ride = rideData.data();
+        console.log(ride);
+        setRideData({
+          creator: ride.creator,
+          destination: ride.destination,
+          date: ride.date,
+          time: ride.time,
+          currPpl: ride.currPpl,
+          maxPpl: ride.maxPpl,
+        });
+      } else {
+        console.error("Ride data not found");
+      }
+    };
+    fetchRideData();
+  }, [rideId]);
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView
