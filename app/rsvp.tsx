@@ -157,7 +157,7 @@ export default function RSVP() {
             key={index}
             firstName={user.name}
             lastName={""}
-            phone={user.phone}
+            phoneNum={user.phone}
             email={user.email}
           />
         ))}
