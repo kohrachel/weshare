@@ -135,7 +135,7 @@ const RidePost: React.FC<RidePostProps> = ({
         <View style={styles.buttonWrapper}>
           <ButtonGreen
             title="More Info"
-            onPress={() => router.navigate("/rsvp")}
+            onPress={() => router.navigate(`/rsvp?rideId=${rideId}`)}
           />
         </View>
       )}

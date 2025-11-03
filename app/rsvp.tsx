@@ -12,6 +12,9 @@ import ContactCard from "../components/contactCard";
 
 // Main screen
 export default function RSVP() {
+  // Get ride ID from route params
+  const route = useRoute();
+  const { rideId } = route.params as { rideId: string };
   return (
     <View style={{ flex: 1 }}>
       <ScrollView
