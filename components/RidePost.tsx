@@ -4,9 +4,19 @@
  Rachel Huiqi: 3 hours
  */
 
+import { db } from "@/firebaseConfig";
 import { formatDate, formatTime } from "@/utils";
 import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import {
+  arrayUnion,
+  doc,
+  getDoc,
+  increment,
+  updateDoc,
+} from "firebase/firestore";
+import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ButtonGreen } from "./button-green";
 
@@ -37,6 +47,25 @@ const RidePost: React.FC<RidePostProps> = ({
     departureTime = new Date();
   }
 
+  const handleRSVP = async () => {
+    try {
+      if (isUserRsvped) {
+        console.log("User already RSVPed to ride: ", rideId);
+        return;
+      }
+
+      const rideDoc = doc(db, "rides", rideId);
+      await updateDoc(rideDoc, {
+        ppl: arrayUnion(userId),
+        currPpl: increment(1),
+      });
+      console.log("RSVPed to ride: ", rideId);
+      setIsUserRsvped(true);
+    } catch (error) {
+      console.error("Error RSVPing to ride: ", error);
+    }
+  };
+
   const isRsvpRoute = route.name === "rsvp";
   return (
     <View style={styles.card}>
@@ -66,8 +95,8 @@ const RidePost: React.FC<RidePostProps> = ({
       {/* RSVP Button */}
       <View style={styles.buttonWrapper}>
         <ButtonGreen
-          title="RSVP"
-          onPress={() => console.log("RSVP pressed!")}
+          title={isUserRsvped ? "RSVPed" : "RSVP"}
+          onPress={handleRSVP}
         />
       </View>
 
