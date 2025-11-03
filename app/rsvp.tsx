@@ -30,10 +30,9 @@ type RideData = {
   maxPpl: number;
 };
 
-// TODO: synchronize with user schema in Firebase
 type UserData = {
   name: string;
-  phoneNum: number;
+  phoneNum: string;
   email: string;
   gender: string;
 };
@@ -41,7 +40,7 @@ type UserData = {
 const unknownUser: UserData = {
   name: "Unknown User",
   gender: "Unknown",
-  phoneNum: 1234567890,
+  phoneNum: "1234567890",
   email: "Unknown",
 };
 
@@ -86,9 +85,13 @@ export default function RSVP() {
           const userData = await getDoc(doc(db, "users", userId));
           if (!userData.exists()) return unknownUser;
 
-          // TODO: synchronize with user schema in Firebase
           const user = userData.data();
-          const { name, gender, phoneNum, email } = user;
+          const {
+            name,
+            gender = "Not set",
+            phoneNum = "Not set",
+            email,
+          } = user;
 
           return {
             name,
