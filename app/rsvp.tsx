@@ -64,6 +64,15 @@ export default function RSVP() {
     fetchRideCreator();
   }, [rideData]);
 
+  // Show loading indicator while ride data or ride creator are not loaded
+  if (!rideData || !rideCreator) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView
