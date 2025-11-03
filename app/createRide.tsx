@@ -14,7 +14,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import BackButton from "../components/backbutton";
 
-export default function Index() {
+export default function CreateRide() {
   const [dest, setDest] = useState("");
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
