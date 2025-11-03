@@ -51,7 +51,13 @@ export default function RSVP() {
 
   // Get ride ID from route params
   const route = useRoute();
-  const { rideId } = route.params as { rideId: string };
+  let { rideId } = route.params as { rideId: string };
+
+  // TODO: delete this eventually, it's just so you can still click on the RSVP button from the index page
+  if (!rideId) {
+    console.warn("Deprecated: Accessing RSVP page from index.");
+    rideId = "DHbTvTZQQugk83PjwYup";
+  }
 
   useEffect(() => {
     const fetchRideData = async () => {
