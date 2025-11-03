@@ -86,11 +86,14 @@ export default function RSVP() {
           const userData = await getDoc(doc(db, "users", userId));
           if (!userData.exists()) return unknownUser;
 
+          const user = userData.data();
+          const { name, gender, phoneNum, email } = user;
+
           return {
-            name: userData.data().name,
-            gender: userData.data().gender,
-            phoneNum: userData.data().phoneNum,
-            email: userData.data().email,
+            name,
+            gender,
+            phoneNum,
+            email,
           };
         })
       );
