@@ -47,6 +47,19 @@ const RidePost: React.FC<RidePostProps> = ({
     departureTime = new Date();
   }
 
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const userId = await SecureStore.getItemAsync("userid");
+      if (!userId) {
+        console.error("User ID not found");
+        // TODO: remove this after testing
+        setUserId("iuTXJmjktD4jFvE9_HiehLbLnMwsZ9F5svHy1iGWB0c");
+        return;
+      }
+      setUserId(userId);
+    };
+    fetchUserId();
+  }, []);
   const handleRSVP = async () => {
     try {
       if (isUserRsvped) {
