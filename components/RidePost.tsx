@@ -51,6 +51,15 @@ const RidePost: React.FC<RidePostProps> = ({
     departureTime = new Date();
   }
 
+  const checkIsUserRsvped = useCallback(async () => {
+    const rideDoc = doc(db, "rides", rideId);
+    const rideData = await getDoc(rideDoc);
+    if (rideData.exists()) {
+      const rsvpedUsers = rideData.data().ppl;
+      setIsUserRsvped(rsvpedUsers.includes(userId));
+    }
+  }, [rideId, userId]);
+
   useEffect(() => {
     const fetchUserId = async () => {
       const userId = await SecureStore.getItemAsync("userid");
@@ -64,6 +73,11 @@ const RidePost: React.FC<RidePostProps> = ({
     };
     fetchUserId();
   }, []);
+
+  useEffect(() => {
+    checkIsUserRsvped();
+  }, [checkIsUserRsvped, rideId]);
+
   const handleRSVP = async () => {
     try {
       if (isUserRsvped) {
