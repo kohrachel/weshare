@@ -21,6 +21,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { ButtonGreen } from "./button-green";
 
 type RidePostProps = {
+  rideId: string;
   name: string;
   destination: string;
   departureDate: Date;
@@ -30,6 +31,7 @@ type RidePostProps = {
 };
 
 const RidePost: React.FC<RidePostProps> = ({
+  rideId,
   name,
   destination,
   departureDate,
