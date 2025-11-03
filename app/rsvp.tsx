@@ -25,13 +25,30 @@ type RideData = {
   destination: string;
   date: Timestamp;
   time: Timestamp;
+  rsvpedUsers: string[];
   currPpl: number;
   maxPpl: number;
+};
+
+// TODO: synchronize with user schema in Firebase
+type UserData = {
+  name: string;
+  phoneNum: number;
+  email: string;
+  gender: string;
+};
+
+const unknownUser: UserData = {
+  name: "Unknown User",
+  gender: "Unknown",
+  phoneNum: 1234567890,
+  email: "Unknown",
 };
 
 export default function RSVP() {
   const [rideData, setRideData] = useState<RideData | null>(null);
   const [rideCreator, setRideCreator] = useState<string | null>(null);
+  const [rsvpedUsers, setRsvpedUsers] = useState<UserData[]>([unknownUser]);
 
   // Get ride ID from route params
   const route = useRoute();
@@ -50,6 +67,7 @@ export default function RSVP() {
           time: ride.time,
           currPpl: ride.currPpl,
           maxPpl: ride.maxPpl,
+          rsvpedUsers: ride.ppl,
         });
       } else {
         console.error("Ride data not found");
@@ -57,6 +75,30 @@ export default function RSVP() {
     };
     fetchRideData();
   }, [rideId]);
+
+  useEffect(() => {
+    const fetchRsvpedUsers = async (rsvpedUserIds: string[]) => {
+      if (!rideData) return;
+
+      const rsvpedUsers = await Promise.all(
+        rsvpedUserIds.map(async (userId) => {
+          if (!userId || userId === "") return unknownUser;
+          const userData = await getDoc(doc(db, "users", userId));
+          if (userData.exists()) {
+            return {
+              name: userData.data().name,
+              gender: userData.data().gender,
+              phoneNum: userData.data().phoneNum,
+              email: userData.data().email,
+            };
+          }
+          return unknownUser;
+        })
+      );
+      setRsvpedUsers(rsvpedUsers);
+    };
+    fetchRsvpedUsers(rideData?.rsvpedUsers || []);
+  }, [rideData]);
 
   useEffect(() => {
     const fetchRideCreator = async () => {
@@ -80,15 +122,17 @@ export default function RSVP() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView
-        style={{
-          backgroundColor: "#181818",
-          paddingVertical: 50,
-          paddingHorizontal: 10,
-        }}
-      >
-        <Text style={styles.title}>Ride Details</Text>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "#181818",
+        paddingTop: 50,
+        paddingBottom: 100,
+        paddingHorizontal: 10,
+      }}
+    >
+      <Text style={styles.title}>Ride Details</Text>
+      <ScrollView style={{ flex: 1 }}>
         <View>
           <RidePost
             rideId={rideId}
@@ -99,14 +143,17 @@ export default function RSVP() {
             currentPeople={rideData.currPpl}
             maxPeople={rideData.maxPpl}
           />
-
-          <ContactCard
-            firstName="Kevin"
-            lastName="Song"
-            phoneNum={1234567890}
-            email="kevin.song@vanderbilt.edu"
-          />
         </View>
+        {/* TODO: replace with dynamic data */}
+        {rsvpedUsers.map((user, index) => (
+          <ContactCard
+            key={index}
+            firstName={user.name}
+            lastName={""}
+            phoneNum={user.phoneNum}
+            email={user.email}
+          />
+        ))}
       </ScrollView>
       <Footer />
     </View>
