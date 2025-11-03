@@ -86,6 +86,7 @@ export default function RSVP() {
           const userData = await getDoc(doc(db, "users", userId));
           if (!userData.exists()) return unknownUser;
 
+          // TODO: synchronize with user schema in Firebase
           const user = userData.data();
           const { name, gender, phoneNum, email } = user;
 
