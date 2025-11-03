@@ -87,6 +87,8 @@ export default function Login() {
       const docRef = await setDoc(doc(db, "users", userId), {
         name: name,
         email: email,
+        phone: "Not set",
+        gender: "Not set",
       });
     } catch (error) {
       console.error("Error adding user: ", error);
