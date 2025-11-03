@@ -85,6 +85,7 @@ export default function RidesPage() {
       >
         {rides.map((ride) => (
           <RidePost
+            rideId={ride.id}
             key={ride.id}
             name={ride.name}
             destination={ride.destination}
