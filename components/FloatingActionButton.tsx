@@ -1,5 +1,5 @@
 /**
- * Contributors: Jonny Yang
+ * Contributors: Jonny Yang 4 hours
  */
 
 import { Ionicons } from "@expo/vector-icons";
@@ -23,16 +23,16 @@ export default function FloatingActionButton() {
 const styles = StyleSheet.create({
   button: {
     position: "absolute",
-    bottom: 100, // 80 (footer height) + 20 padding = 100
+    bottom: 100, 
     right: 24,
     borderRadius: 50,
     padding: 16,
-    backgroundColor: "#00ff9d", // match your ButtonGreen if needed
+    backgroundColor: "#529053", 
     shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
-    elevation: 5, // Android shadow
-    zIndex: 10, // ensures button is on top of Footer and other components
+    elevation: 5, 
+    zIndex: 10,
   },
 });
