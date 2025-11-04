@@ -4,9 +4,8 @@
  Kevin Song: 1 hour
  */
 
-import { Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { Button } from "react-native";
+import { Button, Text, View } from "react-native";
 
 // First screen - will be deleted in final product
 // Navigation info: docs.expo.dev/router/basics/navigation/
