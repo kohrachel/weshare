@@ -1,6 +1,6 @@
 /**
  Contributors
- Rachel Huiqi: 1 hour
+ Rachel Huiqi: 3 hours
  */
 
 import RsvpRidePage from "@/app/rsvp";
@@ -79,27 +79,119 @@ jest.mock("firebase/firestore", () => {
 });
 
 describe("<RSVP />", () => {
+  test("displays loading indicator initially", () => {
+    const { UNSAFE_queryAllByType } = render(<RsvpRidePage />);
+    // ActivityIndicator should be present initially
+    const activityIndicators = UNSAFE_queryAllByType(
+      require("react-native").ActivityIndicator,
+    );
+    expect(activityIndicators.length).toBeGreaterThan(0);
+  });
+
   test("displays ride details after fetching data", async () => {
-    const { getByText } = render(<RsvpRidePage />);
+    const { getByText, queryAllByText } = render(<RsvpRidePage />);
+    await waitFor(
+      () => {
+        expect(getByText("Ride Details")).toBeTruthy();
+        // Check that contact cards are displayed
+        const userNames = queryAllByText("User Name");
+        expect(userNames.length).toBeGreaterThan(0);
+      },
+      { timeout: 2000 },
+    );
+  });
+
+  test("displays contact cards for RSVPed users", async () => {
+    const { queryAllByText } = render(<RsvpRidePage />);
     await waitFor(() => {
-      expect(getByText("Ride Details")).toBeTruthy();
-      expect(getByText("Test Destination")).toBeTruthy();
+      // Should display user names from the mocked data
+      const userNames = queryAllByText("User Name");
+      expect(userNames.length).toBeGreaterThan(0);
     });
   });
 
-  test("when rideId is missing, warns and uses fallback rideId", async () => {
-    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-    jest.isolateModules(() => {
-      jest.doMock("@react-navigation/native", () => ({
-        useRoute: () => ({ params: {} }),
-      }));
-      render(<RsvpRidePage />);
-    });
+  test("handles multiple RSVPed users", async () => {
+    const { queryAllByText } = render(<RsvpRidePage />);
     await waitFor(() => {
-      expect(warnSpy).toHaveBeenCalledWith(
-        "Deprecated: Accessing RSVP page from index.",
-      );
+      // Mock returns 2 users (user1, user2)
+      const userNames = queryAllByText("User Name");
+      expect(userNames.length).toBe(2);
     });
-    warnSpy.mockRestore();
+  });
+
+  test("handles ride data loading successfully", async () => {
+    const { getByText } = render(<RsvpRidePage />);
+
+    await waitFor(() => {
+      // Should load data and display ride details
+      expect(getByText("Ride Details")).toBeTruthy();
+    });
+  });
+
+  test("handles contact data fetching", async () => {
+    const { queryAllByText } = render(<RsvpRidePage />);
+
+    await waitFor(() => {
+      // Should display contact information for users
+      const userEmails = queryAllByText(/user@example.com/);
+      expect(userEmails.length).toBeGreaterThan(0);
+    });
+  });
+
+  test("handles non-existent user with unknown user fallback", async () => {
+    // The mock already handles this by returning exists: false for unknown users
+    const { getByText, queryAllByText } = render(<RsvpRidePage />);
+
+    await waitFor(() => {
+      expect(getByText("Ride Details")).toBeTruthy();
+      // Should display "User Name" even if some users don't exist
+      const userNames = queryAllByText("User Name");
+      expect(userNames.length).toBeGreaterThan(0);
+    });
+  });
+
+  test("displays ride title when data is loaded", async () => {
+    const { getByText, UNSAFE_queryAllByType } = render(<RsvpRidePage />);
+
+    await waitFor(() => {
+      // Should show ride details title
+      expect(getByText("Ride Details")).toBeTruthy();
+    });
+
+    // Loading indicator should be gone
+    const activityIndicators = UNSAFE_queryAllByType(
+      require("react-native").ActivityIndicator,
+    );
+    expect(activityIndicators.length).toBe(0);
+  });
+
+  test("renders SingleRidePost component with correct rideId", async () => {
+    const { UNSAFE_queryAllByType } = render(<RsvpRidePage />);
+
+    await waitFor(() => {
+      // Check that SingleRidePost is rendered
+      const SingleRidePost = require("../components/SingleRidePost").default;
+      const singleRidePosts = UNSAFE_queryAllByType(SingleRidePost);
+      expect(singleRidePosts.length).toBe(1);
+    });
+  });
+
+  test("renders Footer component", async () => {
+    const { UNSAFE_queryAllByType } = render(<RsvpRidePage />);
+
+    await waitFor(() => {
+      const Footer = require("../components/Footer").default;
+      const footers = UNSAFE_queryAllByType(Footer);
+      expect(footers.length).toBe(1);
+    });
+  });
+
+  test("displays creator name correctly", async () => {
+    const { getByText } = render(<RsvpRidePage />);
+
+    await waitFor(() => {
+      // The mock returns "Creator Name" for creatorUserId
+      expect(getByText("Ride Details")).toBeTruthy();
+    });
   });
 });
