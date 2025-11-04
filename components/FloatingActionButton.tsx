@@ -1,5 +1,6 @@
 /**
- * Contributors: Jonny Yang 4 hours
+ * Contributors
+ * Jonny Yang: 4 hours
  */
 
 import { Ionicons } from "@expo/vector-icons";

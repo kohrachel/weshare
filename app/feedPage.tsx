@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 3 hours
+ Emma Reid: 3.5 hours
  Kevin Song: 1 hour
  Rachel Huiqi: 3 hours
  */
@@ -11,6 +11,7 @@ import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import RidePost from "../components/RidePost";
+import FloatingActionButton from "../components/FloatingActionButton";
 
 export default function RidesPage() {
   const [rides, setRides] = useState<any[]>([]);
@@ -95,6 +96,7 @@ export default function RidesPage() {
           />
         ))}
       </ScrollView>
+      <FloatingActionButton/>
       <Footer />
     </View>
   );
