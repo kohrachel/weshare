@@ -32,23 +32,27 @@ export default function FeedPage() {
         for (const rideDoc of ridesSnapshot.docs) {
           const ride = rideDoc.data();
 
-          // Get the user document for the ride
-          let userData: DocumentData = {};
+          // Validate the creator field
+          if (!ride.creator) {
+            console.warn(
+              `Skipping ride ${rideDoc.id} — missing creator field.`,
+            );
+            continue; // Skip this ride
+          }
 
-          // TODO validate entries either here or in create ride
-          // TODO only display rides whose time is not < curr time (keep them sorted somehow?)
-          if (!ride.creator) console.warn("Ride is missing a creator field.");
+          let userData: DocumentData = {};
 
           try {
             const userRef = doc(db, "users", ride.creator);
             const userSnapshot = await getDoc(userRef);
+
             if (!userSnapshot.exists()) {
               console.warn(
-                `User doc not found for creator ID: ${ride.creator}`
+                `User doc not found for creator ID: ${ride.creator}`,
               );
+            } else {
+              userData = userSnapshot.data() as DocumentData;
             }
-
-            userData = userSnapshot.data() as DocumentData;
           } catch (err) {
             console.error(`Error fetching user ${ride.creator}:`, err);
           }
@@ -57,14 +61,49 @@ export default function FeedPage() {
             id: rideDoc.id,
             name: userData.name || "Inactive Account",
             destination: ride.destination || "Unknown Destination",
-            departureDate: ride.date.toDate() ?? new Date(),
-            departureTime: ride.time.toDate() ?? new Date(),
+            departureDate: ride.date?.toDate?.() ?? new Date(),
+            departureTime: ride.time?.toDate?.() ?? new Date(),
             currentPeople: ride.currPpl,
             maxPeople: ride.maxPpl,
           });
         }
 
-        setRides(ridesData);
+        // Exclude past rides and sort chronologically
+        const now = new Date();
+
+        // Keep only rides whose departure date/time is in the future
+        const upcomingRides = ridesData.filter((ride) => {
+          const departure = new Date(
+            ride.departureDate.getFullYear(),
+            ride.departureDate.getMonth(),
+            ride.departureDate.getDate(),
+            ride.departureTime.getHours(),
+            ride.departureTime.getMinutes(),
+          );
+          return departure >= now;
+        });
+
+        // Sort upcoming rides by date and time (earliest first)
+        upcomingRides.sort((a, b) => {
+          const dateA = new Date(
+            a.departureDate.getFullYear(),
+            a.departureDate.getMonth(),
+            a.departureDate.getDate(),
+            a.departureTime.getHours(),
+            a.departureTime.getMinutes(),
+          );
+          const dateB = new Date(
+            b.departureDate.getFullYear(),
+            b.departureDate.getMonth(),
+            b.departureDate.getDate(),
+            b.departureTime.getHours(),
+            b.departureTime.getMinutes(),
+          );
+
+          return dateA.getTime() - dateB.getTime();
+        });
+
+        setRides(upcomingRides);
       } catch (error) {
         console.error("Error fetching rides:", error);
       } finally {
