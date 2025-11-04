@@ -44,5 +44,4 @@ app-example
 /android
 
 .cursor/
-
-coverage/
+/coverage/

@@ -1,14 +1,14 @@
 /**
  Contributors
- Emma Reid: 5 hours
+ Emma Reid: 8 hours
  */
 
 import React, { useEffect, useState } from "react";
-import { Text, View, Image } from "react-native";
+import { Text, View, Image, ActivityIndicator } from "react-native";
 import { ButtonGreen } from "../components/button-green";
 import { useRouter } from "expo-router";
 import { Inter_700Bold } from "@expo-google-fonts/inter/700Bold";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import * as AuthSession from "expo-auth-session";
 import * as SecureStore from "expo-secure-store";
@@ -17,7 +17,8 @@ import * as SecureStore from "expo-secure-store";
 export default function Login() {
   const router = useRouter();
 
-  const [enforceVanderbilt, setEnforceVanderbilt] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const discovery = AuthSession.useAutoDiscovery(
     "https://login.microsoftonline.com/common",
@@ -34,7 +35,27 @@ export default function Login() {
     discovery,
   );
 
+  const checkUser = async () => {
+    try {
+      // await SecureStore.setItemAsync("userid", ""); // will require login (for user testing)
+      const id = await SecureStore.getItemAsync("userid");
+      if (id && id != "") {
+        const user = await getDoc(doc(db, "users", id));
+        if (user.exists()) {
+          router.push("/feedPage");
+        }
+      }
+
+      setLoading(false);
+
+    } catch (error) {
+      console.error("Error checking user:", error);
+    }
+  }
+
   useEffect(() => {
+    checkUser();
+
     if (response?.type === "success") {
       const { code } = response.params;
 
@@ -67,7 +88,7 @@ export default function Login() {
         const name = user.name;
 
         if (!email.includes("vanderbilt")) {
-          setEnforceVanderbilt(true);
+          setShowError(true);
         } else {
           await SecureStore.setItemAsync("userid", userId); // whole app can now access this
 
@@ -123,19 +144,27 @@ export default function Login() {
       >
         Rideshare with other Vanderbilt students!
       </Text>
+      {loading ? (
+        <View>
+          <ActivityIndicator size="large" />
+        </View>
+      ) : (
+        <View>
       <ButtonGreen title="Login with VU SSO⚓" onPress={() => promptAsync()} />
-      {enforceVanderbilt && (
-        <Text
-          style={{
-            color: "red",
-            fontSize: 15,
-            textAlign: "center",
-            fontFamily: "Inter_700",
-            marginBottom: 50,
-          }}
-        >
-          Error: Please use your Vanderbilt account.
-        </Text>
+          {showError && (
+            <Text
+              style={{
+                color: "red",
+                fontSize: 15,
+                textAlign: "center",
+                fontFamily: "Inter_700",
+                marginBottom: 50,
+              }}
+            >
+              Error: Please use a Vanderbilt email. This app is for the Vanderbilt community only.
+            </Text>
+          )}
+        </View>
       )}
     </View>
   );
