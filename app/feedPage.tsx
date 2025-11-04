@@ -6,40 +6,45 @@
  */
 
 import Footer from "@/components/Footer";
+import { RidesContext } from "@/contexts/RidesContext";
 import { db } from "@/firebaseConfig";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
-import RidePost from "../components/RidePost";
+import SingleRidePost from "../components/SingleRidePost";
+import { RideData, UserData } from "./rsvp";
 
-export default function RidesPage() {
-  const [rides, setRides] = useState<any[]>([]);
+export default function FeedPage() {
+  const { rides, setRides } = useContext(RidesContext);
   const [loading, setLoading] = useState(true);
 
+  // fetch rides from db and set in context
   useEffect(() => {
     const fetchRides = async () => {
+      if (rides.length > 0) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const ridesSnapshot = await getDocs(collection(db, "rides"));
-        const ridesData: any[] = [];
+        const ridesData: RideData[] = [];
 
         for (const rideDoc of ridesSnapshot.docs) {
-          const ride = rideDoc.data();
+          const ride = rideDoc.data() as RideData;
 
           // Get the user document for the ride
-          let userData = {};
+          let userData: UserData | null = null;
 
           // TODO validate entries either here or in create ride
           // TODO only display rides whose time is not < curr time (keep them sorted somehow?)
           if (ride.creator) {
             try {
-              const userRef = doc(db, "users", ride.creator);
-              const userSnap = await getDoc(userRef);
+              const userSnap = await getDoc(doc(db, "users", ride.creator));
               if (userSnap.exists()) {
-                userData = userSnap.data();
+                userData = userSnap.data() as UserData;
               } else {
-                console.warn(
-                  `User doc not found for creator ID: ${ride.creator}`
-                );
+                console.warn(`User doc not found for creator ID`, ride.creator);
               }
             } catch (err) {
               console.error(`Error fetching user ${ride.creator}:`, err);
@@ -48,14 +53,19 @@ export default function RidesPage() {
             console.warn("Ride is missing a creator field.");
           }
 
+          if (rideDoc.id === undefined) {
+            return;
+          }
+
           ridesData.push({
             id: rideDoc.id,
-            name: userData.name || "Inactive Account",
+            creator: userData?.name || "Inactive Account",
             destination: ride.destination || "Unknown Destination",
-            departureDate: ride.date.toDate() ?? new Date(),
-            departureTime: ride.time.toDate() ?? new Date(),
-            currentPeople: ride.currPpl,
-            maxPeople: ride.maxPpl,
+            date: ride.date,
+            currPpl: ride.currPpl,
+            maxPpl: ride.maxPpl,
+            time: ride.time,
+            ppl: ride.ppl,
           });
         }
 
@@ -68,7 +78,7 @@ export default function RidesPage() {
     };
 
     fetchRides();
-  }, []);
+  }, [setRides, rides.length]);
 
   if (loading) {
     return (
@@ -83,18 +93,9 @@ export default function RidesPage() {
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
       >
-        {rides.map((ride) => (
-          <RidePost
-            rideId={ride.id}
-            key={ride.id}
-            name={ride.name}
-            destination={ride.destination}
-            departureDate={ride.departureDate}
-            departureTime={ride.departureTime}
-            currentPeople={ride.currentPeople}
-            maxPeople={ride.maxPeople}
-          />
-        ))}
+        {rides.map((ride) => {
+          return <SingleRidePost key={ride.id} rideId={ride.id} />;
+        })}
       </ScrollView>
       <Footer />
     </View>

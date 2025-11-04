@@ -6,7 +6,7 @@
 import Footer from "@/components/Footer";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Input from "../components/Input";
-import RidePost from "../components/RidePost"; // adjust the path if needed
+import SingleRidePost from "../components/SingleRidePost"; // adjust the path if needed
 
 const SearchScreen = () => {
   return (
@@ -21,30 +21,33 @@ const SearchScreen = () => {
         <View>
           <Text style={styles.title}>Search for a ride</Text>
           <Input label="" defaultValue="Type here to search" />
-          <RidePost
-            firstName="Kevin"
-            lastName="Song"
-            destination="BNA Airport (United Airlines)"
-            departureTime="6:30 PM"
-            currentPeople={2}
-            maxPeople={4}
+          <SingleRidePost
+            rideId="rideId1"
+            // firstName="Kevin"
+            // lastName="Song"
+            // destination="BNA Airport (United Airlines)"
+            // departureTime="6:30 PM"
+            // currentPeople={2}
+            // maxPeople={4}
           />
 
-          <RidePost
-            firstName="Other Kevin"
-            lastName="Song"
-            destination="BNA Airport (Southwest Airlines)"
-            departureTime="6:40 PM"
-            currentPeople={1}
-            maxPeople={6}
+          <SingleRidePost
+            rideId="rideId2"
+            // firstName="Other Kevin"
+            // lastName="Song"
+            // destination="BNA Airport (Southwest Airlines)"
+            // departureTime="6:40 PM"
+            // currentPeople={1}
+            // maxPeople={6}
           />
-          <RidePost
-            firstName="Other Kevin"
-            lastName="Song"
-            destination="BNA Airport (Southwest Airlines)"
-            departureTime="6:40 PM"
-            currentPeople={1}
-            maxPeople={6}
+          <SingleRidePost
+            rideId="rideId3"
+            // firstName="Other Kevin"
+            // lastName="Song"
+            // destination="BNA Airport (Southwest Airlines)"
+            // departureTime="6:40 PM"
+            // currentPeople={1}
+            // maxPeople={6}
           />
         </View>
       </ScrollView>

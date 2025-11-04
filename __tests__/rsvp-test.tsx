@@ -3,7 +3,7 @@
  Rachel Huiqi: 1 hour
  */
 
-import RSVP from "@/app/rsvp";
+import RsvpRidePage from "@/app/rsvp";
 import { render, waitFor } from "@testing-library/react-native";
 import React from "react";
 
@@ -80,10 +80,26 @@ jest.mock("firebase/firestore", () => {
 
 describe("<RSVP />", () => {
   test("displays ride details after fetching data", async () => {
-    const { getByText } = render(<RSVP />);
+    const { getByText } = render(<RsvpRidePage />);
     await waitFor(() => {
       expect(getByText("Ride Details")).toBeTruthy();
       expect(getByText("Test Destination")).toBeTruthy();
     });
+  });
+
+  test("when rideId is missing, warns and uses fallback rideId", async () => {
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    jest.isolateModules(() => {
+      jest.doMock("@react-navigation/native", () => ({
+        useRoute: () => ({ params: {} }),
+      }));
+      render(<RsvpRidePage />);
+    });
+    await waitFor(() => {
+      expect(warnSpy).toHaveBeenCalledWith(
+        "Deprecated: Accessing RSVP page from index.",
+      );
+    });
+    warnSpy.mockRestore();
   });
 });

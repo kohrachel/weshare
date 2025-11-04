@@ -4,119 +4,120 @@
  Rachel Huiqi: 5 hours
  */
 
+import { RideData } from "@/app/rsvp";
+import { RidesContext } from "@/contexts/RidesContext";
+import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
 import { formatDate, formatTime } from "@/utils";
 import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import {
+  arrayRemove,
   arrayUnion,
   doc,
   getDoc,
   increment,
   updateDoc,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ButtonGreen } from "./button-green";
 
-type RidePostProps = {
+type SingleRidePostProps = {
   rideId: string;
-  name: string;
-  destination: string;
-  departureDate: Date;
-  departureTime: Date;
-  currentPeople: number;
-  maxPeople: number;
 };
 
-const RidePost: React.FC<RidePostProps> = ({
-  rideId,
-  name,
-  destination,
-  departureDate,
-  departureTime,
-  currentPeople,
-  maxPeople,
-}) => {
-  const [isUserRsvped, setIsUserRsvped] = useState(false);
-  const [userId, setUserId] = useState("");
+export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   const router = useRouter();
   const route = useRoute();
 
-  if (!departureDate || !(departureDate instanceof Date)) {
-    departureDate = new Date();
-  }
-  if (!departureTime || !(departureTime instanceof Date)) {
-    departureTime = new Date();
-  }
+  const { getSingleRide, setSingleRide } = useContext(RidesContext);
+  const { userId } = useContext(UserContext);
+
+  const rideData = useMemo(
+    () => getSingleRide(rideId),
+    [getSingleRide, rideId],
+  );
+  const isUserRsvped = useMemo(
+    () => !!(userId && rideData?.ppl?.includes(userId)),
+    [rideData?.ppl, userId],
+  );
 
   useEffect(() => {
-    const fetchUserId = async () => {
-      const userId = await SecureStore.getItemAsync("userid");
-      if (!userId) {
-        console.error("User ID not found");
-        // TODO: remove this after testing
-        setUserId("iuTXJmjktD4jFvE9_HiehLbLnMwsZ9F5svHy1iGWB0c");
-        return;
-      }
-      setUserId(userId);
-    };
-    fetchUserId();
-  }, []);
-
-  useEffect(() => {
-    const checkIsUserRsvped = async () => {
-      const rideDoc = doc(db, "rides", rideId);
-      const rideData = await getDoc(rideDoc);
-      if (rideData.exists()) {
-        const rsvpedUsers = rideData.data().ppl;
-        setIsUserRsvped(rsvpedUsers.includes(userId));
-      }
-    };
-    checkIsUserRsvped();
-  }, [rideId, userId]);
-
-  const handleRSVP = async () => {
-    try {
-      if (isUserRsvped) {
-        return;
-      }
+    // fetch the ride of the user
+    const fetchRideData = async () => {
+      if (!rideId || !userId) return;
 
       const rideDoc = doc(db, "rides", rideId);
-      await updateDoc(rideDoc, {
-        ppl: arrayUnion(userId),
-        currPpl: increment(1),
-      });
-      setIsUserRsvped(true);
-    } catch (error) {
-      console.error("Error RSVPing to ride: ", error);
-    }
+      const rideDataDb = await getDoc(rideDoc);
+
+      if (!rideDataDb.exists()) return;
+
+      const rideData = rideDataDb.data() as RideData;
+
+      if (!rideData) return;
+
+      setSingleRide(rideId, rideData);
+    };
+
+    fetchRideData();
+  }, [rideId, userId, setSingleRide]);
+
+  const toggleRSVP = async () => {
+    if (!rideId || !userId) return;
+
+    // update in db
+    await updateDoc(doc(db, "rides", rideId), {
+      ppl: isUserRsvped ? arrayRemove(userId) : arrayUnion(userId),
+      currPpl: isUserRsvped ? increment(-1) : increment(1),
+    });
+    // update in context
+    const newPpl: string[] = isUserRsvped
+      ? rideData?.ppl?.filter((id) => id !== userId) || []
+      : [...(rideData?.ppl || []), userId];
+    const currPpl: number = isUserRsvped
+      ? (rideData?.currPpl || 0) - 1
+      : (rideData?.currPpl || 0) + 1;
+    setSingleRide(rideId, {
+      ppl: newPpl,
+      currPpl: currPpl,
+    });
   };
 
   const isRsvpRoute = route.name === "rsvp";
+
+  if (!rideData) {
+    return (
+      <View style={styles.card}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.card}>
       {/* Name Header */}
-      <Text style={styles.name}>{name}</Text>
+      <Text style={styles.name}>{rideData.creator}</Text>
 
       {/* Ride Details */}
       <View style={styles.detailRow}>
         <Text style={styles.label}>Destination: </Text>
-        <Text style={styles.value}>{destination}</Text>
+        <Text style={styles.value}>{rideData.destination}</Text>
       </View>
 
       <View style={styles.detailRow}>
         <Text style={styles.label}>Departure: </Text>
         <Text style={styles.value}>
-          {formatDate(departureDate) + " " + formatTime(departureTime)}
+          {formatDate(rideData.date.toDate()) +
+            " " +
+            formatTime(rideData.time.toDate())}
         </Text>
       </View>
 
       <View style={styles.detailRow}>
         <Text style={styles.label}>Seats: </Text>
         <Text style={styles.value}>
-          {currentPeople} / {maxPeople}
+          {rideData.currPpl} / {rideData.maxPpl}
         </Text>
       </View>
 
@@ -124,7 +125,7 @@ const RidePost: React.FC<RidePostProps> = ({
       <View style={styles.buttonWrapper}>
         <ButtonGreen
           title={isUserRsvped ? "RSVPed" : "RSVP"}
-          onPress={handleRSVP}
+          onPress={toggleRSVP}
         />
       </View>
 
@@ -138,7 +139,7 @@ const RidePost: React.FC<RidePostProps> = ({
       )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   card: {
@@ -175,5 +176,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-
-export default RidePost;
