@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 5 hours
+ Emma Reid: 6 hours
  Rachel Huiqi: 5 hours
  */
 
@@ -9,12 +9,12 @@ import DateTimeInput from "@/components/DateTimeInput";
 import Input from "@/components/Input";
 import { db } from "@/firebaseConfig";
 import * as SecureStore from "expo-secure-store";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, getDoc, doc, collection } from "firebase/firestore";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import BackButton from "../components/backbutton";
 
-export default function Index() {
+export default function CreateRide() {
   const [dest, setDest] = useState("");
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
@@ -23,32 +23,67 @@ export default function Index() {
 
   const storeRide = async () => {
     try {
-      let id = await SecureStore.getItemAsync("userid");
-      const docRef = await addDoc(collection(db, "rides"), {
-        destination: dest,
-        date: date,
-        time: time,
-        meetLoc: meetLoc,
-        maxPpl: Number(numberPpl),
-        creationTime: new Date(),
-        currPpl: 1,
-        creator: id,
-        ppl: [id],
-      });
+      const id = await SecureStore.getItemAsync("userid");
+      let user;
+      let error = "";
 
-      console.log("Ride stored with ID:", docRef.id);
-      alert(
-        "Ride saved!\n" + dest + "\n" + time + "\n" + meetLoc + "\n" + numberPpl
-      );
+      // Validate data
+      if (id == "") {
+        throw new Error('User id null. Must reopen app to sign in.');
+      } else {
+        user = await getDoc(doc(db, "users", id));
+      }
 
-      // Reset form fields
-      setDest("");
-      setTime(new Date());
-      setMeetLoc("");
-      setNumberPpl("");
-    } catch (error) {
-      console.error("Error adding ride: ", error);
-      alert("Ride not saved, please try again.\n" + error);
+      if (!user.exists()) {
+        throw new Error('User not found. Must reopen app to sign in.');
+      }
+
+      if (dest == "") {
+        console.log("no dest");
+        error += '\nDestination is required.';
+      }
+
+      if (meetLoc == "") {
+        error += '\nMeeting location is required.';
+      }
+
+      if (numberPpl < 2) {
+        error += '\nMust allow 2 or more people (including yourself).';
+      }
+
+      if (error == "") {
+        // send data to database
+        const docRef = await addDoc(collection(db, "rides"), {
+          destination: dest,
+          date: date,
+          time: time,
+          meetLoc: meetLoc,
+          maxPpl: Number(numberPpl),
+          creationTime: new Date(),
+          currPpl: 1,
+          creator: id,
+          ppl: [id],
+        });
+
+        console.log("Ride stored with ID:", docRef.id);
+        alert(
+          "Ride saved!\n" + dest + "\n" + time + "\n" + meetLoc + "\n" + numberPpl
+        );
+
+        // Reset form fields
+        setDest("");
+        setTime(new Date());
+        setDate(new Date());
+        setMeetLoc("");
+        setNumberPpl("");
+      } else {
+        alert("Ride not saved, please fix error(s):\n" + error);
+        error = "";
+      }
+
+    } catch (systemError) {
+      console.error("Error adding ride: ", systemError);
+      alert("Ride not saved, please try again.\n" + systemError);
     }
   };
 
@@ -87,7 +122,7 @@ export default function Index() {
           setValue={setMeetLoc}
         ></Input>
         <Input
-          label={"How many people?"}
+          label={"How many people (including you)?"}
           defaultValue={"e.g. 4"}
           value={numberPpl}
           setValue={setNumberPpl}
