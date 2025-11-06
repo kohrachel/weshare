@@ -120,7 +120,6 @@ export default function EditProfile() {
       <View style={styles.buttonContainer}>
         <ButtonGreen title="Save" onPress={storeInfo} />
       </View>
-      <Footer />
     </View>
   );
 }
