@@ -18,6 +18,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import RidePost from "../components/RidePost";
+import FloatingActionButton from "../components/FloatingActionButton";
 
 export default function FeedPage() {
   const [rides, setRides] = useState<any[]>([]);
@@ -52,13 +53,14 @@ export default function FeedPage() {
           try {
             const userRef = doc(db, "users", ride.creator.trim());
             const userSnapshot = await getDoc(userRef);
+
             if (!userSnapshot.exists()) {
               console.warn(
                 `User doc not found for creator ID: ${ride.creator}`,
               );
+            } else {
+              userData = userSnapshot.data() as DocumentData;
             }
-
-            userData = userSnapshot.data() as DocumentData;
           } catch (err) {
             console.error(`Error fetching user ${ride.creator}:`, err);
           }
@@ -67,14 +69,49 @@ export default function FeedPage() {
             id: rideDoc.id,
             name: userData.name || "Inactive Account",
             destination: ride.destination || "Unknown Destination",
-            departureDate: ride.date.toDate() ?? new Date(),
-            departureTime: ride.time.toDate() ?? new Date(),
+            departureDate: ride.date?.toDate?.() ?? new Date(),
+            departureTime: ride.time?.toDate?.() ?? new Date(),
             currentPeople: ride.currPpl,
             maxPeople: ride.maxPpl,
           });
         }
 
-        setRides(ridesData);
+        // Exclude past rides and sort chronologically
+        const now = new Date();
+
+        // Keep only rides whose departure date/time is in the future
+        const upcomingRides = ridesData.filter((ride) => {
+          const departure = new Date(
+            ride.departureDate.getFullYear(),
+            ride.departureDate.getMonth(),
+            ride.departureDate.getDate(),
+            ride.departureTime.getHours(),
+            ride.departureTime.getMinutes(),
+          );
+          return departure >= now;
+        });
+
+        // Sort upcoming rides by date and time (earliest first)
+        upcomingRides.sort((a, b) => {
+          const dateA = new Date(
+            a.departureDate.getFullYear(),
+            a.departureDate.getMonth(),
+            a.departureDate.getDate(),
+            a.departureTime.getHours(),
+            a.departureTime.getMinutes(),
+          );
+          const dateB = new Date(
+            b.departureDate.getFullYear(),
+            b.departureDate.getMonth(),
+            b.departureDate.getDate(),
+            b.departureTime.getHours(),
+            b.departureTime.getMinutes(),
+          );
+
+          return dateA.getTime() - dateB.getTime();
+        });
+
+        setRides(upcomingRides);
       } catch (error) {
         console.error("Error fetching rides:", error);
       } finally {
@@ -152,6 +189,7 @@ export default function FeedPage() {
           </View>
         )}
       </ScrollView>
+      <FloatingActionButton/>
       <Footer />
     </View>
   );

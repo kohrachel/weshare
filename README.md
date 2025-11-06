@@ -176,5 +176,13 @@ We are currently in test mode (The default security rules for test mode allow an
 - Using Microsoft login to require Vanderbilt login following [this document](https://medium.com/@shaikabbas101/microsoft-authentication-in-react-native-using-react-native-app-auth-3041565e914c)
 - Using expo-auth-session instead of react-native-app-auth due to compatibility issues with Expo
 - Redirect URI: com.wesharenative://oauth/auth/
+- Expo Go always has a changing redirect uri which must be updated in Azure each time the project is run. This issue is specific to Expo Go and would not affect production as production would have a stable uri. 
 - Weshare login secret will be valid for 6 months (until 11 April 2026)
--
+
+## Testing
+
+- Unit tests: (Jest)[https://docs.expo.dev/develop/unit-testing/]
+   ```bash
+   bun run test
+   ```
+  - Check coverage in weshare/coverage/lcov-report/index.html (open in browser)
