@@ -96,6 +96,6 @@ const styles = StyleSheet.create({
   timeBox: {
     ...inputStyles.inputBox,
     textAlign: "center",
-    width: 90,
+    width: 100,
   },
 });
