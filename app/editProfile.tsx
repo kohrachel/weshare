@@ -39,7 +39,7 @@ export default function EditProfile() {
   const fetchInfo = async () => {
     setLoading(true);
     try {
-      let id = await SecureStore.getItemAsync("userid");
+      const id = await SecureStore.getItemAsync("userid");
       const userInfo = await getDoc(doc(db, "users", id));
 
       setName(userInfo.data().name || "");

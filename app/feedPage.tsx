@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 3 hours
+ Emma Reid: 3.5 hours
  Kevin Song: 4 hours
  Rachel Huiqi: 3 hours
  */
@@ -18,6 +18,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import RidePost from "../components/RidePost";
+import FloatingActionButton from "../components/FloatingActionButton";
 
 export default function FeedPage() {
   const [rides, setRides] = useState<any[]>([]);
@@ -148,6 +149,7 @@ export default function FeedPage() {
           />
         ))}
       </ScrollView>
+      <FloatingActionButton/>
       <Footer />
     </View>
   );
