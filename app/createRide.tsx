@@ -112,7 +112,7 @@ export default function CreateRide() {
       }}
     >
       <View style={styles.header}>
-      <Title text={"Post a Ride"}/>
+      <Title text={"Create a Ride"}/>
       </View>
       <ScrollView
         contentContainerStyle={styles.formArea}
