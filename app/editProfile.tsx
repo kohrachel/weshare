@@ -21,7 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import BackButton from "../components/backbutton";
+import Title from "../components/Title";
 
 export default function EditProfile() {
   const router = useRouter();
@@ -86,17 +86,12 @@ export default function EditProfile() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <BackButton />
-        <Text style={styles.headerText}>Edit Profile</Text>
-        <View style={{ width: 28 }} />
-      </View>
-
+      <Title text={"Edit Profile"}/>
       <TouchableOpacity style={styles.profilePicContainer}>
         {profilePic ? (
           <Image source={{ uri: profilePic }} style={styles.profilePic} />
         ) : (
-          <Ionicons name="camera" size={28} color="#00ff9d" />
+          <Ionicons name="camera" size={28} color="#529053" />
         )}
       </TouchableOpacity>
 
@@ -137,19 +132,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingTop: 50,
     width: "100%",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-    marginBottom: 20,
-  },
-  headerText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 24,
-    color: "#e7e7e7",
-    textAlign: "center",
   },
   profilePicContainer: {
     width: 80,

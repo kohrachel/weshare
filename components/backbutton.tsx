@@ -27,7 +27,7 @@ export default function BackButton({ onPress }: BackButtonProps) {
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.7} style={{alignSelf: 'flex-start'}}>
-      <Ionicons name="arrow-back" size={28} color={"#00ff9d"} />
+      <Ionicons name="arrow-back" size={28} color={"#529053"} />
     </TouchableOpacity>
   );
 }

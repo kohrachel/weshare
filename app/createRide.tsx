@@ -12,7 +12,7 @@ import * as SecureStore from "expo-secure-store";
 import { addDoc, collection } from "firebase/firestore";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import BackButton from "../components/backbutton";
+import Title from "../components/Title";
 
 export default function Index() {
   const [dest, setDest] = useState("");
@@ -64,8 +64,9 @@ export default function Index() {
         flexDirection: "column",
       }}
     >
-      <BackButton />
-      <Text style={styles.title}>Create a Ride</Text>
+      <View style={styles.header}>
+      <Title text={"Post a Ride"}/>
+      </View>
       <View style={styles.formArea}>
         <Input
           label={"Where to?"}
