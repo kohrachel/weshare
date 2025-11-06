@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 6 hours
+ Emma Reid: 7 hours
  Rachel Huiqi: 5 hours
  */
 
@@ -11,8 +11,9 @@ import { db } from "@/firebaseConfig";
 import * as SecureStore from "expo-secure-store";
 import { addDoc, getDoc, doc, collection } from "firebase/firestore";
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import BackButton from "../components/backbutton";
+import { StyleSheet, Text, View, ScrollView, Switch } from "react-native";
+import Title from "../components/Title";
+import { Picker } from "@react-native-picker/picker";
 
 export default function CreateRide() {
   const [dest, setDest] = useState("");
@@ -20,6 +21,8 @@ export default function CreateRide() {
   const [time, setTime] = useState(new Date());
   const [meetLoc, setMeetLoc] = useState("");
   const [numberPpl, setNumberPpl] = useState("");
+  const [gender, setGender] = useState("");
+  const [luggage, setLuggage] = useState(false);
 
   const storeRide = async () => {
     try {
@@ -59,6 +62,8 @@ export default function CreateRide() {
           time: time,
           meetLoc: meetLoc,
           maxPpl: Number(numberPpl),
+          gender: gender,
+          luggage: Boolean(luggage),
           creationTime: new Date(),
           currPpl: 1,
           creator: id,
@@ -67,7 +72,13 @@ export default function CreateRide() {
 
         console.log("Ride stored with ID:", docRef.id);
         alert(
-          "Ride saved!\n" + dest + "\n" + time + "\n" + meetLoc + "\n" + numberPpl
+          "Ride saved!\n" +
+          dest + "\n" +
+          time + "\n" +
+          meetLoc + "\n" +
+          numberPpl + "\n" +
+          gender + "\n" +
+          (luggage ? "Luggage" : "No luggage")
         );
 
         // Reset form fields
@@ -76,6 +87,8 @@ export default function CreateRide() {
         setDate(new Date());
         setMeetLoc("");
         setNumberPpl("");
+        setGender("");
+        setLuggage(false);
       } else {
         alert("Ride not saved, please fix error(s):\n" + error);
         error = "";
@@ -91,17 +104,19 @@ export default function CreateRide() {
     <View
       style={{
         flex: 1,
-        alignItems: "center",
         backgroundColor: "#181818",
-        width: "100%",
-        paddingVertical: 50,
         paddingHorizontal: 30,
-        flexDirection: "column",
+        paddingTop: 50,
+        paddingBottom: 50,
+        width: "100%",
       }}
     >
-      <BackButton />
-      <Text style={styles.title}>Create a Ride</Text>
-      <View style={styles.formArea}>
+      <View style={styles.header}>
+      <Title text={"Create a Ride"}/>
+      </View>
+      <ScrollView
+        contentContainerStyle={styles.formArea}
+      >
         <Input
           label={"Where to?"}
           defaultValue={"e.g. BNA"}
@@ -127,24 +142,54 @@ export default function CreateRide() {
           value={numberPpl}
           setValue={setNumberPpl}
         ></Input>
-      </View>
-      <ButtonGreen title="Create New Ride" onPress={storeRide} />
+        <View>
+          <Text style={styles.label}>What genders allowed?</Text>
+          <Picker
+            selectedValue={gender}
+            dropdownIconColor="#e7e7e7"
+            style={styles.picker}
+            onValueChange={(itemValue) => setGender(itemValue)}
+          >
+            <Picker.Item label="Coed" value="Coed" />
+            <Picker.Item label="Female" value="Female" />
+            <Picker.Item label="Male" value="Male" />
+          </Picker>
+        </View>
+        <View style={styles.switchContainer}>
+          <Text style={styles.label}>Room for luggage?</Text>
+          <Switch
+            value={luggage}
+            onValueChange={(value) => setLuggage(value)}
+            trackColor={{ false: "#555", true: "#4CAF50" }}
+            thumbColor={luggage ? "#81C784" : "#f4f3f4"}
+          />
+        </View>
+      </ScrollView>
+    <ButtonGreen title="Create New Ride" onPress={storeRide} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 24,
-    color: "#e7e7e7",
-    paddingBottom: 10,
-    paddingTop: 28,
-  },
   formArea: {
     flexDirection: "column",
-    gap: 30,
+    gap: 10,
     width: "100%",
-    paddingVertical: 40,
+    paddingHorizontal: 1, // yes, the 1 is necessary
+  },
+  label: {
+    color: "#e7e7e7",
+    fontFamily: "Inter_700Bold",
+    fontSize: 16,
+  },
+  picker: {
+    backgroundColor: "#2a2a2a",
+    color: "#e7e7e7",
+    borderRadius: 8,
+  },
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 });
