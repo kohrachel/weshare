@@ -12,12 +12,12 @@ type ContactCardProps = {
   email: string;
 };
 
-const ContactsCard: React.FC<ContactCardProps> = ({
+export default function ContactCard({
   firstName,
   lastName,
   phoneNum,
   email,
-}) => {
+}: ContactCardProps) {
   return (
     <View style={styles.card}>
       {/* Name Header */}
@@ -74,5 +74,3 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
 });
-
-export default ContactsCard;
