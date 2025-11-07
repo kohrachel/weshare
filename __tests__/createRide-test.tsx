@@ -66,20 +66,6 @@ jest.mock("@react-native-picker/picker", () => {
   };
 });
 
-// jest.mock("react-native/Libraries/Components/Switch/Switch", () => {
-//   const React = require("react");
-//   const { TouchableOpacity, Text } = require("react-native");
-//
-//   return ({ value, onValueChange, testID }: any) => (
-//     <TouchableOpacity
-//       testID={"mock-switch"}
-//       onPress={() => onValueChange(!value)}
-//     >
-//       <Text>{`Switch: ${value ? "On" : "Off"}`}</Text>
-//     </TouchableOpacity>
-//   );
-// });
-
 global.alert = jest.fn();
 global.console = { ...console, error: jest.fn(), log: jest.fn() };
 
