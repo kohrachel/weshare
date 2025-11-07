@@ -1,11 +1,11 @@
 /**
  Contributors
- Emma Reid: 05 hour
+ Emma Reid: 0.5 hours
  */
 
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
-import BackButton from "../components/backbutton"; // adjust path if needed
+import BackButton from "../components/backbutton";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 

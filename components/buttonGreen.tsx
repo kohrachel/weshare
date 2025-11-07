@@ -5,12 +5,13 @@
  */
 
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
-interface ButtonGreenProps {
+
+type ButtonGreenProps = {
   title: string;
   onPress: () => void;
 }
 
-export function ButtonGreen({ title, onPress }: ButtonGreenProps) {
+export default function ButtonGreen({ title, onPress }: ButtonGreenProps) {
   return (
     <TouchableOpacity style={styles.buttonContainer} onPress={onPress}>
       <Text style={styles.buttonText}>{title}</Text>
