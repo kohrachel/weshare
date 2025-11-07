@@ -5,7 +5,7 @@
 
 import React from "react";
 import { render } from "@testing-library/react-native";
-import Title from "../Title";
+import Title from "../components/Title";
 
 // Mock BackButton so we can isolate Title rendering
 jest.mock("../components/backbutton", () => () => <></>);
