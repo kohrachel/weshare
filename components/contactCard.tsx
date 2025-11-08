@@ -8,7 +8,7 @@ import { StyleSheet, Text, View } from "react-native";
 type ContactCardProps = {
   firstName: string;
   lastName: string;
-  phoneNum: number;
+  phoneNum: string;
   email: string;
 };
 
