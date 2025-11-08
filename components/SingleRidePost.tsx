@@ -4,7 +4,7 @@
  Rachel Huiqi: 7 hours
  */
 
-import { RideData } from "@/app/rsvp";
+import { RideData, UserData } from "@/app/rsvp";
 import { RidesContext } from "@/contexts/RidesContext";
 import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
@@ -44,6 +44,17 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   );
 
   const [rideCreator, setRideCreator] = useState<string>("Loading...");
+  const [userData, setUserData] = useState<UserData | undefined>(undefined);
+
+  useEffect(() => {
+    if (!userId) return;
+    const fetchUserData = async () => {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (!userDoc.exists()) return;
+      setUserData(userDoc.data() as UserData);
+    };
+    fetchUserData();
+  }, [userId]);
 
   const fetchCreatorInfo = useCallback(async () => {
     if (!rideData?.creator) return;
@@ -108,6 +119,14 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     );
   }
 
+  const isRsvpDisabled = () => {
+    if (rideData?.currPpl >= (rideData?.maxPpl || 0) && !isUserRsvped)
+      return true;
+    if (rideData?.gender !== "Co-ed" && rideData?.gender !== userData?.gender)
+      return true;
+    return false;
+  };
+
   return (
     <View style={styles.card}>
       {/* Name Header */}
@@ -154,7 +173,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         <ButtonGreen
           title={isUserRsvped ? "RSVPed" : "RSVP"}
           onPress={toggleRSVP}
-          disabled={rideData.currPpl >= (rideData.maxPpl || 0)}
+          disabled={isRsvpDisabled()}
         />
       </View>
 
