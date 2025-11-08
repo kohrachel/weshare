@@ -154,6 +154,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         <ButtonGreen
           title={isUserRsvped ? "RSVPed" : "RSVP"}
           onPress={toggleRSVP}
+          disabled={rideData.currPpl >= (rideData.maxPpl || 0)}
         />
       </View>
 
