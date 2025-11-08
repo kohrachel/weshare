@@ -7,15 +7,13 @@
 import { StyleSheet, Text, View } from "react-native";
 
 type ContactCardProps = {
-  firstName: string;
-  lastName: string;
+  name: string;
   phoneNum: string;
   email: string;
 };
 
 const ContactsCard: React.FC<ContactCardProps> = ({
-  firstName,
-  lastName,
+  name,
   phoneNum,
   email,
 }) => {

@@ -30,6 +30,8 @@ export type RideData = {
   currPpl: number;
   maxPpl: number;
   ppl: string[];
+  gender: "Male" | "Female" | "Co-ed";
+  meetLoc: string;
 };
 
 export type UserData = {
@@ -145,8 +147,7 @@ export default function RsvpRidePage() {
         {rsvpedUsers.map((user, index) => (
           <ContactCard
             key={index}
-            firstName={user.name}
-            lastName={""}
+            name={user.name}
             phoneNum={user.phone}
             email={user.email}
           />
