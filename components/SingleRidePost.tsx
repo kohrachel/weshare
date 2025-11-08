@@ -111,12 +111,6 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   return (
     <View style={styles.card}>
       {/* Name Header */}
-
-      {/* Ride Details */}
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Destination: </Text>
-        <Text style={styles.value}>{rideData.destination}</Text>
-      </View>
       <Text
         style={styles.header}
       >{`Destination: ${rideData.destination}`}</Text>
@@ -131,10 +125,28 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
       </View>
 
       <View style={styles.detailRow}>
-        <Text style={styles.label}>Seats: </Text>
+        <Text style={styles.label}>Meeting at: </Text>
+        <Text style={styles.value}>{rideData.meetLoc}</Text>
+      </View>
+
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Gender Restriction: </Text>
+        <Text style={styles.value}>
+          {rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender + " only"}
+        </Text>
+      </View>
+
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Capacity: </Text>
         <Text style={styles.value}>
           {rideData.currPpl} / {rideData.maxPpl}
         </Text>
+      </View>
+
+      {/* Ride Details */}
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Created by: </Text>
+        <Text style={styles.value}>{rideCreator || "Loading..."}</Text>
       </View>
 
       {/* RSVP Button */}
