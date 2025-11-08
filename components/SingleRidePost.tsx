@@ -19,7 +19,7 @@ import {
   increment,
   updateDoc,
 } from "firebase/firestore";
-import { useContext, useEffect, useMemo } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ButtonGreen } from "./button-green";
 
@@ -43,10 +43,24 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     [rideData?.ppl, userId],
   );
 
+  const [rideCreator, setRideCreator] = useState<string>("Loading...");
+
+  const fetchCreatorInfo = useCallback(async () => {
+    if (!rideData?.creator) return;
+    const creatorDoc = doc(db, "users", rideData.creator);
+    const creatorData = await getDoc(creatorDoc);
+    if (!creatorData.exists()) return;
+    return creatorData.data().name as string;
+  }, [rideData?.creator]);
+
+  useEffect(() => {
+    fetchCreatorInfo().then((name) => setRideCreator(name || "Loading..."));
+  }, [fetchCreatorInfo]);
+
   useEffect(() => {
     // fetch the ride of the user
     const fetchRideData = async () => {
-      if (!rideId || !userId) return;
+      if (!rideId) return;
 
       const rideDoc = doc(db, "rides", rideId);
       const rideDataDb = await getDoc(rideDoc);
@@ -61,7 +75,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     };
 
     fetchRideData();
-  }, [rideId, userId, setSingleRide]);
+  }, [rideId, setSingleRide]);
 
   const toggleRSVP = async () => {
     if (!rideId || !userId) return;
