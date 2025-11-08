@@ -1,7 +1,7 @@
 /**
  Contributors
  Kevin Song: 3 hours
- Rachel Huiqi: 0.5 hours
+ Rachel Huiqi: 1 hour
  */
 
 import { StyleSheet, Text, View } from "react-native";
