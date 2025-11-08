@@ -97,13 +97,15 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   return (
     <View style={styles.card}>
       {/* Name Header */}
-      <Text style={styles.name}>{rideData.creator}</Text>
 
       {/* Ride Details */}
       <View style={styles.detailRow}>
         <Text style={styles.label}>Destination: </Text>
         <Text style={styles.value}>{rideData.destination}</Text>
       </View>
+      <Text
+        style={styles.header}
+      >{`Destination: ${rideData.destination}`}</Text>
 
       <View style={styles.detailRow}>
         <Text style={styles.label}>Departure: </Text>
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  name: {
+  header: {
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 12,
