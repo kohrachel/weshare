@@ -18,6 +18,10 @@ const ContactsCard: React.FC<ContactCardProps> = ({
   phoneNum,
   email,
 }) => {
+  const formatPhoneNumber = (phoneNum: string) => {
+    if (phoneNum === "Not set") return "Not set";
+    return phoneNum.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
+  };
   return (
     <View style={styles.card}>
       {/* Name Header */}
@@ -28,7 +32,7 @@ const ContactsCard: React.FC<ContactCardProps> = ({
       {/* Contact Info */}
       <View style={styles.detailRow}>
         <Text style={styles.label}>Phone: </Text>
-        <Text style={styles.value}>{phoneNum}</Text>
+        <Text style={styles.value}>{formatPhoneNumber(phoneNum)}</Text>
       </View>
 
       <View style={styles.detailRow}>
