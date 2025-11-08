@@ -24,9 +24,7 @@ const ContactsCard: React.FC<ContactCardProps> = ({
   return (
     <View style={styles.card}>
       {/* Name Header */}
-      <Text style={styles.name}>
-        {firstName} {lastName}
-      </Text>
+      <Text style={styles.name}>{name}</Text>
 
       {/* Contact Info */}
       <View style={styles.detailRow}>
