@@ -21,6 +21,8 @@ import {
 import SingleRidePost from "../components/SingleRidePost";
 import ContactCard from "../components/contactCard";
 
+export type UserGenderType = "Male" | "Female" | "Other" | "Not set";
+
 export type RideData = {
   id: string;
   creator: string;
@@ -38,12 +40,12 @@ export type UserData = {
   name: string;
   phone: string;
   email: string;
-  gender: string;
+  gender: UserGenderType;
 };
 
 const unknownUser: UserData = {
   name: "Unknown User",
-  gender: "Unknown",
+  gender: "Not set",
   phone: "1234567890",
   email: "Unknown",
 };
@@ -83,6 +85,8 @@ export default function RsvpRidePage() {
         currPpl: ride.currPpl,
         maxPpl: ride.maxPpl,
         ppl: ride.ppl,
+        gender: ride.gender,
+        meetLoc: ride.meetLoc,
       };
 
       setRideData(newRideData);
@@ -150,6 +154,7 @@ export default function RsvpRidePage() {
             name={user.name}
             phoneNum={user.phone}
             email={user.email}
+            gender={user.gender}
           />
         ))}
       </ScrollView>
