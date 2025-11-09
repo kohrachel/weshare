@@ -4,18 +4,21 @@
  Rachel Huiqi: 1 hour
  */
 
+import { UserGenderType } from "@/app/rsvp";
 import { StyleSheet, Text, View } from "react-native";
 
 type ContactCardProps = {
   name: string;
   phoneNum: string;
   email: string;
+  gender: UserGenderType;
 };
 
 const ContactsCard: React.FC<ContactCardProps> = ({
   name,
   phoneNum,
   email,
+  gender,
 }) => {
   const formatPhoneNumber = (phoneNum: string) => {
     if (phoneNum === "Not set") return "Not set";
@@ -35,6 +38,11 @@ const ContactsCard: React.FC<ContactCardProps> = ({
       <View style={styles.detailRow}>
         <Text style={styles.label}>Email: </Text>
         <Text style={styles.value}>{email}</Text>
+      </View>
+
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Gender: </Text>
+        <Text style={styles.value}>{gender}</Text>
       </View>
     </View>
   );
