@@ -46,7 +46,7 @@ export type UserData = {
 const unknownUser: UserData = {
   name: "Unknown User",
   gender: "Not set",
-  phone: "1234567890",
+  phone: "Unknown",
   email: "Unknown",
 };
 
