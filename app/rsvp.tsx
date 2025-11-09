@@ -147,7 +147,7 @@ export default function RsvpRidePage() {
             key={index}
             firstName={user.name}
             lastName={""}
-            phoneNum={Number(user.phone)}
+            phoneNum={user.phone}
             email={user.email}
           />
         ))}
