@@ -9,19 +9,33 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "test:coverage": "jest --coverage --watchAll=false"
   },
   "jest": {
     "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "@testing-library/jest-native/extend-expect"
+    ],
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "**/*.{ts,tsx,js,jsx}",
+      "app/**/*.{ts,tsx,js,jsx}",
+      "components/**/*.{ts,tsx,js,jsx}",
       "!**/coverage/**",
       "!**/node_modules/**",
       "!**/babel.config.js",
       "!**/expo-env.d.ts",
-      "!**/.expo/**"
-    ]
+      "!**/.expo/**",
+      "!**/*.d.ts"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!(jest-)?react-native|@react-native|@expo|expo|expo-router|expo-asset|expo-constants|expo-file-system|expo-font|expo-linking|expo-modules-core|expo-secure-store|expo-image-picker|@expo/vector-icons|@react-navigation|firebase|@firebase)"
+    ],
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js",
+      "^@/(.*)$": "<rootDir>/$1"
+    },
+    "testEnvironment": "jsdom"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
@@ -51,8 +65,7 @@
     "expo-symbols": "~1.0.7",
     "expo-system-ui": "~6.0.7",
     "expo-web-browser": "~15.0.7",
-    "install": "^0.13.0",
-    "react": "19.1.0",
+    "react": "^19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.4",
     "react-native-app-auth": "^8.0.3",
@@ -64,6 +77,7 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
+    "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "29.5.14",
     "@types/react": "~19.1.0",
@@ -74,6 +88,7 @@
     "jest": "~29.7.0",
     "jest-expo": "~54.0.13",
     "prettier": "^3.6.2",
+    "react-test-renderer": "^19.1.0",
     "typescript": "~5.9.2"
   },
   "private": true

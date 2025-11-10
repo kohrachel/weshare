@@ -1,7 +1,7 @@
 /**
  Contributors
- Emma Reid: 1 hour
- Jonny Yang: 6 hours
+ Emma Reid: 3 hours
+ Jonny Yang: 4 hours
 */
 
 import { useEffect, useState } from "react";
@@ -27,7 +27,7 @@ import BackButton from "@/components/backbutton";
 import Title from '@/components/Title';
 
 
-// Firebase imports
+// Firebase
 import { db, storage } from "@/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -42,27 +42,24 @@ export default function EditProfile() {
   const [phone, setPhone] = useState("");
   const [gender, setGender] = useState("");
 
-  // -------------------
-  // TEMP: Ensure a test userid exists for uploads
-  // -------------------
+  // Ensure a test userid exists
   useEffect(() => {
-    SecureStore.getItemAsync("userid").then((id) => {
+    (async () => {
+      const id = await SecureStore.getItemAsync("userid");
       if (!id) {
-        SecureStore.setItemAsync("userid", "testUser123");
+        await SecureStore.setItemAsync("userid", "testUser123");
         console.log("Test userid set to 'testUser123'");
       } else {
         console.log("Existing userid found:", id);
       }
-    });
+    })();
   }, []);
 
+  // Fetch info on mount
   useEffect(() => {
     fetchInfo();
   }, []);
 
-  // -------------------
-  // Fetch user info
-  // -------------------
   const fetchInfo = async () => {
     setLoading(true);
     try {
@@ -70,8 +67,8 @@ export default function EditProfile() {
       console.log("Fetching info for userid:", id);
       if (!id) throw new Error("No user ID found");
 
-      const userInfo = await getDoc(doc(db, "users", id));
-      const data = userInfo.data();
+      const userDoc = await getDoc(doc(db, "users", id));
+      const data = userDoc.data();
 
       setName(data?.name || "");
       setEmail(data?.email || "");
@@ -86,9 +83,6 @@ export default function EditProfile() {
     }
   };
 
-  // -------------------
-  // Save user info
-  // -------------------
   const storeInfo = async () => {
     try {
       const id = await SecureStore.getItemAsync("userid");
@@ -102,16 +96,13 @@ export default function EditProfile() {
       );
 
       Alert.alert("Success", "Info saved!");
-      fetchInfo(); // refresh after save
+      fetchInfo();
     } catch (error) {
       console.error("Error saving info:", error);
       Alert.alert("Error", "Info not saved, please try again.");
     }
   };
 
-  // -------------------
-  // Pick image
-  // -------------------
   const pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -123,8 +114,8 @@ export default function EditProfile() {
 
       if (!result.canceled) {
         const uri = result.assets[0].uri;
-        setProfilePic(uri); // preview immediately
-        await uploadImage(uri); // upload to Firebase
+        setProfilePic(uri);
+        await uploadImage(uri);
       }
     } catch (error) {
       console.error("Error picking image:", error);
@@ -132,13 +123,9 @@ export default function EditProfile() {
     }
   };
 
-  // -------------------
-  // Upload image to Firebase Storage
-  // -------------------
   const uploadImage = async (uri: string) => {
     try {
       const id = await SecureStore.getItemAsync("userid");
-      console.log("Uploading image for userid:", id);
       if (!id) throw new Error("No user ID found");
 
       const response = await fetch(uri);
@@ -150,20 +137,13 @@ export default function EditProfile() {
       const downloadURL = await getDownloadURL(storageRef);
       setProfilePic(downloadURL);
 
-      console.log("Image uploaded successfully:", downloadURL);
-      Alert.alert("Success", "Profile picture uploaded!");
-    } catch (error: any) {
+      await setDoc(doc(db, "users", id), { profilePic: downloadURL }, { merge: true });
+      console.log("Image uploaded:", downloadURL);
+    } catch (error) {
       console.error("Error uploading image:", error);
-      Alert.alert(
-        "Upload Error",
-        error.message || "Failed to upload profile picture.",
-      );
     }
   };
 
-  // -------------------
-  // Render
-  // -------------------
   if (loading) {
     return (
       <View style={styles.loading}>
@@ -201,14 +181,14 @@ export default function EditProfile() {
       
 
       <View style={styles.formArea}>
-        <Input label="Name" value={name} setValue={setName} />
-        <Input label="Email" value={email} setValue={setEmail} />
-        <Input label="Phone" value={phone} setValue={setPhone} />
-        <Input label="Gender" value={gender} setValue={setGender} />
+        <Input label="Name" value={name} setValue={setName} testID="input-Name" />
+        <Input label="Email" value={email} setValue={setEmail} testID="input-Email" />
+        <Input label="Phone" value={phone} setValue={setPhone} testID="input-Phone" />
+        <Input label="Gender" value={gender} setValue={setGender} testID="input-Gender" />
       </View>
 
       <View style={styles.buttonContainer}>
-        <ButtonGreen title="Save" onPress={storeInfo} />
+        <ButtonGreen title="Save" onPress={storeInfo} testID="save-button" />
       </View>
 
       <Footer />
