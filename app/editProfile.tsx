@@ -96,7 +96,7 @@ export default function EditProfile() {
       await setDoc(
         doc(db, "users", id),
         { name, email, phone, gender, profilePic },
-        { merge: true }
+        { merge: true },
       );
 
       Alert.alert("Success", "Info saved!");
@@ -152,7 +152,10 @@ export default function EditProfile() {
       Alert.alert("Success", "Profile picture uploaded!");
     } catch (error: any) {
       console.error("Error uploading image:", error);
-      Alert.alert("Upload Error", error.message || "Failed to upload profile picture.");
+      Alert.alert(
+        "Upload Error",
+        error.message || "Failed to upload profile picture.",
+      );
     }
   };
 
@@ -176,25 +179,25 @@ export default function EditProfile() {
       </View>
 
       <TouchableOpacity
-      style={styles.profilePicContainer}
-      onPress={pickImage}
-      testID="profilePicButton"
-      accessibilityLabel="Profile Picture Button"
-    >
-      {profilePic ? (
-        <Image
-          source={{ uri: profilePic }}
-          style={styles.profilePic}
-          testID="profilePicImage"
-          accessibilityRole="image"
-        />
-      ) : (
-        <Ionicons name="camera" size={28} color="#529053" />
-      )}
-    </TouchableOpacity>
+        style={styles.profilePicContainer}
+        onPress={pickImage}
+        testID="profilePicButton"
+        accessibilityLabel="Profile Picture Button"
+      >
+        {profilePic ? (
+          <Image
+            source={{ uri: profilePic }}
+            style={styles.profilePic}
+            testID="profilePicImage"
+            accessibilityRole="image"
+          />
+        ) : (
+          <Ionicons name="camera" size={28} color="#529053" />
+        )}
+      </TouchableOpacity>
 
-    {/* Optional title moved outside touchable */}
-    <Title text={"Edit Profile"} />
+      {/* Optional title moved outside touchable */}
+      <Title text={"Edit Profile"} />
 
       <View style={styles.formArea}>
         <Input label="Name" value={name} setValue={setName} />

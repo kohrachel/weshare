@@ -20,28 +20,24 @@ jest.mock("firebase/firestore", () => ({
 jest.mock("@/components/Footer", () => () => <></>);
 jest.mock("@/components/FloatingActionButton", () => () => <></>);
 
-jest.mock("@/components/Input", () =>
-  (props: any) => {
-    const { View, TextInput } = require("react-native");
-    return (
-      <View>
-        <TextInput
-          testID="searchInput"
-          value={props.value}
-          placeholder={props.defaultValue}
-          onChangeText={props.setValue}
-        />
-      </View>
-    );
-  }
-);
+jest.mock("@/components/Input", () => (props: any) => {
+  const { View, TextInput } = require("react-native");
+  return (
+    <View>
+      <TextInput
+        testID="searchInput"
+        value={props.value}
+        placeholder={props.defaultValue}
+        onChangeText={props.setValue}
+      />
+    </View>
+  );
+});
 
-jest.mock("@/components/RidePost", () =>
-  (props: any) => {
-    const { View } = require("react-native");
-    return <View testID={`ride-${props.name}`} />;
-  }
-);
+jest.mock("@/components/RidePost", () => (props: any) => {
+  const { View } = require("react-native");
+  return <View testID={`ride-${props.name}`} />;
+});
 
 // Sample rides and users
 const flushPromises = () => new Promise(setImmediate);
@@ -89,7 +85,9 @@ describe("FeedPage - Full Branch Coverage", () => {
 
   test("renders future rides and skips past rides", async () => {
     (collection as jest.Mock).mockReturnValue("rides");
-    (getDocs as jest.Mock).mockResolvedValue({ docs: [mockRideFuture, mockRidePast] });
+    (getDocs as jest.Mock).mockResolvedValue({
+      docs: [mockRideFuture, mockRidePast],
+    });
     (doc as jest.Mock).mockReturnValue("userDocRef");
     (getDoc as jest.Mock).mockResolvedValue(mockUserSnapshot);
 
@@ -111,9 +109,11 @@ describe("FeedPage - Full Branch Coverage", () => {
       render(<FeedPage />);
       await act(flushPromises);
 
-      expect(consoleWarnSpy.mock.calls[0][0]).toContain("invalid creator field:");
+      expect(consoleWarnSpy.mock.calls[0][0]).toContain(
+        "invalid creator field:",
+      );
       consoleWarnSpy.mockRestore();
-    }
+    },
   );
 
   test("handles missing user document", async () => {
@@ -159,25 +159,24 @@ describe("FeedPage - Full Branch Coverage", () => {
   });
 
   test("handles rides with missing fields", async () => {
-  const incompleteRide = {
-    id: "rideIncomplete",
-    data: () => ({
-      creator: "user3",
-      // set future date/time so it passes the upcoming filter
-      date: { toDate: () => new Date(Date.now() + 1000 * 60 * 60) },
-      time: { toDate: () => new Date(Date.now() + 1000 * 60 * 60) },
-    }),
-  };
-  const incompleteUser = { exists: () => true, data: () => ({}) };
-  (getDocs as jest.Mock).mockResolvedValue({ docs: [incompleteRide] });
-  (getDoc as jest.Mock).mockResolvedValue(incompleteUser);
+    const incompleteRide = {
+      id: "rideIncomplete",
+      data: () => ({
+        creator: "user3",
+        // set future date/time so it passes the upcoming filter
+        date: { toDate: () => new Date(Date.now() + 1000 * 60 * 60) },
+        time: { toDate: () => new Date(Date.now() + 1000 * 60 * 60) },
+      }),
+    };
+    const incompleteUser = { exists: () => true, data: () => ({}) };
+    (getDocs as jest.Mock).mockResolvedValue({ docs: [incompleteRide] });
+    (getDoc as jest.Mock).mockResolvedValue(incompleteUser);
 
-  const { queryByTestId } = render(<FeedPage />);
-  await act(flushPromises);
+    const { queryByTestId } = render(<FeedPage />);
+    await act(flushPromises);
 
-  expect(queryByTestId("ride-Inactive Account")).toBeTruthy();
-});
-
+    expect(queryByTestId("ride-Inactive Account")).toBeTruthy();
+  });
 
   describe("search filtering", () => {
     beforeEach(() => {
@@ -210,7 +209,11 @@ describe("FeedPage - Full Branch Coverage", () => {
     test("filters by partial time", async () => {
       const { getByTestId, queryByTestId } = render(<FeedPage />);
       await act(flushPromises);
-      const timeWord = mockRideFuture.data().time.toDate().getHours().toString();
+      const timeWord = mockRideFuture
+        .data()
+        .time.toDate()
+        .getHours()
+        .toString();
       fireEvent.changeText(getByTestId("searchInput"), timeWord);
       expect(queryByTestId("ride-Alice")).toBeTruthy();
     });
