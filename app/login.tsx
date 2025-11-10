@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Text, View, Image, ActivityIndicator } from "react-native";
-import { ButtonGreen } from "../components/button-green";
+import { ButtonGreen } from "../components/buttonGreen";
 import { useRouter } from "expo-router";
 import { Inter_700Bold } from "@expo-google-fonts/inter/700Bold";
 import { doc, setDoc, getDoc } from "firebase/firestore";

@@ -5,7 +5,7 @@
 
 import React from "react";
 import { render, act, waitFor, fireEvent } from "@testing-library/react-native";
-import Login from "../app/Login"; // adjust path if needed
+import Login from "../app/Login";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import * as AuthSession from "expo-auth-session";
@@ -38,7 +38,7 @@ jest.mock("@/firebaseConfig", () => ({
   db: {},
 }));
 
-jest.mock("../components/button-green", () => ({
+jest.mock("../components/buttonGreen", () => ({
   ButtonGreen: ({ title, onPress }: any) => (
     <button onClick={onPress} testID="login-button">
       {title}

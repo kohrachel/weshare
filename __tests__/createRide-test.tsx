@@ -21,7 +21,7 @@ jest.mock("firebase/firestore", () => ({
 
 jest.mock("@/firebaseConfig", () => ({ db: {} }));
 
-jest.mock("../components/button-green", () => ({
+jest.mock("../components/buttonGreen", () => ({
   ButtonGreen: ({ title, onPress }: any) => (
     <button onClick={onPress} testID="create-ride-button">
       {title}
