@@ -8,7 +8,7 @@ import { formatDate, formatTime } from "@/utils";
 import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
-import { ButtonGreen } from "./button-green";
+import { ButtonGreen } from "./buttonGreen";
 
 type RidePostProps = {
   name: string;
