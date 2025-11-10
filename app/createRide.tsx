@@ -158,6 +158,7 @@ export default function CreateRide() {
         <View style={styles.switchContainer}>
           <Text style={styles.label}>Room for luggage?</Text>
           <Switch
+            testID = "mock-switch"
             value={luggage}
             onValueChange={(value) => setLuggage(value)}
             trackColor={{ false: "#555", true: "#4CAF50" }}
