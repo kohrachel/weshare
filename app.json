@@ -17,7 +17,7 @@
     },
     "android": {
       "googleServicesFile": "./google-services.json",
-      "package": "com.mycorp.myapp",
+      "package": "com.weshare.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -70,6 +70,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6feaff3a-c4b3-44de-9fe7-e185562ae6bf"
+      }
     }
   }
 }
