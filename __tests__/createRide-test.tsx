@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 2 hours
+ Emma Reid: 3 hours
  */
 
 import React from "react";
@@ -8,6 +8,8 @@ import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import CreateRide from "../app/createRide";
 import * as SecureStore from "expo-secure-store";
 import { addDoc, getDoc, doc, collection } from "firebase/firestore";
+import { Picker } from "@react-native-picker/picker";
+import { Switch } from "react-native";
 
 // Mocks
 jest.mock("expo-secure-store");
@@ -42,6 +44,27 @@ jest.mock("@/components/DateTimeInput", () => (props: any) => (
 ));
 
 jest.mock("../components/backbutton", () => () => <div />);
+
+jest.mock("@react-native-picker/picker", () => {
+  const React = require("react");
+  const { Text, TouchableOpacity } = require("react-native");
+  return {
+    Picker: ({ selectedValue, onValueChange, children }: any) => (
+      <>
+        <Text testID="gender-picker">{selectedValue}</Text>
+        {React.Children.map(children, (child) => (
+          <TouchableOpacity
+            onPress={() => onValueChange(child.props.value)}
+            testID={`picker-${child.props.value}`}
+          >
+            <Text>{child.props.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </>
+    ),
+    PickerItem: ({ label }: any) => <Text>{label}</Text>,
+  };
+});
 
 global.alert = jest.fn();
 global.console = { ...console, error: jest.fn(), log: jest.fn() };
@@ -206,5 +229,56 @@ describe("CreateRide Ride Creation Screen", () => {
         expect.stringContaining("Ride not saved")
       )
     );
+  });
+
+  it("renders gender picker and luggage switch", () => {
+    const { getByText, getByTestId } = render(<CreateRide />);
+    expect(getByText("What genders allowed?")).toBeTruthy();
+    expect(getByText("Room for luggage?")).toBeTruthy();
+    expect(getByTestId("gender-picker")).toBeTruthy();
+  });
+
+  it("updates gender when Picker value changes", async () => {
+    const { getByTestId } = render(<CreateRide />);
+    fireEvent.press(getByTestId("picker-Female"));
+    await waitFor(() => {
+      expect(getByTestId("gender-picker").children[0]).toBe("Female");
+    });
+  });
+
+  it("toggles luggage switch correctly", async () => {
+    const { getByTestId } = render(<CreateRide />);
+    const luggageSwitch = getByTestId("mock-switch");
+    expect(luggageSwitch.props.value).toBe(false);
+    fireEvent(luggageSwitch, "valueChange", true);
+    await waitFor(() => {
+      expect(luggageSwitch.props.value).toBe(true);
+    });
+  });
+
+  it("includes gender and luggage values in addDoc payload", async () => {
+    const { getByTestId } = render(<CreateRide />);
+    fireEvent.changeText(getByTestId("Where to?"), "Airport");
+    fireEvent.changeText(getByTestId("Where to meet?"), "Commons Lawn");
+    fireEvent.changeText(getByTestId("How many people (including you)?"), "3");
+    fireEvent.press(getByTestId("picker-Male"));
+
+    const luggageSwitch = getByTestId("mock-switch");
+    fireEvent(luggageSwitch, "valueChange", true);
+
+    fireEvent.press(getByTestId("create-ride-button"));
+
+    await waitFor(() => {
+      expect(addDoc).toHaveBeenCalledWith(
+        "mockCollectionRef",
+        expect.objectContaining({
+          destination: "Airport",
+          meetLoc: "Commons Lawn",
+          maxPpl: 3,
+          gender: "Male",
+          luggage: true,
+        })
+      );
+    });
   });
 });
