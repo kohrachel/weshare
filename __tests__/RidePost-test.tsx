@@ -5,110 +5,105 @@
 
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
-import RidePost from "../components/RidePost";
-import { ButtonGreen } from "../components/buttonGreen";
+import RidePost from "@/components/RidePost"; // adjust path if different
+import { useRouter } from "expo-router";
+import { useRoute } from "@react-navigation/native";
+import { formatDate, formatTime } from "@/utils";
 
-// Mock formatDate and formatTime utils
+// Mocks
 jest.mock("@/utils", () => ({
-  formatDate: jest.fn((date) => `formatted-${date.getTime()}`),
-  formatTime: jest.fn((date) => `time-${date.getTime()}`),
+  formatDate: jest.fn((date) => `formatted-${date.toDateString?.() || "invalid"}`),
+  formatTime: jest.fn((time) => `formatted-${time.toTimeString?.() || "invalid"}`),
 }));
 
-// Mock navigation hooks
 const mockNavigate = jest.fn();
 jest.mock("expo-router", () => ({
-  useRouter: () => ({ navigate: mockNavigate }),
+  useRouter: jest.fn(),
 }));
 
-let mockRouteName = "home";
 jest.mock("@react-navigation/native", () => ({
-  useRoute: () => ({ name: mockRouteName }),
+  useRoute: jest.fn(),
 }));
 
-// Mock ButtonGreen so we can inspect its props
-jest.mock("../components/buttonGreen", () => ({
-  ButtonGreen: jest.fn(({ title, onPress }) => (
-    <button title={title} onClick={onPress} />
-  )),
-}));
+// Mock ButtonGreen so we can simulate presses
+jest.mock("../components/buttonGreen", () => {
+  return ({ title, onPress }: { title: string; onPress: () => void }) => {
+    return (
+      <button testID={`button-${title}`} onClick={onPress}>
+        {title}
+      </button>
+    );
+  };
+});
 
 describe("RidePost", () => {
   const baseProps = {
-    name: "Kevin Song",
-    destination: "BNA Airport",
-    departureDate: new Date(2025, 0, 1, 10, 30),
-    departureTime: new Date(2025, 0, 1, 10, 30),
+    name: "Alice",
+    destination: "Nashville",
+    departureDate: new Date("2025-01-01T10:00:00Z"),
+    departureTime: new Date("2025-01-01T10:00:00Z"),
     currentPeople: 2,
     maxPeople: 4,
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useRouter as jest.Mock).mockReturnValue({ navigate: mockNavigate });
   });
 
-  it("renders correctly and matches snapshot (non-rsvp route)", () => {
-    mockRouteName = "home";
-    const { getByText, toJSON } = render(<RidePost {...baseProps} />);
+  it("renders correctly when route is not rsvp and triggers navigate", () => {
+    (useRoute as jest.Mock).mockReturnValue({ name: "home" });
 
-    // Header text and details
-    expect(getByText("Kevin Song")).toBeTruthy();
-    expect(getByText("Destination: ")).toBeTruthy();
-    expect(getByText("BNA Airport")).toBeTruthy();
-    expect(getByText("Departure: ")).toBeTruthy();
-    expect(getByText("Seats: ")).toBeTruthy();
+    const { getByText, getByTestId } = render(<RidePost {...baseProps} />);
+
+    expect(getByText("Alice")).toBeTruthy();
+    expect(getByText("Destination:")).toBeTruthy();
+    expect(getByText("Nashville")).toBeTruthy();
+
+    // Check formatted date/time usage
+    expect(formatDate).toHaveBeenCalledWith(baseProps.departureDate);
+    expect(formatTime).toHaveBeenCalledWith(baseProps.departureTime);
+
+    // Check seats
     expect(getByText("2 / 4")).toBeTruthy();
 
-    // Buttons
-    expect(ButtonGreen).toHaveBeenCalledTimes(2);
+    // "RSVP" button logs to console
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    fireEvent.press(getByTestId("button-RSVP"));
+    expect(logSpy).toHaveBeenCalledWith("RSVP pressed!");
+    logSpy.mockRestore();
 
-    const calls = ButtonGreen.mock.calls.map(call => call[0]); // extract first argument (props)
-    expect(calls).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ title: "RSVP" }),
-        expect.objectContaining({ title: "More Info" }),
-      ])
-    );
-
-    // Snapshot for layout and text consistency
-    expect(toJSON()).toMatchSnapshot();
-  });
-
-  it("navigates to /rsvp when 'More Info' pressed", () => {
-    mockRouteName = "home";
-    render(<RidePost {...baseProps} />);
-    // Get the call for the "More Info" button
-    const moreInfoCall = (ButtonGreen as jest.Mock).mock.calls.find(
-      (call) => call[0].title === "More Info"
-    );
-    // Trigger the onPress manually
-    moreInfoCall[0].onPress();
+    // "More Info" button triggers navigation
+    fireEvent.press(getByTestId("button-More Info"));
     expect(mockNavigate).toHaveBeenCalledWith("/rsvp");
   });
 
-  it("renders without 'More Info' button on RSVP route", () => {
-    mockRouteName = "rsvp";
-    render(<RidePost {...baseProps} />);
-    // Should only have one ButtonGreen call (RSVP)
-    const calls = (ButtonGreen as jest.Mock).mock.calls.map((c) => c[0].title);
-    expect(calls).toEqual(["RSVP"]);
+  it("renders correctly when route is rsvp (no More Info button)", () => {
+    (useRoute as jest.Mock).mockReturnValue({ name: "rsvp" });
+
+    const { queryByTestId, getByTestId } = render(<RidePost {...baseProps} />);
+    expect(getByTestId("button-RSVP")).toBeTruthy();
+    expect(queryByTestId("button-More Info")).toBeNull();
   });
 
-  it("handles invalid departureDate and departureTime gracefully", () => {
-    mockRouteName = "home";
+  it("uses default date/time when invalid", () => {
+    (useRoute as jest.Mock).mockReturnValue({ name: "home" });
+
     const { getByText } = render(
       <RidePost
         {...baseProps}
-        // Pass invalid values to trigger fallback branches
-        departureDate={null as any}
-        departureTime={"not-a-date" as any}
+        // @ts-expect-error intentionally invalid
+        departureDate={null}
+        // @ts-expect-error intentionally invalid
+        departureTime={"invalid"}
       />
     );
 
-    // Should still render with fallback new Dates
-    expect(getByText("Departure: ")).toBeTruthy();
+    // Should call formatDate and formatTime with default new Date objects
+    expect(formatDate).toHaveBeenCalled();
+    expect(formatTime).toHaveBeenCalled();
 
-    // Verify fallback caused formatDate/formatTime to be called with new Date
-    expect(require("@/utils").formatDate).toHaveBeenCalled();
-    expect(require("@/utils").formatTime).toHaveBeenCalled();
+    // Still renders fallback formatted strings
+    expect(getByText(/formatted/)).toBeTruthy();
   });
 });

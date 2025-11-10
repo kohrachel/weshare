@@ -21,7 +21,7 @@ import * as ImagePicker from "expo-image-picker";
 
 // Components
 import Input from "@/components/Input";
-import { ButtonGreen } from "@/components/button-green";
+import ButtonGreen from "@/components/buttonGreen";
 import Footer from "@/components/Footer";
 import BackButton from "@/components/backbutton";
 import Title from '@/components/Title';

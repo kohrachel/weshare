@@ -8,7 +8,7 @@ import { formatDate, formatTime } from "@/utils";
 import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
-import { ButtonGreen } from "./buttonGreen";
+import ButtonGreen from "../components/buttonGreen";
 
 type RidePostProps = {
   name: string;
@@ -19,14 +19,14 @@ type RidePostProps = {
   maxPeople: number;
 };
 
-const RidePost: React.FC<RidePostProps> = ({
+export default function RidePost({
   name,
   destination,
   departureDate,
   departureTime,
   currentPeople,
   maxPeople,
-}) => {
+}: RidePostProps) {
   const router = useRouter();
   const route = useRoute();
 
@@ -118,5 +118,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-
-export default RidePost;
