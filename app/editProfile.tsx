@@ -24,6 +24,8 @@ import Input from "@/components/Input";
 import { ButtonGreen } from "@/components/button-green";
 import Footer from "@/components/Footer";
 import BackButton from "@/components/backbutton";
+import Title from '@/components/Title';
+
 
 // Firebase imports
 import { db, storage } from "@/firebaseConfig";
@@ -196,8 +198,7 @@ export default function EditProfile() {
         )}
       </TouchableOpacity>
 
-      {/* Optional title moved outside touchable */}
-      <Title text={"Edit Profile"} />
+      
 
       <View style={styles.formArea}>
         <Input label="Name" value={name} setValue={setName} />
