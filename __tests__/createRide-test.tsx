@@ -23,13 +23,13 @@ jest.mock("firebase/firestore", () => ({
 
 jest.mock("@/firebaseConfig", () => ({ db: {} }));
 
-jest.mock("../components/buttonGreen", () => ({
-  ButtonGreen: ({ title, onPress }: any) => (
+jest.mock("../components/buttonGreen", () => {
+  return ({ title, onPress }: any) => (
     <button onClick={onPress} testID="create-ride-button">
       {title}
     </button>
-  ),
-}));
+  );
+});
 
 jest.mock("@/components/Input", () => (props: any) => (
   <input

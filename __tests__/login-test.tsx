@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 3 hours
+ Emma Reid: 3.5 hours
  */
 
 import React from "react";
@@ -38,13 +38,13 @@ jest.mock("@/firebaseConfig", () => ({
   db: {},
 }));
 
-jest.mock("../components/buttonGreen", () => ({
-  ButtonGreen: ({ title, onPress }: any) => (
+jest.mock("../components/buttonGreen", () => {
+  return ({ title, onPress }: any) => (
     <button onClick={onPress} testID="login-button">
       {title}
     </button>
-  ),
-}));
+  );
+});
 
 global.fetch = jest.fn();
 
