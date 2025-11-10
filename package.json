@@ -14,6 +14,12 @@
   "jest": {
     "preset": "jest-expo",
     "collectCoverage": true,
+    "coveragePathIgnorePatterns": [
+      "utils.ts",
+      "eslint.config.js",
+      "eslint.config.js",
+      "firebaseConfig.js"
+    ],
     "collectCoverageFrom": [
       "**/*.{ts,tsx,js,jsx}",
       "!**/coverage/**",
