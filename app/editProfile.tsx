@@ -176,24 +176,25 @@ export default function EditProfile() {
       </View>
 
       <TouchableOpacity
-        style={styles.profilePicContainer}
-        onPress={pickImage}
-        testID="profilePicButton"
-        accessibilityLabel="Profile Picture Button"
-      >
-      <Title text={"Edit Profile"}/>
-      <TouchableOpacity style={styles.profilePicContainer}>
-        {profilePic ? (
-          <Image
-            source={{ uri: profilePic }}
-            style={styles.profilePic}
-            testID="profilePicImage"
-            accessibilityRole="image"
-          />
-        ) : (
-          <Ionicons name="camera" size={28} color="#529053" />
-        )}
-      </TouchableOpacity>
+      style={styles.profilePicContainer}
+      onPress={pickImage}
+      testID="profilePicButton"
+      accessibilityLabel="Profile Picture Button"
+    >
+      {profilePic ? (
+        <Image
+          source={{ uri: profilePic }}
+          style={styles.profilePic}
+          testID="profilePicImage"
+          accessibilityRole="image"
+        />
+      ) : (
+        <Ionicons name="camera" size={28} color="#529053" />
+      )}
+    </TouchableOpacity>
+
+    {/* Optional title moved outside touchable */}
+    <Title text={"Edit Profile"} />
 
       <View style={styles.formArea}>
         <Input label="Name" value={name} setValue={setName} />
