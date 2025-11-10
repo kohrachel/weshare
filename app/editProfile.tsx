@@ -24,6 +24,8 @@ import Input from "@/components/Input";
 import { ButtonGreen } from "@/components/button-green";
 import Footer from "@/components/Footer";
 import BackButton from "@/components/backbutton";
+import Title from '@/components/Title';
+
 
 // Firebase imports
 import { db, storage } from "@/firebaseConfig";
@@ -96,7 +98,7 @@ export default function EditProfile() {
       await setDoc(
         doc(db, "users", id),
         { name, email, phone, gender, profilePic },
-        { merge: true }
+        { merge: true },
       );
 
       Alert.alert("Success", "Info saved!");
@@ -152,7 +154,10 @@ export default function EditProfile() {
       Alert.alert("Success", "Profile picture uploaded!");
     } catch (error: any) {
       console.error("Error uploading image:", error);
-      Alert.alert("Upload Error", error.message || "Failed to upload profile picture.");
+      Alert.alert(
+        "Upload Error",
+        error.message || "Failed to upload profile picture.",
+      );
     }
   };
 
@@ -181,8 +186,6 @@ export default function EditProfile() {
         testID="profilePicButton"
         accessibilityLabel="Profile Picture Button"
       >
-      <Title text={"Edit Profile"}/>
-      <TouchableOpacity style={styles.profilePicContainer}>
         {profilePic ? (
           <Image
             source={{ uri: profilePic }}
@@ -194,6 +197,8 @@ export default function EditProfile() {
           <Ionicons name="camera" size={28} color="#529053" />
         )}
       </TouchableOpacity>
+
+      
 
       <View style={styles.formArea}>
         <Input label="Name" value={name} setValue={setName} />
