@@ -1,7 +1,8 @@
 /**
  Contributors
  Rachel Huiqi: 3 hours
- */
+ Jonny Yang: 5 min
+*/
 
 import { StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -10,7 +11,7 @@ type InputProps = {
   value?: string;
   setValue?: (text: string) => void;
   defaultValue?: string;
-  inputType?: "time";
+  testID?: string; // <-- add testID prop
 };
 
 export default function Input({
@@ -18,6 +19,7 @@ export default function Input({
   value,
   setValue,
   defaultValue,
+  testID,
 }: InputProps) {
   return (
     <View style={styles.inputWrapper}>
@@ -28,6 +30,7 @@ export default function Input({
         placeholder={defaultValue ?? ""}
         placeholderTextColor="#999"
         onChangeText={setValue}
+        testID={testID} // <-- forward testID
       />
     </View>
   );
