@@ -1,7 +1,7 @@
 /**
  Contributors
- Emma Reid: 3.5 hours
- Kevin Song: 4 hours
+ Emma Reid: 3 hours
+ Kevin Song: 7 hours
  Rachel Huiqi: 3 hours
  */
 
@@ -24,6 +24,8 @@ export default function FeedPage() {
   const [rides, setRides] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     const fetchRides = async () => {
       try {
@@ -33,10 +35,15 @@ export default function FeedPage() {
         for (const rideDoc of ridesSnapshot.docs) {
           const ride = rideDoc.data();
 
-          // Validate the creator field
-          if (!ride.creator) {
+          // Get the user document for the ride
+          //let userData: DocumentData = {};
+
+          // TODO validate entries either here or in create ride
+          // TODO only display rides whose time is not < curr time (keep them sorted somehow?)
+          if (!ride.creator || typeof ride.creator !== "string") {
             console.warn(
-              `Skipping ride ${rideDoc.id} — missing creator field.`,
+              `Skipping ride ${rideDoc.id} — invalid creator field:`,
+              ride.creator,
             );
             continue; // Skip this ride
           }
@@ -44,7 +51,7 @@ export default function FeedPage() {
           let userData: DocumentData = {};
 
           try {
-            const userRef = doc(db, "users", ride.creator);
+            const userRef = doc(db, "users", ride.creator.trim());
             const userSnapshot = await getDoc(userRef);
 
             if (!userSnapshot.exists()) {
@@ -115,6 +122,28 @@ export default function FeedPage() {
     fetchRides();
   }, []);
 
+  // Filtering logic
+  const filteredRides = rides.filter((ride) => {
+    const queryWords = searchQuery.toLowerCase().split(" ").filter(Boolean);
+
+    return queryWords.every((word) => {
+      const name = ride.name?.toLowerCase() || "";
+      const destination = ride.destination?.toLowerCase() || "";
+      const formattedDate =
+        ride.departureDate?.toLocaleDateString().toLowerCase() || "";
+      const formattedTime = ride.departureTime
+        ?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        .toLowerCase();
+
+      return (
+        name.includes(word) ||
+        destination.includes(word) ||
+        formattedDate.includes(word) ||
+        formattedTime.includes(word)
+      );
+    });
+  });
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -133,21 +162,32 @@ export default function FeedPage() {
         paddingHorizontal: 20,
       }}
     >
-      <Input defaultValue="Search rides by destination (e.g. BNA)" />
+      <Input
+        defaultValue="Search rides by user name, destination, or date/time"
+        value={searchQuery}
+        setValue={setSearchQuery}
+      />
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
       >
-        {rides.map((ride) => (
-          <RidePost
-            key={ride.id}
-            name={ride.name}
-            destination={ride.destination}
-            departureDate={ride.departureDate}
-            departureTime={ride.departureTime}
-            currentPeople={ride.currentPeople}
-            maxPeople={ride.maxPeople}
-          />
-        ))}
+        {filteredRides.length > 0 ? (
+          filteredRides.map((ride) => (
+            <RidePost
+              key={ride.id}
+              name={ride.name}
+              destination={ride.destination}
+              departureDate={ride.departureDate}
+              departureTime={ride.departureTime}
+              currentPeople={ride.currentPeople}
+              maxPeople={ride.maxPeople}
+            />
+          ))
+        ) : (
+          // 🆕 Added “no results” visual feedback (optional)
+          <View style={{ alignItems: "center", marginTop: 20 }}>
+            <ActivityIndicator size="small" color="#888" />
+          </View>
+        )}
       </ScrollView>
       <FloatingActionButton/>
       <Footer />
