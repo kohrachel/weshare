@@ -91,11 +91,11 @@ const styles = StyleSheet.create({
   dateBox: {
     ...inputStyles.inputBox,
     textAlign: "center",
-    width: 110,
+    width: 120,
   },
   timeBox: {
     ...inputStyles.inputBox,
     textAlign: "center",
-    width: 90,
+    width: 100,
   },
 });

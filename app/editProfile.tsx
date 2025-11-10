@@ -164,6 +164,8 @@ export default function EditProfile() {
         testID="profilePicButton"
         accessibilityLabel="Profile Picture Button"
       >
+      <Title text={"Edit Profile"}/>
+      <TouchableOpacity style={styles.profilePicContainer}>
         {profilePic ? (
           <Image
             source={{ uri: profilePic }}
@@ -172,7 +174,7 @@ export default function EditProfile() {
             accessibilityRole="image"
           />
         ) : (
-          <Ionicons name="camera" size={28} color="#00ff9d" />
+          <Ionicons name="camera" size={28} color="#529053" />
         )}
       </TouchableOpacity>
 
@@ -233,4 +235,38 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   buttonContainer: { width: "100%", alignItems: "center", paddingBottom: 90 },
+  container: {
+    flex: 1,
+    backgroundColor: "#181818",
+    paddingHorizontal: 30,
+    paddingTop: 50,
+    width: "100%",
+  },
+  profilePicContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#2a2a2a",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    marginBottom: 40,
+  },
+  profilePic: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  formArea: {
+    flex: 1,
+    flexDirection: "column",
+    gap: 10,
+    width: "100%",
+    paddingVertical: 0,
+  },
+  buttonContainer: {
+    width: "100%",
+    alignItems: "center",
+    paddingBottom: 90,
+  },
 });
