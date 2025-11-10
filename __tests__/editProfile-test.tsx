@@ -1,7 +1,7 @@
 /**
  Contributors
  Emma Reid: 3 hours
- Jonny Yang: 4 hours
+ Jonny Yang: 6 hours
 */
 
 import React from "react";
