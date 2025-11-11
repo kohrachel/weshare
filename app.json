@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "com.weshare.app",
+    "scheme": "weshare",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -22,9 +22,14 @@
         {
           "action": "VIEW",
           "data": [
-            {
-              "scheme": "msauth"
-            }
+            { "scheme": "weshare" }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "VIEW",
+          "data": [
+            { "scheme": "msauth" }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
         }
