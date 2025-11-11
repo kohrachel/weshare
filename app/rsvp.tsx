@@ -2,7 +2,7 @@
  Contributors
  Kevin Song: 2 hours
  Emma Reid: 2 hours
- Rachel Huiqi: 2.5 hours
+ Rachel Huiqi: 4 hours
  */
 
 import Footer from "@/components/Footer";
@@ -21,6 +21,8 @@ import {
 import SingleRidePost from "../components/SingleRidePost";
 import ContactCard from "../components/contactCard";
 
+export type UserGenderType = "Male" | "Female" | "Other" | "Not set";
+
 export type RideData = {
   id: string;
   creator: string;
@@ -30,19 +32,21 @@ export type RideData = {
   currPpl: number;
   maxPpl: number;
   ppl: string[];
+  gender: "Male" | "Female" | "Co-ed";
+  meetLoc: string;
 };
 
 export type UserData = {
   name: string;
   phone: string;
   email: string;
-  gender: string;
+  gender: UserGenderType;
 };
 
 const unknownUser: UserData = {
   name: "Unknown User",
-  gender: "Unknown",
-  phone: "1234567890",
+  gender: "Not set",
+  phone: "Unknown",
   email: "Unknown",
 };
 
@@ -81,6 +85,8 @@ export default function RsvpRidePage() {
         currPpl: ride.currPpl,
         maxPpl: ride.maxPpl,
         ppl: ride.ppl,
+        gender: ride.gender,
+        meetLoc: ride.meetLoc,
       };
 
       setRideData(newRideData);
@@ -145,10 +151,10 @@ export default function RsvpRidePage() {
         {rsvpedUsers.map((user, index) => (
           <ContactCard
             key={index}
-            firstName={user.name}
-            lastName={""}
+            name={user.name}
             phoneNum={user.phone}
             email={user.email}
+            gender={user.gender}
           />
         ))}
       </ScrollView>

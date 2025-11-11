@@ -1,10 +1,10 @@
 /**
  Contributors
  Kevin Song: 3 hours
- Rachel Huiqi: 6 hours
+ Rachel Huiqi: 7 hours
  */
 
-import { RideData } from "@/app/rsvp";
+import { RideData, UserData } from "@/app/rsvp";
 import { RidesContext } from "@/contexts/RidesContext";
 import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
@@ -19,7 +19,7 @@ import {
   increment,
   updateDoc,
 } from "firebase/firestore";
-import { useContext, useEffect, useMemo } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ButtonGreen } from "./button-green";
 
@@ -43,10 +43,35 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     [rideData?.ppl, userId],
   );
 
+  const [rideCreator, setRideCreator] = useState<string>("Loading...");
+  const [userData, setUserData] = useState<UserData | undefined>(undefined);
+
+  useEffect(() => {
+    if (!userId) return;
+    const fetchUserData = async () => {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (!userDoc.exists()) return;
+      setUserData(userDoc.data() as UserData);
+    };
+    fetchUserData();
+  }, [userId]);
+
+  const fetchCreatorInfo = useCallback(async () => {
+    if (!rideData?.creator) return;
+    const creatorDoc = doc(db, "users", rideData.creator);
+    const creatorData = await getDoc(creatorDoc);
+    if (!creatorData.exists()) return;
+    return creatorData.data().name as string;
+  }, [rideData?.creator]);
+
+  useEffect(() => {
+    fetchCreatorInfo().then((name) => setRideCreator(name || "Loading..."));
+  }, [fetchCreatorInfo]);
+
   useEffect(() => {
     // fetch the ride of the user
     const fetchRideData = async () => {
-      if (!rideId || !userId) return;
+      if (!rideId) return;
 
       const rideDoc = doc(db, "rides", rideId);
       const rideDataDb = await getDoc(rideDoc);
@@ -61,7 +86,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     };
 
     fetchRideData();
-  }, [rideId, userId, setSingleRide]);
+  }, [rideId, setSingleRide]);
 
   const toggleRSVP = async () => {
     if (!rideId || !userId) return;
@@ -94,16 +119,20 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     );
   }
 
+  const isRsvpDisabled = () => {
+    if (rideData?.currPpl >= (rideData?.maxPpl || 0) && !isUserRsvped)
+      return true;
+    if (rideData?.gender !== "Co-ed" && rideData?.gender !== userData?.gender)
+      return true;
+    return false;
+  };
+
   return (
     <View style={styles.card}>
       {/* Name Header */}
-      <Text style={styles.name}>{rideData.creator}</Text>
-
-      {/* Ride Details */}
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Destination: </Text>
-        <Text style={styles.value}>{rideData.destination}</Text>
-      </View>
+      <Text
+        style={styles.header}
+      >{`Destination: ${rideData.destination}`}</Text>
 
       <View style={styles.detailRow}>
         <Text style={styles.label}>Departure: </Text>
@@ -115,10 +144,28 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
       </View>
 
       <View style={styles.detailRow}>
-        <Text style={styles.label}>Seats: </Text>
+        <Text style={styles.label}>Meeting at: </Text>
+        <Text style={styles.value}>{rideData.meetLoc}</Text>
+      </View>
+
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Gender Restriction: </Text>
+        <Text style={styles.value}>
+          {rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender + " only"}
+        </Text>
+      </View>
+
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Capacity: </Text>
         <Text style={styles.value}>
           {rideData.currPpl} / {rideData.maxPpl}
         </Text>
+      </View>
+
+      {/* Ride Details */}
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Created by: </Text>
+        <Text style={styles.value}>{rideCreator || "Loading..."}</Text>
       </View>
 
       {/* RSVP Button */}
@@ -126,6 +173,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         <ButtonGreen
           title={isUserRsvped ? "RSVPed" : "RSVP"}
           onPress={toggleRSVP}
+          disabled={isRsvpDisabled()}
         />
       </View>
 
@@ -154,7 +202,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  name: {
+  header: {
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 12,
