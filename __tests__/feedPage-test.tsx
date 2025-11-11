@@ -39,7 +39,7 @@ jest.mock("@/components/Input", () => (props: any) => {
   );
 });
 
-jest.mock("@/components/RidePost", () => (props: any) => {
+jest.mock("@/components/SingleRidePost", () => (props: any) => {
   const { View } = require("react-native");
   return <View testID={`ride-${props.name}`} />;
 });
