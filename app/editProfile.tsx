@@ -4,33 +4,31 @@
  Jonny Yang: 4 hours
 */
 
+import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Alert,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import * as ImagePicker from "expo-image-picker";
 
 // Components
-import Input from "@/components/Input";
+import BackButton from "@/components/backbutton";
 import { ButtonGreen } from "@/components/button-green";
 import Footer from "@/components/Footer";
-import BackButton from "@/components/backbutton";
-import Title from '@/components/Title';
-
+import Input from "@/components/Input";
 
 // Firebase
 import { db, storage } from "@/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export default function EditProfile() {
   const router = useRouter();
@@ -137,7 +135,11 @@ export default function EditProfile() {
       const downloadURL = await getDownloadURL(storageRef);
       setProfilePic(downloadURL);
 
-      await setDoc(doc(db, "users", id), { profilePic: downloadURL }, { merge: true });
+      await setDoc(
+        doc(db, "users", id),
+        { profilePic: downloadURL },
+        { merge: true },
+      );
       console.log("Image uploaded:", downloadURL);
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -178,13 +180,31 @@ export default function EditProfile() {
         )}
       </TouchableOpacity>
 
-      
-
       <View style={styles.formArea}>
-        <Input label="Name" value={name} setValue={setName} testID="input-Name" />
-        <Input label="Email" value={email} setValue={setEmail} testID="input-Email" />
-        <Input label="Phone" value={phone} setValue={setPhone} testID="input-Phone" />
-        <Input label="Gender" value={gender} setValue={setGender} testID="input-Gender" />
+        <Input
+          label="Name"
+          value={name}
+          setValue={setName}
+          testID="input-Name"
+        />
+        <Input
+          label="Email"
+          value={email}
+          setValue={setEmail}
+          testID="input-Email"
+        />
+        <Input
+          label="Phone"
+          value={phone}
+          setValue={setPhone}
+          testID="input-Phone"
+        />
+        <Input
+          label="Gender"
+          value={gender}
+          setValue={setGender}
+          testID="input-Gender"
+        />
       </View>
 
       <View style={styles.buttonContainer}>
@@ -237,38 +257,4 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   buttonContainer: { width: "100%", alignItems: "center", paddingBottom: 90 },
-  container: {
-    flex: 1,
-    backgroundColor: "#181818",
-    paddingHorizontal: 30,
-    paddingTop: 50,
-    width: "100%",
-  },
-  profilePicContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#2a2a2a",
-    justifyContent: "center",
-    alignItems: "center",
-    alignSelf: "center",
-    marginBottom: 40,
-  },
-  profilePic: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
-  formArea: {
-    flex: 1,
-    flexDirection: "column",
-    gap: 10,
-    width: "100%",
-    paddingVertical: 0,
-  },
-  buttonContainer: {
-    width: "100%",
-    alignItems: "center",
-    paddingBottom: 90,
-  },
 });

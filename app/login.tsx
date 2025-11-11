@@ -3,15 +3,15 @@
  Emma Reid: 8 hours
  */
 
+import { db } from "@/firebaseConfig";
+import * as AuthSession from "expo-auth-session";
+import { useRouter } from "expo-router";
+import { Inter_700Bold } from "@expo-google-fonts/inter/700Bold";
+import * as SecureStore from "expo-secure-store";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Text, View, Image, ActivityIndicator } from "react-native";
 import { ButtonGreen } from "../components/button-green";
-import { useRouter } from "expo-router";
-import { Inter_700Bold } from "@expo-google-fonts/inter/700Bold";
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { db } from "@/firebaseConfig";
-import * as AuthSession from "expo-auth-session";
-import * as SecureStore from "expo-secure-store";
 
 // Main screen
 export default function Login() {
@@ -37,7 +37,7 @@ export default function Login() {
 
   const checkUser = async () => {
     try {
-      // await SecureStore.setItemAsync("userid", ""); // will require login (for user testing)
+//       await SecureStore.setItemAsync("userid", ""); // logout (for user testing)
       const id = await SecureStore.getItemAsync("userid");
       if (id && id != "") {
         const user = await getDoc(doc(db, "users", id));
@@ -47,11 +47,10 @@ export default function Login() {
       }
 
       setLoading(false);
-
     } catch (error) {
       console.error("Error checking user:", error);
     }
-  }
+  };
 
   useEffect(() => {
     checkUser();
@@ -108,6 +107,8 @@ export default function Login() {
       const docRef = await setDoc(doc(db, "users", userId), {
         name: name,
         email: email,
+        phone: "Not set",
+        gender: "Not set",
       });
     } catch (error) {
       console.error("Error adding user: ", error);
@@ -150,7 +151,10 @@ export default function Login() {
         </View>
       ) : (
         <View>
-      <ButtonGreen title="Login with VU SSO⚓" onPress={() => promptAsync()} />
+          <ButtonGreen
+            title="Login with VU SSO⚓"
+            onPress={() => promptAsync()}
+          />
           {showError && (
             <Text
               style={{
@@ -161,7 +165,8 @@ export default function Login() {
                 marginBottom: 50,
               }}
             >
-              Error: Please use a Vanderbilt email. This app is for the Vanderbilt community only.
+              Error: Please use a Vanderbilt email. This app is for the
+              Vanderbilt community only.
             </Text>
           )}
         </View>

@@ -1,3 +1,5 @@
+import { RidesProvider } from "@/contexts/RidesContext";
+import { UserProvider } from "@/contexts/UserContext";
 import {
   Inter_400Regular,
   Inter_400Regular_Italic,
@@ -32,23 +34,27 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen
-        name="index"
-        options={{
-          title: "index",
-        }}
-      />
-      <Stack.Screen
-        name="login"
-        options={{
-          title: "Login",
-        }}
-      />
-    </Stack>
+    <UserProvider>
+      <RidesProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen
+            name="index"
+            options={{
+              title: "index",
+            }}
+          />
+          <Stack.Screen
+            name="login"
+            options={{
+              title: "Login",
+            }}
+          />
+        </Stack>
+      </RidesProvider>
+    </UserProvider>
   );
 }
