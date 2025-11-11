@@ -1,30 +1,38 @@
 /**
  Contributors
- Emma Reid: 1 hour
+ Emma Reid: 3 hours
  Jonny Yang: 4 hours
- */
+*/
 
-import { ButtonGreen } from "@/components/button-green";
-import Footer from "@/components/Footer";
-import Input from "@/components/Input";
-import { db } from "@/firebaseConfig";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import BackButton from "../components/backbutton";
+
+// Components
+import BackButton from "@/components/backbutton";
+import { ButtonGreen } from "@/components/button-green";
+import Footer from "@/components/Footer";
+import Input from "@/components/Input";
+
+// Firebase
+import { db, storage } from "@/firebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export default function EditProfile() {
   const router = useRouter();
+
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
@@ -32,6 +40,20 @@ export default function EditProfile() {
   const [phone, setPhone] = useState("");
   const [gender, setGender] = useState("");
 
+  // Ensure a test userid exists
+  useEffect(() => {
+    (async () => {
+      const id = await SecureStore.getItemAsync("userid");
+      if (!id) {
+        await SecureStore.setItemAsync("userid", "testUser123");
+        console.log("Test userid set to 'testUser123'");
+      } else {
+        console.log("Existing userid found:", id);
+      }
+    })();
+  }, []);
+
+  // Fetch info on mount
   useEffect(() => {
     fetchInfo();
   }, []);
@@ -39,15 +61,21 @@ export default function EditProfile() {
   const fetchInfo = async () => {
     setLoading(true);
     try {
-      let id = await SecureStore.getItemAsync("userid");
-      const userInfo = await getDoc(doc(db, "users", id));
+      const id = await SecureStore.getItemAsync("userid");
+      console.log("Fetching info for userid:", id);
+      if (!id) throw new Error("No user ID found");
 
-      setName(userInfo.data().name || "");
-      setEmail(userInfo.data().email || "");
-      setPhone(userInfo.data().phone || "");
-      setGender(userInfo.data().gender || "");
+      const userDoc = await getDoc(doc(db, "users", id));
+      const data = userDoc.data();
+
+      setName(data?.name || "");
+      setEmail(data?.email || "");
+      setPhone(data?.phone || "");
+      setGender(data?.gender || "");
+      setProfilePic(data?.profilePic || null);
     } catch (error) {
       console.error("Error fetching user:", error);
+      Alert.alert("Error", "Failed to fetch user info.");
     } finally {
       setLoading(false);
     }
@@ -55,31 +83,73 @@ export default function EditProfile() {
 
   const storeInfo = async () => {
     try {
-      let id = await SecureStore.getItemAsync("userid");
-      const docRef = await setDoc(doc(db, "users", id), {
-        name: name,
-        email: email,
-        phone: phone,
-        gender: gender,
-      });
+      const id = await SecureStore.getItemAsync("userid");
+      console.log("Saving info for userid:", id);
+      if (!id) throw new Error("No user ID found");
 
-      console.log("Info stored to ID:", id);
-      alert(
-        "Info saved!\n" + name + "\n" + email + "\n" + phone + "\n" + gender,
+      await setDoc(
+        doc(db, "users", id),
+        { name, email, phone, gender, profilePic },
+        { merge: true },
       );
 
-      // Reset form fields
+      Alert.alert("Success", "Info saved!");
       fetchInfo();
     } catch (error) {
-      console.error("Error adding info: ", error);
-      alert("Info not saved, please try again.\n" + error);
+      console.error("Error saving info:", error);
+      Alert.alert("Error", "Info not saved, please try again.");
+    }
+  };
+
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const uri = result.assets[0].uri;
+        setProfilePic(uri);
+        await uploadImage(uri);
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+      Alert.alert("Error", "Could not select image.");
+    }
+  };
+
+  const uploadImage = async (uri: string) => {
+    try {
+      const id = await SecureStore.getItemAsync("userid");
+      if (!id) throw new Error("No user ID found");
+
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      const storageRef = ref(storage, `profilePictures/${id}.jpg`);
+      await uploadBytes(storageRef, blob);
+
+      const downloadURL = await getDownloadURL(storageRef);
+      setProfilePic(downloadURL);
+
+      await setDoc(
+        doc(db, "users", id),
+        { profilePic: downloadURL },
+        { merge: true },
+      );
+      console.log("Image uploaded:", downloadURL);
+    } catch (error) {
+      console.error("Error uploading image:", error);
     }
   };
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" testID="ActivityIndicator" />
       </View>
     );
   }
@@ -92,39 +162,55 @@ export default function EditProfile() {
         <View style={{ width: 28 }} />
       </View>
 
-      <TouchableOpacity style={styles.profilePicContainer}>
+      <TouchableOpacity
+        style={styles.profilePicContainer}
+        onPress={pickImage}
+        testID="profilePicButton"
+        accessibilityLabel="Profile Picture Button"
+      >
         {profilePic ? (
-          <Image source={{ uri: profilePic }} style={styles.profilePic} />
+          <Image
+            source={{ uri: profilePic }}
+            style={styles.profilePic}
+            testID="profilePicImage"
+            accessibilityRole="image"
+          />
         ) : (
-          <Ionicons name="camera" size={28} color="#00ff9d" />
+          <Ionicons name="camera" size={28} color="#529053" />
         )}
       </TouchableOpacity>
 
       <View style={styles.formArea}>
         <Input
-          label={"Name"}
-          defaultValue={""}
+          label="Name"
           value={name}
           setValue={setName}
-        ></Input>
-        <Input label={"Email"} value={email} setValue={setEmail} />
+          testID="input-Name"
+        />
         <Input
-          label={"Phone"}
-          defaultValue={""}
+          label="Email"
+          value={email}
+          setValue={setEmail}
+          testID="input-Email"
+        />
+        <Input
+          label="Phone"
           value={phone}
           setValue={setPhone}
-        ></Input>
+          testID="input-Phone"
+        />
         <Input
-          label={"Gender"}
-          defaultValue={""}
+          label="Gender"
           value={gender}
           setValue={setGender}
-        ></Input>
+          testID="input-Gender"
+        />
       </View>
 
       <View style={styles.buttonContainer}>
-        <ButtonGreen title="Save" onPress={storeInfo} />
+        <ButtonGreen title="Save" onPress={storeInfo} testID="save-button" />
       </View>
+
       <Footer />
     </View>
   );
@@ -138,6 +224,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     width: "100%",
   },
+  loading: { flex: 1, justifyContent: "center", alignItems: "center" },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -161,11 +248,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginBottom: 40,
   },
-  profilePic: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
+  profilePic: { width: 80, height: 80, borderRadius: 40 },
   formArea: {
     flex: 1,
     flexDirection: "column",
@@ -173,9 +256,5 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingVertical: 0,
   },
-  buttonContainer: {
-    width: "100%",
-    alignItems: "center",
-    paddingBottom: 90,
-  },
+  buttonContainer: { width: "100%", alignItems: "center", paddingBottom: 90 },
 });
