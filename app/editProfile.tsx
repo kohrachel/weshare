@@ -65,7 +65,7 @@ export default function EditProfile() {
 
       console.log("Info stored to ID:", id);
       alert(
-        "Info saved!\n" + name + "\n" + email + "\n" + phone + "\n" + gender
+        "Info saved!\n" + name + "\n" + email + "\n" + phone + "\n" + gender,
       );
 
       // Reset form fields

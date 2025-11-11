@@ -2,14 +2,15 @@
  Contributors
  Kevin Song: 2 hours
  Emma Reid: 2 hours
- Rachel Huiqi: 2.5 hours
+ Rachel Huiqi: 4 hours
  */
 
 import Footer from "@/components/Footer";
+import { RidesContext } from "@/contexts/RidesContext";
 import { db } from "@/firebaseConfig";
 import { useRoute } from "@react-navigation/native";
 import { doc, getDoc, Timestamp } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -17,37 +18,45 @@ import {
   Text,
   View,
 } from "react-native";
-import RidePost from "../components/RidePost";
+import SingleRidePost from "../components/SingleRidePost";
 import ContactCard from "../components/contactCard";
 
-type RideData = {
+export type UserGenderType = "Male" | "Female" | "Other" | "Not set";
+
+export type RideData = {
+  id: string;
   creator: string;
   destination: string;
   date: Timestamp;
   time: Timestamp;
-  rsvpedUsers: string[];
   currPpl: number;
   maxPpl: number;
+  ppl: string[];
+  gender: "Male" | "Female" | "Co-ed";
+  meetLoc: string;
 };
 
-type UserData = {
+export type UserData = {
   name: string;
   phone: string;
   email: string;
-  gender: string;
+  gender: UserGenderType;
 };
 
 const unknownUser: UserData = {
   name: "Unknown User",
-  gender: "Unknown",
-  phone: "1234567890",
+  gender: "Not set",
+  phone: "Unknown",
   email: "Unknown",
 };
 
-export default function RSVP() {
+export default function RsvpRidePage() {
+  const { setRides } = useContext(RidesContext);
+
   const [rideData, setRideData] = useState<RideData | null>(null);
-  const [rideCreator, setRideCreator] = useState<string | null>(null);
   const [rsvpedUsers, setRsvpedUsers] = useState<UserData[]>([unknownUser]);
+
+  const rideCreator = useMemo(() => rideData?.creator, [rideData]);
 
   // Get ride ID from route params
   const route = useRoute();
@@ -55,7 +64,6 @@ export default function RSVP() {
 
   // TODO: delete this eventually, it's just so you can still click on the RSVP button from the index page
   if (!rideId) {
-    console.warn("Deprecated: Accessing RSVP page from index.");
     rideId = "DHbTvTZQQugk83PjwYup";
   }
 
@@ -63,23 +71,31 @@ export default function RSVP() {
     const fetchRideData = async () => {
       const rideDoc = doc(db, "rides", rideId);
       const rideData = await getDoc(rideDoc);
-      if (rideData.exists()) {
-        const ride = rideData.data();
-        setRideData({
-          creator: ride.creator,
-          destination: ride.destination,
-          date: ride.date,
-          time: ride.time,
-          currPpl: ride.currPpl,
-          maxPpl: ride.maxPpl,
-          rsvpedUsers: ride.ppl,
-        });
-      } else {
-        console.error("Ride data not found");
-      }
+
+      if (!rideData.exists()) return;
+
+      const ride = rideData.data() as RideData;
+
+      const newRideData: RideData = {
+        id: rideId,
+        creator: ride.creator,
+        destination: ride.destination,
+        date: ride.date,
+        time: ride.time,
+        currPpl: ride.currPpl,
+        maxPpl: ride.maxPpl,
+        ppl: ride.ppl,
+        gender: ride.gender,
+        meetLoc: ride.meetLoc,
+      };
+
+      setRideData(newRideData);
+      setRides((prevRides) =>
+        prevRides.map((ride) => (ride.id === rideId ? newRideData : ride)),
+      );
     };
     fetchRideData();
-  }, [rideId]);
+  }, [rideId, setRides]);
 
   useEffect(() => {
     const fetchRsvpedUsers = async (rsvpedUserIds: string[]) => {
@@ -100,23 +116,11 @@ export default function RSVP() {
             phone,
             email,
           };
-        })
+        }),
       );
       setRsvpedUsers(rsvpedUsers);
     };
-    fetchRsvpedUsers(rideData?.rsvpedUsers || []);
-  }, [rideData]);
-
-  useEffect(() => {
-    const fetchRideCreator = async () => {
-      if (!rideData) return;
-      const userId = doc(db, "users", rideData.creator);
-      const userData = await getDoc(userId);
-      if (userData.exists()) {
-        setRideCreator(userData.data().name);
-      }
-    };
-    fetchRideCreator();
+    fetchRsvpedUsers(rideData?.ppl || []);
   }, [rideData]);
 
   // Show loading indicator while ride data or ride creator are not loaded
@@ -141,24 +145,16 @@ export default function RSVP() {
       <Text style={styles.title}>Ride Details</Text>
       <ScrollView style={{ flex: 1 }}>
         <View>
-          <RidePost
-            rideId={rideId}
-            name={rideCreator}
-            destination={rideData.destination}
-            departureDate={rideData.date.toDate()}
-            departureTime={rideData.time.toDate()}
-            currentPeople={rideData.currPpl}
-            maxPeople={rideData.maxPpl}
-          />
+          <SingleRidePost rideId={rideId} />
         </View>
         {/* TODO: replace with dynamic data */}
         {rsvpedUsers.map((user, index) => (
           <ContactCard
             key={index}
-            firstName={user.name}
-            lastName={""}
+            name={user.name}
             phoneNum={user.phone}
             email={user.email}
+            gender={user.gender}
           />
         ))}
       </ScrollView>

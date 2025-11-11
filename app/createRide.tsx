@@ -38,7 +38,14 @@ export default function Index() {
 
       console.log("Ride stored with ID:", docRef.id);
       alert(
-        "Ride saved!\n" + dest + "\n" + time + "\n" + meetLoc + "\n" + numberPpl
+        "Ride saved!\n" +
+          dest +
+          "\n" +
+          time +
+          "\n" +
+          meetLoc +
+          "\n" +
+          numberPpl,
       );
 
       // Reset form fields
