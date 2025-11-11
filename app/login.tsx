@@ -6,10 +6,11 @@
 import { db } from "@/firebaseConfig";
 import * as AuthSession from "expo-auth-session";
 import { useRouter } from "expo-router";
+import { Inter_700Bold } from "@expo-google-fonts/inter/700Bold";
 import * as SecureStore from "expo-secure-store";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { Image, Text, View } from "react-native";
+import { Text, View, Image, ActivityIndicator } from "react-native";
 import { ButtonGreen } from "../components/button-green";
 
 // Main screen
@@ -36,7 +37,7 @@ export default function Login() {
 
   const checkUser = async () => {
     try {
-      // await SecureStore.setItemAsync("userid", ""); // will require login (for user testing)
+//       await SecureStore.setItemAsync("userid", ""); // logout (for user testing)
       const id = await SecureStore.getItemAsync("userid");
       if (id && id != "") {
         const user = await getDoc(doc(db, "users", id));

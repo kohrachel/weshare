@@ -5,15 +5,9 @@ export default function Footer() {
   return (
     <View style={styles.footerWrapper}>
       <View style={styles.footerItems}>
-        <Link href="/">
+        <Link href="/feedPage">
           <Image
             source={require("@/assets/images/home.png")}
-            style={styles.footerItem}
-          />
-        </Link>
-        <Link href="/search">
-          <Image
-            source={require("@/assets/images/search.png")}
             style={styles.footerItem}
           />
         </Link>
