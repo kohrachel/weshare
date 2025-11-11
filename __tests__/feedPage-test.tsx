@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Kevin Song: 3 hours
+ */
+
 import React from "react";
 import { render, act, fireEvent } from "@testing-library/react-native";
 import FeedPage from "../app/feedPage"; // import AFTER mocks
