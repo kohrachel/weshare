@@ -20,7 +20,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ButtonGreen } from "./button-green";
 
 type SingleRidePostProps = {
@@ -109,8 +109,6 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     });
   };
 
-  const isRsvpRoute = route.name === "rsvp";
-
   if (!rideData) {
     return (
       <View style={styles.card}>
@@ -128,7 +126,10 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   };
 
   return (
-    <View style={styles.card}>
+    <Pressable
+      style={styles.card}
+      onPress={() => router.navigate(`/rsvp?rideId=${rideId}`)}
+    >
       {/* Name Header */}
       <Text
         style={styles.header}
@@ -176,16 +177,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
           disabled={isRsvpDisabled()}
         />
       </View>
-
-      {!isRsvpRoute && (
-        <View style={styles.buttonWrapper}>
-          <ButtonGreen
-            title="More Info"
-            onPress={() => router.navigate(`/rsvp?rideId=${rideId}`)}
-          />
-        </View>
-      )}
-    </View>
+    </Pressable>
   );
 }
 
