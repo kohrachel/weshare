@@ -1,39 +1,48 @@
 /**
  Contributors
  Kevin Song: 3 hours
+ Rachel Huiqi: 2 hours
  */
 
+import { UserGenderType } from "@/app/rsvp";
 import { StyleSheet, Text, View } from "react-native";
 
 type ContactCardProps = {
-  firstName: string;
-  lastName: string;
-  phoneNum: number;
+  name: string;
+  phoneNum: string;
   email: string;
+  gender: UserGenderType;
 };
 
 export default function ContactCard({
-  firstName,
-  lastName,
+  name,
   phoneNum,
   email,
+  gender,
 }: ContactCardProps) {
+  const formatPhoneNumber = (phoneNum: string) => {
+    if (phoneNum === "Not set") return "Not set";
+    return phoneNum.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
+  };
   return (
     <View style={styles.card}>
       {/* Name Header */}
-      <Text style={styles.name}>
-        {firstName} {lastName}
-      </Text>
+      <Text style={styles.name}>{name}</Text>
 
       {/* Contact Info */}
       <View style={styles.detailRow}>
         <Text style={styles.label}>Phone: </Text>
-        <Text style={styles.value}>{phoneNum}</Text>
+        <Text style={styles.value}>{formatPhoneNumber(phoneNum)}</Text>
       </View>
 
       <View style={styles.detailRow}>
         <Text style={styles.label}>Email: </Text>
         <Text style={styles.value}>{email}</Text>
+      </View>
+
+      <View style={styles.detailRow}>
+        <Text style={styles.label}>Gender: </Text>
+        <Text style={styles.value}>{gender}</Text>
       </View>
     </View>
   );

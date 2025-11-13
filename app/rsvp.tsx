@@ -2,43 +2,161 @@
  Contributors
  Kevin Song: 2 hours
  Emma Reid: 2 hours
- Rachel Huiqi: 0.5 hours
+ Rachel Huiqi: 4 hours
  */
 
 import Footer from "@/components/Footer";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import RidePost from "../components/RidePost";
+import { RidesContext } from "@/contexts/RidesContext";
+import { db } from "@/firebaseConfig";
+import { useRoute } from "@react-navigation/native";
+import { doc, getDoc, Timestamp } from "firebase/firestore";
+import { useContext, useEffect, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import SingleRidePost from "../components/SingleRidePost";
 import ContactCard from "../components/contactCard";
 
-// Main screen
-export default function RSVP() {
-  return (
-    <View style={{ flex: 1 }}>
-      <ScrollView
-        style={{
-          backgroundColor: "#181818",
-          paddingVertical: 50,
-          paddingHorizontal: 10,
-        }}
-      >
-        <Text style={styles.title}>Ride Details</Text>
-        <View>
-          <RidePost
-            name="Kevin Song"
-            destination="BNA Airport (United Airlines)"
-            departureDate={new Date()}
-            departureTime={new Date()}
-            currentPeople={2}
-            maxPeople={4}
-          />
+export type UserGenderType = "Male" | "Female" | "Other" | "Not set";
 
-          <ContactCard
-            firstName="Kevin"
-            lastName="Song"
-            phoneNum={1234567890}
-            email="kevin.song@vanderbilt.edu"
-          />
+export type RideData = {
+  id: string;
+  creator: string;
+  destination: string;
+  date: Timestamp;
+  time: Timestamp;
+  currPpl: number;
+  maxPpl: number;
+  ppl: string[];
+  gender: "Male" | "Female" | "Co-ed";
+  meetLoc: string;
+};
+
+export type UserData = {
+  name: string;
+  phone: string;
+  email: string;
+  gender: UserGenderType;
+};
+
+const unknownUser: UserData = {
+  name: "Unknown User",
+  gender: "Not set",
+  phone: "Unknown",
+  email: "Unknown",
+};
+
+export default function RsvpRidePage() {
+  const { setRides } = useContext(RidesContext);
+
+  const [rideData, setRideData] = useState<RideData | null>(null);
+  const [rsvpedUsers, setRsvpedUsers] = useState<UserData[]>([unknownUser]);
+
+  const rideCreator = useMemo(() => rideData?.creator, [rideData]);
+
+  // Get ride ID from route params
+  const route = useRoute();
+  let { rideId } = route.params as { rideId: string };
+
+  // TODO: delete this eventually, it's just so you can still click on the RSVP button from the index page
+  if (!rideId) {
+    rideId = "DHbTvTZQQugk83PjwYup";
+  }
+
+  useEffect(() => {
+    const fetchRideData = async () => {
+      const rideDoc = doc(db, "rides", rideId);
+      const rideData = await getDoc(rideDoc);
+
+      if (!rideData.exists()) return;
+
+      const ride = rideData.data() as RideData;
+
+      const newRideData: RideData = {
+        id: rideId,
+        creator: ride.creator,
+        destination: ride.destination,
+        date: ride.date,
+        time: ride.time,
+        currPpl: ride.currPpl,
+        maxPpl: ride.maxPpl,
+        ppl: ride.ppl,
+        gender: ride.gender,
+        meetLoc: ride.meetLoc,
+      };
+
+      setRideData(newRideData);
+      setRides((prevRides) =>
+        prevRides.map((ride) => (ride.id === rideId ? newRideData : ride)),
+      );
+    };
+    fetchRideData();
+  }, [rideId, setRides]);
+
+  useEffect(() => {
+    const fetchRsvpedUsers = async (rsvpedUserIds: string[]) => {
+      if (!rideData) return;
+
+      const rsvpedUsers = await Promise.all(
+        rsvpedUserIds.map(async (userId) => {
+          if (!userId || userId === "") return unknownUser;
+          const userData = await getDoc(doc(db, "users", userId));
+          if (!userData.exists()) return unknownUser;
+
+          const user = userData.data();
+          const { name, gender = "Not set", phone = "Not set", email } = user;
+
+          return {
+            name,
+            gender,
+            phone,
+            email,
+          };
+        }),
+      );
+      setRsvpedUsers(rsvpedUsers);
+    };
+    fetchRsvpedUsers(rideData?.ppl || []);
+  }, [rideData]);
+
+  // Show loading indicator while ride data or ride creator are not loaded
+  if (!rideData || !rideCreator) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "#181818",
+        paddingTop: 50,
+        paddingBottom: 100,
+        paddingHorizontal: 10,
+      }}
+    >
+      <Text style={styles.title}>Ride Details</Text>
+      <ScrollView style={{ flex: 1 }}>
+        <View>
+          <SingleRidePost rideId={rideId} />
         </View>
+        {/* TODO: replace with dynamic data */}
+        {rsvpedUsers.map((user, index) => (
+          <ContactCard
+            key={index}
+            name={user.name}
+            phoneNum={user.phone}
+            email={user.email}
+            gender={user.gender}
+          />
+        ))}
       </ScrollView>
       <Footer />
     </View>
@@ -87,5 +205,11 @@ const styles = StyleSheet.create({
     marginTop: 16,
     alignItems: "center",
     paddingHorizontal: 0,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#181818",
   },
 });

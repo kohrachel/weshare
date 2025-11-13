@@ -47,7 +47,6 @@ export default function Login() {
       }
 
       setLoading(false);
-
     } catch (error) {
       console.error("Error checking user:", error);
     }
@@ -108,6 +107,8 @@ export default function Login() {
       const docRef = await setDoc(doc(db, "users", userId), {
         name: name,
         email: email,
+        phone: "Not set",
+        gender: "Not set",
       });
     } catch (error) {
       console.error("Error adding user: ", error);
@@ -150,7 +151,10 @@ export default function Login() {
         </View>
       ) : (
         <View>
-      <ButtonGreen title="Login with VU SSO⚓" onPress={() => promptAsync()} />
+          <ButtonGreen
+            title="Login with VU SSO⚓"
+            onPress={() => promptAsync()}
+          />
           {showError && (
             <Text
               style={{
@@ -161,7 +165,8 @@ export default function Login() {
                 marginBottom: 50,
               }}
             >
-              Error: Please use a Vanderbilt email. This app is for the Vanderbilt community only.
+              Error: Please use a Vanderbilt email. This app is for the
+              Vanderbilt community only.
             </Text>
           )}
         </View>

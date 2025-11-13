@@ -10,15 +10,22 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 type ButtonGreenProps = {
   title: string;
   onPress: () => void;
-  testID?: string; // <-- add testID prop
+  disabled?: boolean;
+  testID?: string;
 }
 
-export default function ButtonGreen({ title, onPress, testID }: ButtonGreenProps) {
+export default function ButtonGreen({
+  title,
+  onPress,
+  disabled = false,
+  testID,
+}: ButtonGreenProps) {
   return (
     <TouchableOpacity
-      style={styles.buttonContainer}
+      style={[styles.buttonContainer, disabled && styles.disabled]}
       onPress={onPress}
-      testID={testID} // <-- forward testID
+      disabled={disabled}
+      testID={testID}
     >
       <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
@@ -33,6 +40,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     padding: 15,
     width: "100%",
+  },
+  disabled: {
+    backgroundColor: "#888888",
   },
   buttonText: {
     color: "white",

@@ -6,73 +6,64 @@
  */
 
 import Footer from "@/components/Footer";
-import Input from "@/components/Input";
+import { RidesContext } from "@/contexts/RidesContext";
 import { db } from "@/firebaseConfig";
-import {
-  collection,
-  doc,
-  DocumentData,
-  getDoc,
-  getDocs,
-} from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
-import RidePost from "../components/RidePost";
 import FloatingActionButton from "../components/FloatingActionButton";
+import Input from "../components/Input";
+import SingleRidePost from "../components/SingleRidePost";
+import { RideData, UserData } from "./rsvp";
 
 export default function FeedPage() {
-  const [rides, setRides] = useState<any[]>([]);
+  const { rides, setRides } = useContext(RidesContext);
   const [loading, setLoading] = useState(true);
-
   const [searchQuery, setSearchQuery] = useState("");
 
+  // fetch rides from db and set in context
   useEffect(() => {
     const fetchRides = async () => {
       try {
         const ridesSnapshot = await getDocs(collection(db, "rides"));
-        const ridesData: any[] = [];
+        const ridesData: RideData[] = [];
 
         for (const rideDoc of ridesSnapshot.docs) {
-          const ride = rideDoc.data();
+          const ride = rideDoc.data() as RideData;
 
           // Get the user document for the ride
-          //let userData: DocumentData = {};
+          let userData: UserData | null = null;
 
           // TODO validate entries either here or in create ride
           // TODO only display rides whose time is not < curr time (keep them sorted somehow?)
-          if (!ride.creator || typeof ride.creator !== "string") {
-            console.warn(
-              `Skipping ride ${rideDoc.id} — invalid creator field:`,
-              ride.creator,
-            );
-            continue; // Skip this ride
+          if (ride.creator) {
+            try {
+              const userSnap = await getDoc(doc(db, "users", ride.creator));
+              if (userSnap.exists()) {
+                userData = userSnap.data() as UserData;
+              } else {
+                console.warn(`User doc not found for creator ID`, ride.creator);
+              }
+            } catch (err) {
+              console.error(`Error fetching user ${ride.creator}:`, err);
+            }
           }
 
-          let userData: DocumentData = {};
-
-          try {
-            const userRef = doc(db, "users", ride.creator.trim());
-            const userSnapshot = await getDoc(userRef);
-
-            if (!userSnapshot.exists()) {
-              console.warn(
-                `User doc not found for creator ID: ${ride.creator}`,
-              );
-            } else {
-              userData = userSnapshot.data() as DocumentData;
-            }
-          } catch (err) {
-            console.error(`Error fetching user ${ride.creator}:`, err);
+          if (rideDoc.id === undefined) {
+            return;
           }
 
           ridesData.push({
             id: rideDoc.id,
-            name: userData.name || "Inactive Account",
+            creator: userData?.name || "Inactive Account",
             destination: ride.destination || "Unknown Destination",
-            departureDate: ride.date?.toDate?.() ?? new Date(),
-            departureTime: ride.time?.toDate?.() ?? new Date(),
-            currentPeople: ride.currPpl,
-            maxPeople: ride.maxPpl,
+            date: ride.date,
+            currPpl: ride.currPpl,
+            maxPpl: ride.maxPpl,
+            time: ride.time,
+            ppl: ride.ppl,
+            gender: ride.gender,
+            meetLoc: ride.meetLoc,
           });
         }
 
@@ -82,11 +73,11 @@ export default function FeedPage() {
         // Keep only rides whose departure date/time is in the future
         const upcomingRides = ridesData.filter((ride) => {
           const departure = new Date(
-            ride.departureDate.getFullYear(),
-            ride.departureDate.getMonth(),
-            ride.departureDate.getDate(),
-            ride.departureTime.getHours(),
-            ride.departureTime.getMinutes(),
+            ride.date.toDate().getFullYear(),
+            ride.date.toDate().getMonth(),
+            ride.date.toDate().getDate(),
+            ride.time.toDate().getHours(),
+            ride.time.toDate().getMinutes(),
           );
           return departure >= now;
         });
@@ -94,18 +85,18 @@ export default function FeedPage() {
         // Sort upcoming rides by date and time (earliest first)
         upcomingRides.sort((a, b) => {
           const dateA = new Date(
-            a.departureDate.getFullYear(),
-            a.departureDate.getMonth(),
-            a.departureDate.getDate(),
-            a.departureTime.getHours(),
-            a.departureTime.getMinutes(),
+            a.date.toDate().getFullYear(),
+            a.date.toDate().getMonth(),
+            a.date.toDate().getDate(),
+            a.time.toDate().getHours(),
+            a.time.toDate().getMinutes(),
           );
           const dateB = new Date(
-            b.departureDate.getFullYear(),
-            b.departureDate.getMonth(),
-            b.departureDate.getDate(),
-            b.departureTime.getHours(),
-            b.departureTime.getMinutes(),
+            b.date.toDate().getFullYear(),
+            b.date.toDate().getMonth(),
+            b.date.toDate().getDate(),
+            b.time.toDate().getHours(),
+            b.time.toDate().getMinutes(),
           );
 
           return dateA.getTime() - dateB.getTime();
@@ -120,18 +111,19 @@ export default function FeedPage() {
     };
 
     fetchRides();
-  }, []);
+  }, [setRides, rides.length]);
 
   // Filtering logic
   const filteredRides = rides.filter((ride) => {
     const queryWords = searchQuery.toLowerCase().split(" ").filter(Boolean);
 
     return queryWords.every((word) => {
-      const name = ride.name?.toLowerCase() || "";
+      const name = ride.creator?.toLowerCase() || "";
       const destination = ride.destination?.toLowerCase() || "";
       const formattedDate =
-        ride.departureDate?.toLocaleDateString().toLowerCase() || "";
-      const formattedTime = ride.departureTime
+        ride.date?.toDate()?.toLocaleDateString().toLowerCase() || "";
+      const formattedTime = ride.time
+        ?.toDate()
         ?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         .toLowerCase();
 
@@ -170,26 +162,11 @@ export default function FeedPage() {
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
       >
-        {filteredRides.length > 0 ? (
-          filteredRides.map((ride) => (
-            <RidePost
-              key={ride.id}
-              name={ride.name}
-              destination={ride.destination}
-              departureDate={ride.departureDate}
-              departureTime={ride.departureTime}
-              currentPeople={ride.currentPeople}
-              maxPeople={ride.maxPeople}
-            />
-          ))
-        ) : (
-          // 🆕 Added “no results” visual feedback (optional)
-          <View style={{ alignItems: "center", marginTop: 20 }}>
-            <ActivityIndicator size="small" color="#888" />
-          </View>
-        )}
+        {rides.map((ride) => {
+          return <SingleRidePost key={ride.id} rideId={ride.id} />;
+        })}
       </ScrollView>
-      <FloatingActionButton/>
+      <FloatingActionButton />
       <Footer />
     </View>
   );
