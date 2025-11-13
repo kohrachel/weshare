@@ -34,6 +34,7 @@ export type RideData = {
   ppl: string[];
   gender: "Male" | "Female" | "Co-ed";
   meetLoc: string;
+  luggage: boolean;
 };
 
 export type UserData = {
@@ -87,6 +88,7 @@ export default function RsvpRidePage() {
         ppl: ride.ppl,
         gender: ride.gender,
         meetLoc: ride.meetLoc,
+        luggage: ride.luggage,
       };
 
       setRideData(newRideData);

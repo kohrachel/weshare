@@ -169,6 +169,14 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         <Text style={styles.value}>{rideCreator || "Loading..."}</Text>
       </View>
 
+      {rideData.luggage && (
+        <View style={styles.detailRow}>
+          <Text
+            style={styles.luggageTag}
+          >{`Room for luggage: ${rideData.luggage ? "✅" : "❌"}`}</Text>
+        </View>
+      )}
+
       {/* RSVP Button */}
       <View style={styles.buttonWrapper}>
         <ButtonGreen
@@ -214,5 +222,12 @@ const styles = StyleSheet.create({
   buttonWrapper: {
     marginTop: 16,
     alignItems: "center",
+  },
+  luggageTag: {
+    backgroundColor: "#b1f9b3",
+    color: "#000000",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
   },
 });
