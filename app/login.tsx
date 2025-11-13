@@ -37,7 +37,7 @@ export default function Login() {
 
   const checkUser = async () => {
     try {
-//       await SecureStore.setItemAsync("userid", ""); // will require login (for user testing)
+//       await SecureStore.setItemAsync("userid", ""); // logout (for user testing)
       const id = await SecureStore.getItemAsync("userid");
       if (id && id != "") {
         const user = await getDoc(doc(db, "users", id));
