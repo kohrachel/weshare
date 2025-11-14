@@ -135,7 +135,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
   return (
     <Pressable
-      style={styles.card}
+      style={[styles.card, isRsvpDisabled() && styles.cardDisabled]}
       onPress={() => router.navigate(`/rsvp?rideId=${rideId}`)}
     >
       {/* Name Header */}
@@ -195,6 +195,8 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
 const styles = StyleSheet.create({
   card: {
+    flexDirection: "column",
+    gap: 16,
     backgroundColor: "#2D2D2D",
     borderStyle: "solid",
     borderWidth: 1,
@@ -208,6 +210,11 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   header: {
+  cardDisabled: {
+    backgroundColor: "#1a1a1a",
+    borderColor: "#333333",
+    opacity: 0.7,
+  },
     fontSize: 20,
     fontWeight: "700",
     marginBottom: 12,
