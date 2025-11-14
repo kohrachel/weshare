@@ -9,7 +9,6 @@ import { RidesContext } from "@/contexts/RidesContext";
 import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
 import { formatDate, formatTime } from "@/utils";
-import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import {
   arrayRemove,
@@ -29,7 +28,6 @@ type SingleRidePostProps = {
 
 export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   const router = useRouter();
-  const route = useRoute();
 
   const { getSingleRide, setSingleRide } = useContext(RidesContext);
   const { userId } = useContext(UserContext);
