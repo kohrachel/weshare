@@ -40,35 +40,34 @@ type IconGlyphs = "male" | "female" | "male-female";
   return (
     <View style={styles.card}>
       {/* Name Header */}
-      <Text style={styles.name}>{name}</Text>
-
-      {/* Contact Info */}
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Phone: </Text>
-        <Text style={styles.value}>{formatPhoneNumber(phoneNum)}</Text>
-      </View>
-
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Email: </Text>
-        <Text style={styles.value}>{email}</Text>
+      <View style={styles.nameRow}>
+        <Text style={styles.name}>{name}</Text>
         <Ionicons name={icon} size={24} color={color} />
       </View>
 
+      {/* Contact Info */}
       <View style={styles.detailRow}>
-        <Text style={styles.label}>Gender: </Text>
-        <Text style={styles.value}>{gender}</Text>
+        <Text style={styles.value}>☎️ {formatPhoneNumber(phoneNum)}</Text>
+        <Text style={styles.value}>📬 {email}</Text>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    justifyContent: "space-between",
+  },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#2D2D2D",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "#4c4c4c",
     borderRadius: 12,
     padding: 16,
-    marginVertical: 8,
-    marginHorizontal: 0,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
@@ -76,25 +75,21 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   name: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
-    marginBottom: 12,
-    color: "#333",
+    color: "#f0f0f0",
   },
   detailRow: {
-    flexDirection: "row",
+    flexDirection: "column",
     marginBottom: 6,
+    gap: 4,
   },
   label: {
     fontWeight: "600",
-    color: "#555",
+    color: "#f0f0f0",
   },
   value: {
-    color: "#333",
-  },
-  buttonWrapper: {
-    marginTop: 16,
-    alignItems: "flex-start",
+    color: "#ececec",
   },
 });
 
