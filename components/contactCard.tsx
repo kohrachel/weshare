@@ -1,7 +1,7 @@
 /**
  Contributors
  Kevin Song: 3 hours
- Rachel Huiqi: 3 hours
+ Rachel Huiqi: 5 hours
  */
 
 import { UserGenderType } from "@/app/rsvp";

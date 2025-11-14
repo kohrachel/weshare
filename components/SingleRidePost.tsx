@@ -1,7 +1,7 @@
 /**
  Contributors
  Kevin Song: 3 hours
- Rachel Huiqi: 8 hours
+ Rachel Huiqi: 10 hours
  */
 
 import { RideData, UserData } from "@/app/rsvp";
