@@ -152,15 +152,6 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         </View>
       </View>
 
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Meeting at: </Text>
-        <Text style={styles.value}>{rideData.meetLoc}</Text>
-      </View>
-
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Gender Restriction: </Text>
-        <Text style={styles.value}>
-          {rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender + " only"}
       {/* Capacity Section */}
       <View style={styles.capacityContainer}>
         <Text style={styles.capacityText}>
@@ -201,15 +192,19 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
           </Text>
         </View>
 
-      {/* Ride Details */}
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Created by: </Text>
-        <Text style={styles.value}>{rideCreator || "Loading..."}</Text>
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>🤝🏻 Departs from </Text>
+          <Text style={styles.value}>{rideData.meetLoc}</Text>
+        </View>
       </View>
 
+      {/* Tags Section */}
       {rideData.luggage && (
-        <View style={styles.detailRow}>
-          <Text style={styles.luggageTag}>🧳 Room for luggage</Text>
+        <View style={styles.tagsSection}>
+          <Text style={styles.tag}>Space for luggage</Text>
+          <Text style={styles.tag}>
+            {rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender + " only"}
+          </Text>
         </View>
       )}
 
@@ -269,28 +264,36 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#f0f0f0",
   },
+  timeLocationSection: {
+    flexDirection: "column",
+    gap: 2,
+  },
   detailRow: {
     flexDirection: "row",
-    marginBottom: 6,
   },
-  label: {
+  value: {
     fontWeight: "600",
     color: "#f0f0f0",
   },
-  value: {
+  label: {
     color: "#ececec",
   },
   buttonWrapper: {
-    marginTop: 16,
     alignItems: "center",
   },
-  luggageTag: {
+  tagsSection: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  tag: {
     backgroundColor: "#3B5A3D",
     color: "#f0f0f0",
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
     fontWeight: "600",
+    fontSize: 12,
+  },
   capacityContainer: {
     flexDirection: "column",
     gap: 4,
