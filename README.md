@@ -186,3 +186,13 @@ We are currently in test mode (The default security rules for test mode allow an
    bun run test
    ```
   - Check coverage in weshare/coverage/lcov-report/index.html (open in browser)
+
+## APK Generation
+- Run `bunx expo prebuild --platform android --clean`
+- Create `local.properties` file in android folder and add this line (assuming this is where your SDK is, can check in file explorer): sdk.dir=C:/Users/username/AppData/Local/Android/Sdk
+- Check `/weshare/android/app/src/main/AndroidManifest.xml` and replace `<data android:scheme="weshare"/>` with `<data android:scheme="${appAuthRedirectScheme}" />`
+- Run `cd android`
+- Run `./gradlew clean`
+- Run `./gradlew assembleRelease`
+- APK can be found in `/weshare/android/app/build/outputs/apk/release/`
+- Link to debugging conversation with chat https://chatgpt.com/share/691697f0-1d20-8012-97d8-f42bdbc33191
