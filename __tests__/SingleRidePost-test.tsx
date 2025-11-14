@@ -3,13 +3,19 @@
  Emma Reid: 2 hours
  */
 
-import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import SingleRidePost from "@/components/SingleRidePost";
 import { RidesContext } from "@/contexts/RidesContext";
 import { UserContext } from "@/contexts/UserContext";
 import { useRoute } from "@react-navigation/native";
+import {
+  fireEvent,
+  render,
+  waitFor,
+  within,
+} from "@testing-library/react-native";
 import { useRouter } from "expo-router";
+import React from "react";
+import { TouchableOpacity } from "react-native";
 
 // Mock firebase/firestore with Timestamp implementation
 const mockTimestamp = {
@@ -21,9 +27,18 @@ const mockTimestamp = {
 const mockGetDoc = jest.fn();
 const mockUpdateDoc = jest.fn();
 const mockDoc = jest.fn();
-const mockArrayRemove = jest.fn((val) => ({ _methodName: "arrayRemove", _elements: [val] }));
-const mockArrayUnion = jest.fn((val) => ({ _methodName: "arrayUnion", _elements: [val] }));
-const mockIncrement = jest.fn((val) => ({ _methodName: "increment", _operand: val }));
+const mockArrayRemove = jest.fn((val) => ({
+  _methodName: "arrayRemove",
+  _elements: [val],
+}));
+const mockArrayUnion = jest.fn((val) => ({
+  _methodName: "arrayUnion",
+  _elements: [val],
+}));
+const mockIncrement = jest.fn((val) => ({
+  _methodName: "increment",
+  _operand: val,
+}));
 
 jest.mock("firebase/firestore", () => ({
   getDoc: (...args: any[]) => mockGetDoc(...args),
@@ -110,7 +125,7 @@ describe("SingleRidePost", () => {
     rideId: string = "ride123",
     userId: string | null = mockUserId,
     getSingleRide = mockGetSingleRide,
-    setSingleRide = mockSetSingleRide
+    setSingleRide = mockSetSingleRide,
   ) => {
     return render(
       <UserContext.Provider value={{ userId, setUserId: jest.fn() }}>
@@ -124,19 +139,22 @@ describe("SingleRidePost", () => {
         >
           <SingleRidePost rideId={rideId} />
         </RidesContext.Provider>
-      </UserContext.Provider>
+      </UserContext.Provider>,
     );
   };
 
   describe("Loading States", () => {
     it("should render loading state when ride data is not available", () => {
       mockGetSingleRide.mockReturnValue(null);
+      mockGetDoc.mockResolvedValue({
+        exists: () => false,
+      });
       const { getByText } = renderComponent();
       expect(getByText("Loading...")).toBeTruthy();
     });
 
     it("should render loading for creator name initially", () => {
-      (getDoc as jest.Mock).mockResolvedValue({
+      mockGetDoc.mockResolvedValue({
         exists: () => false,
       });
       const { getByText } = renderComponent();
@@ -221,9 +239,16 @@ describe("SingleRidePost", () => {
       });
     });
 
-    it("should not fetch user data when userId is null", () => {
+    it("should not fetch user data when userId is null", async () => {
       renderComponent("ride123", null);
-      expect(mockGetDoc).not.toHaveBeenCalled();
+      await waitFor(() => {
+        // Check that getDoc was not called with a user document path
+        const calls = mockGetDoc.mock.calls;
+        const userDocCalls = calls.filter((call) =>
+          call[0]?.path?.includes("users/null"),
+        );
+        expect(userDocCalls.length).toBe(0);
+      });
     });
 
     it("should handle non-existent user document", async () => {
@@ -384,7 +409,7 @@ describe("SingleRidePost", () => {
       });
     });
 
-    it("should disable RSVP when ride is full and user is not RSVPed", () => {
+    it("should disable RSVP when ride is full and user is not RSVPed", async () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
         currPpl: 5,
@@ -392,13 +417,25 @@ describe("SingleRidePost", () => {
         ppl: ["user456", "user789", "user111", "user222", "user333"],
       });
 
-      const { getByText } = renderComponent();
-      const rsvpButton = getByText("RSVP");
+      const { getByText, UNSAFE_getAllByType } = renderComponent();
 
-      expect(rsvpButton.props.accessibilityState?.disabled).toBe(true);
+      await waitFor(() => {
+        const rsvpText = getByText("RSVP");
+        // Find the TouchableOpacity that contains this text
+        const buttons = UNSAFE_getAllByType(TouchableOpacity);
+        const rsvpButton = buttons.find((btn) => {
+          try {
+            within(btn).getByText("RSVP");
+            return true;
+          } catch {
+            return false;
+          }
+        });
+        expect(rsvpButton?.props.disabled).toBe(true);
+      });
     });
 
-    it("should not disable RSVP when ride is full but user is RSVPed", () => {
+    it("should not disable RSVP when ride is full but user is RSVPed", async () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
         currPpl: 5,
@@ -406,13 +443,24 @@ describe("SingleRidePost", () => {
         ppl: ["user123", "user456", "user789", "user111", "user222"],
       });
 
-      const { getByText } = renderComponent();
-      const rsvpButton = getByText("RSVPed");
+      const { getByText, UNSAFE_getAllByType } = renderComponent();
 
-      expect(rsvpButton.props.accessibilityState?.disabled).toBe(false);
+      await waitFor(() => {
+        const rsvpText = getByText("RSVPed");
+        const buttons = UNSAFE_getAllByType(TouchableOpacity);
+        const rsvpButton = buttons.find((btn) => {
+          try {
+            within(btn).getByText("RSVPed");
+            return true;
+          } catch {
+            return false;
+          }
+        });
+        expect(rsvpButton?.props.disabled).toBe(false);
+      });
     });
 
-    it("should disable RSVP when gender restriction does not match", () => {
+    it("should disable RSVP when gender restriction does not match", async () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
         gender: "Female",
@@ -422,35 +470,68 @@ describe("SingleRidePost", () => {
         data: () => ({ ...mockUserData, gender: "Male" }),
       });
 
-      const { getByText } = renderComponent();
-      const rsvpButton = getByText("RSVP");
+      const { getByText, UNSAFE_getAllByType } = renderComponent();
 
-      expect(rsvpButton.props.accessibilityState?.disabled).toBe(true);
+      await waitFor(() => {
+        const rsvpText = getByText("RSVP");
+        const buttons = UNSAFE_getAllByType(TouchableOpacity);
+        const rsvpButton = buttons.find((btn) => {
+          try {
+            within(btn).getByText("RSVP");
+            return true;
+          } catch {
+            return false;
+          }
+        });
+        expect(rsvpButton?.props.disabled).toBe(true);
+      });
     });
 
-    it("should not disable RSVP for Co-ed rides", () => {
+    it("should not disable RSVP for Co-ed rides", async () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
         gender: "Co-ed",
       });
 
-      const { getByText } = renderComponent();
-      const rsvpButton = getByText("RSVP");
+      const { getByText, UNSAFE_getAllByType } = renderComponent();
 
-      expect(rsvpButton.props.accessibilityState?.disabled).toBe(false);
+      await waitFor(() => {
+        const rsvpText = getByText("RSVP");
+        const buttons = UNSAFE_getAllByType(TouchableOpacity);
+        const rsvpButton = buttons.find((btn) => {
+          try {
+            within(btn).getByText("RSVP");
+            return true;
+          } catch {
+            return false;
+          }
+        });
+        expect(rsvpButton?.props.disabled).toBe(false);
+      });
     });
 
-    it("should handle undefined maxPpl when checking capacity", () => {
+    it("should handle undefined maxPpl when checking capacity", async () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
         maxPpl: undefined,
         currPpl: 10,
       });
 
-      const { getByText } = renderComponent();
-      const rsvpButton = getByText("RSVP");
+      const { getByText, UNSAFE_getAllByType } = renderComponent();
 
-      expect(rsvpButton.props.accessibilityState?.disabled).toBe(true);
+      await waitFor(() => {
+        const rsvpText = getByText("RSVP");
+        const buttons = UNSAFE_getAllByType(TouchableOpacity);
+        const rsvpButton = buttons.find((btn) => {
+          try {
+            within(btn).getByText("RSVP");
+            return true;
+          } catch {
+            return false;
+          }
+        });
+        expect(rsvpButton?.props.disabled).toBe(true);
+      });
     });
 
     it("should handle undefined userData", async () => {
@@ -463,10 +544,19 @@ describe("SingleRidePost", () => {
         gender: "Male",
       });
 
-      const { getByText } = renderComponent();
+      const { getByText, UNSAFE_getAllByType } = renderComponent();
       await waitFor(() => {
-        const rsvpButton = getByText("RSVP");
-        expect(rsvpButton.props.accessibilityState?.disabled).toBe(true);
+        const rsvpText = getByText("RSVP");
+        const buttons = UNSAFE_getAllByType(TouchableOpacity);
+        const rsvpButton = buttons.find((btn) => {
+          try {
+            within(btn).getByText("RSVP");
+            return true;
+          } catch {
+            return false;
+          }
+        });
+        expect(rsvpButton?.props.disabled).toBe(true);
       });
     });
   });

@@ -25,6 +25,7 @@ export default function ButtonGreen({
       style={[styles.buttonContainer, disabled && styles.disabled]}
       onPress={onPress}
       disabled={disabled}
+      accessibilityState={{ disabled }}
       testID={testID}
     >
       <Text style={styles.buttonText}>{title}</Text>
