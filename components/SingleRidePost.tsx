@@ -107,6 +107,16 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     });
   };
 
+  const RSVPButtonText = useMemo(() => {
+    if (isUserRsvped) return "RSVPed";
+    if (!rideData) return "Loading...";
+    if (rideData.currPpl >= (rideData.maxPpl || 0) && !isUserRsvped)
+      return "Ride is full";
+    if (rideData.gender !== "Co-ed" && rideData.gender !== userData?.gender)
+      return rideData.gender + " only ride";
+    return "RSVP to this ride";
+  }, [isUserRsvped, rideData, userData]);
+
   if (!rideData) {
     return (
       <View style={styles.card}>
@@ -174,7 +184,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
       {/* RSVP Button */}
       <View style={styles.buttonWrapper}>
         <ButtonGreen
-          title={isUserRsvped ? "RSVPed" : "RSVP"}
+          title={RSVPButtonText}
           onPress={toggleRSVP}
           disabled={isRsvpDisabled()}
         />
