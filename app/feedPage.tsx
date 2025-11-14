@@ -158,9 +158,15 @@ export default function FeedPage() {
         defaultValue="Search rides by user name, destination, or date/time"
         value={searchQuery}
         setValue={setSearchQuery}
+        style={{ marginBottom: 16 }}
       />
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingBottom: 80,
+          flexDirection: "column",
+          gap: 16,
+        }}
       >
         {rides.map((ride) => {
           return <SingleRidePost key={ride.id} rideId={ride.id} />;
