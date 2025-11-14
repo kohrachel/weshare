@@ -189,11 +189,12 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#2D2D2D",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "#4c4c4c",
     borderRadius: 12,
     padding: 16,
-    marginVertical: 8,
-    marginHorizontal: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
@@ -204,7 +205,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 12,
-    color: "#333",
+    color: "#f0f0f0",
   },
   detailRow: {
     flexDirection: "row",
@@ -212,10 +213,10 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: "600",
-    color: "#555",
+    color: "#f0f0f0",
   },
   value: {
-    color: "#333",
+    color: "#ececec",
   },
   buttonWrapper: {
     marginTop: 16,
