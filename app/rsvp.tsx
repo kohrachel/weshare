@@ -135,19 +135,11 @@ export default function RsvpRidePage() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#181818",
-        paddingTop: 50,
-        paddingBottom: 100,
-        paddingHorizontal: 10,
-      }}
-    >
       <ScrollView style={{ flex: 1 }}>
         <View>
           <SingleRidePost rideId={rideId} />
         </View>
+    <View style={styles.container}>
         {/* TODO: replace with dynamic data */}
         {rsvpedUsers.map((user, index) => (
           <ContactCard
@@ -165,6 +157,13 @@ export default function RsvpRidePage() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#181818",
+    paddingTop: 70,
+    paddingBottom: 100,
+    paddingHorizontal: 30,
+  },
   card: {
     backgroundColor: "#fff",
     borderRadius: 12,
