@@ -65,7 +65,10 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   }, [rideData?.creator]);
 
   useEffect(() => {
-    fetchCreatorInfo().then((name) => setRideCreator(name || "Loading..."));
+    fetchCreatorInfo().then((name) => {
+      if (!name) return;
+      setRideCreator(name);
+    });
   }, [fetchCreatorInfo]);
 
   useEffect(() => {
