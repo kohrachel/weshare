@@ -1,3 +1,8 @@
+/**
+ Contributors
+ Rachel Huiqi: 2 hours
+ */
+
 import { Link } from "expo-router";
 import { Image, StyleSheet, View } from "react-native";
 

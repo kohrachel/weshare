@@ -4,7 +4,7 @@
  Rachel Huiqi: 5 hours
  */
 
-import { ButtonGreen } from "@/components/button-green";
+import ButtonGreen from "@/components/buttonGreen";
 import DateTimeInput from "@/components/DateTimeInput";
 import Input from "@/components/Input";
 import { db } from "@/firebaseConfig";

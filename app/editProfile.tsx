@@ -20,10 +20,11 @@ import {
 } from "react-native";
 
 // Components
-import BackButton from "@/components/backbutton";
-import { ButtonGreen } from "@/components/button-green";
-import Footer from "@/components/Footer";
 import Input from "@/components/Input";
+import ButtonGreen from "@/components/buttonGreen";
+import Footer from "@/components/Footer";
+import Title from '@/components/Title';
+
 
 // Firebase
 import { db, storage } from "@/firebaseConfig";
@@ -157,9 +158,7 @@ export default function EditProfile() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <BackButton />
-        <Text style={styles.headerText}>Edit Profile</Text>
-        <View style={{ width: 28 }} />
+      <Title text={"Edit Profile"}/>
       </View>
 
       <TouchableOpacity

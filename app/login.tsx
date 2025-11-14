@@ -3,15 +3,15 @@
  Emma Reid: 8 hours
  */
 
-import { db } from "@/firebaseConfig";
-import * as AuthSession from "expo-auth-session";
-import { useRouter } from "expo-router";
-import { Inter_700Bold } from "@expo-google-fonts/inter/700Bold";
-import * as SecureStore from "expo-secure-store";
-import { doc, setDoc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Text, View, Image, ActivityIndicator } from "react-native";
-import { ButtonGreen } from "../components/button-green";
+import ButtonGreen from "../components/buttonGreen";
+import { useRouter } from "expo-router";
+import { Inter_700Bold } from "@expo-google-fonts/inter/700Bold";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from "@/firebaseConfig";
+import * as AuthSession from "expo-auth-session";
+import * as SecureStore from "expo-secure-store";
 
 // Main screen
 export default function Login() {
@@ -50,7 +50,7 @@ export default function Login() {
     } catch (error) {
       console.error("Error checking user:", error);
     }
-  };
+  }
 
   useEffect(() => {
     checkUser();

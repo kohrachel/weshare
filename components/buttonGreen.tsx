@@ -7,14 +7,14 @@
 
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
-interface ButtonGreenProps {
+type ButtonGreenProps = {
   title: string;
   onPress: () => void;
   disabled?: boolean;
   testID?: string;
 }
 
-export function ButtonGreen({
+export default function ButtonGreen({
   title,
   onPress,
   disabled = false,
@@ -25,6 +25,7 @@ export function ButtonGreen({
       style={[styles.buttonContainer, disabled && styles.disabled]}
       onPress={onPress}
       disabled={disabled}
+      accessibilityState={{ disabled }}
       testID={testID}
     >
       <Text style={styles.buttonText}>{title}</Text>

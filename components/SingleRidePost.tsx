@@ -21,7 +21,7 @@ import {
 } from "firebase/firestore";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { ButtonGreen } from "./button-green";
+import ButtonGreen from "./buttonGreen";
 
 type SingleRidePostProps = {
   rideId: string;

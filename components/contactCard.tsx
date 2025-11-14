@@ -14,12 +14,12 @@ type ContactCardProps = {
   gender: UserGenderType;
 };
 
-const ContactsCard: React.FC<ContactCardProps> = ({
+export default function ContactCard({
   name,
   phoneNum,
   email,
   gender,
-}) => {
+}: ContactCardProps) {
   const formatPhoneNumber = (phoneNum: string) => {
     if (phoneNum === "Not set") return "Not set";
     return phoneNum.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
@@ -83,5 +83,3 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
 });
-
-export default ContactsCard;

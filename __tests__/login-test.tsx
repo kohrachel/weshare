@@ -1,11 +1,11 @@
 /**
  Contributors
- Emma Reid: 3 hours
+ Emma Reid: 3.5 hours
  */
 
 import React from "react";
 import { render, act, waitFor, fireEvent } from "@testing-library/react-native";
-import Login from "../app/Login"; // adjust path if needed
+import Login from "../app/Login";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import * as AuthSession from "expo-auth-session";
@@ -38,13 +38,13 @@ jest.mock("@/firebaseConfig", () => ({
   db: {},
 }));
 
-jest.mock("../components/button-green", () => ({
-  ButtonGreen: ({ title, onPress }: any) => (
+jest.mock("../components/buttonGreen", () => {
+  return ({ title, onPress }: any) => (
     <button onClick={onPress} testID="login-button">
       {title}
     </button>
-  ),
-}));
+  );
+});
 
 global.fetch = jest.fn();
 
