@@ -167,9 +167,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#181818",
-    paddingTop: 70,
+    paddingTop: 40,
     paddingBottom: 100,
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
   },
   card: {
     backgroundColor: "#fff",
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollViewContent: {
-    gap: 16,
+    gap: 12,
     flexDirection: "column",
   },
 });

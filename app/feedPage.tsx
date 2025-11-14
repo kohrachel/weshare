@@ -162,7 +162,6 @@ export default function FeedPage() {
       />
       <ScrollView
         contentContainerStyle={{
-          paddingHorizontal: 16,
           paddingBottom: 80,
           flexDirection: "column",
           gap: 16,
