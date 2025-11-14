@@ -135,11 +135,14 @@ export default function RsvpRidePage() {
   }
 
   return (
-      <ScrollView style={{ flex: 1 }}>
         <View>
           <SingleRidePost rideId={rideId} />
         </View>
     <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContent}
+      >
         {/* TODO: replace with dynamic data */}
         {rsvpedUsers.map((user, index) => (
           <ContactCard
@@ -211,5 +214,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#181818",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    gap: 16,
+    flexDirection: "column",
   },
 });
