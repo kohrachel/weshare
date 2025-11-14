@@ -4,7 +4,14 @@
  Jonny Yang: 5 min
 */
 
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  StyleProp,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  ViewStyle,
+} from "react-native";
 
 type InputProps = {
   label?: string;
@@ -12,6 +19,7 @@ type InputProps = {
   setValue?: (text: string) => void;
   defaultValue?: string;
   testID?: string; // <-- add testID prop
+  style?: StyleProp<ViewStyle>;
 };
 
 export default function Input({
@@ -20,9 +28,10 @@ export default function Input({
   setValue,
   defaultValue,
   testID,
+  style,
 }: InputProps) {
   return (
-    <View style={styles.inputWrapper}>
+    <View style={[styles.inputWrapper, style]}>
       {label && <Text style={styles.inputLabel}>{label}</Text>}
       <TextInput
         style={styles.inputBox}
