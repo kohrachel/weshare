@@ -131,9 +131,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
       onPress={() => router.navigate(`/rsvp?rideId=${rideId}`)}
     >
       {/* Name Header */}
-      <Text
-        style={styles.header}
-      >{`Destination: ${rideData.destination}`}</Text>
+      <Text style={styles.header}>{`📍 ${rideData.destination}`}</Text>
 
       <View style={styles.detailRow}>
         <Text style={styles.label}>Departure: </Text>
