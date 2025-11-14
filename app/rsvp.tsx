@@ -144,7 +144,6 @@ export default function RsvpRidePage() {
         paddingHorizontal: 10,
       }}
     >
-      <Text style={styles.title}>Ride Details</Text>
       <ScrollView style={{ flex: 1 }}>
         <View>
           <SingleRidePost rideId={rideId} />
