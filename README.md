@@ -188,6 +188,7 @@ We are currently in test mode (The default security rules for test mode allow an
   - Check coverage in weshare/coverage/lcov-report/index.html (open in browser)
 
 ## APK Generation
+- Optional: Change first screen to Login, not Index.
 - Run `bunx expo prebuild --platform android --clean`
 - Create `local.properties` file in android folder and add this line (assuming this is where your SDK is, can check in file explorer): sdk.dir=C:/Users/username/AppData/Local/Android/Sdk
 - Run `cd android`
