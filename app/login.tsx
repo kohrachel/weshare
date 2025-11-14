@@ -28,7 +28,7 @@ export default function Login() {
     {
       clientId: "0b6e0e8a-0d83-459f-9262-cbe067b52bf3",
       redirectUri: AuthSession.makeRedirectUri({
-        scheme: "com.wesharenative://oauth/auth/",
+        useProxy: false,
       }),
       scopes: ["openid", "profile", "email"],
     },
@@ -65,7 +65,7 @@ export default function Login() {
             clientId: "0b6e0e8a-0d83-459f-9262-cbe067b52bf3",
             code,
             redirectUri: AuthSession.makeRedirectUri({
-              scheme: "com.wesharenative://oauth/auth/",
+              useProxy: false,
             }),
             extraParams: {
               code_verifier: request.codeVerifier,

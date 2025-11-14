@@ -22,14 +22,10 @@
         {
           "action": "VIEW",
           "data": [
-            { "scheme": "weshare" }
-          ],
-          "category": ["BROWSABLE", "DEFAULT"]
-        },
-        {
-          "action": "VIEW",
-          "data": [
-            { "scheme": "msauth" }
+            {
+              "scheme": "weshare",
+              "host": "redirect"
+            }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
         }
