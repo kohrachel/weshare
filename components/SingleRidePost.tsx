@@ -138,16 +138,15 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
       style={[styles.card, isRsvpDisabled() && styles.cardDisabled]}
       onPress={() => router.navigate(`/rsvp?rideId=${rideId}`)}
     >
-      {/* Name Header */}
-      <Text style={styles.header}>{`📍 ${rideData.destination}`}</Text>
-
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Date: </Text>
-        <Text style={styles.value}>
-          {formatDate(rideData.date.toDate()) +
-            " " +
-            formatTime(rideData.time.toDate())}
-        </Text>
+      {/* Header Section */}
+      <View style={styles.headerSection}>
+        <Text style={styles.headerIcon}>📍</Text>
+        <View style={styles.headerText}>
+          <Text style={styles.title}>{rideData.destination}</Text>
+          <Text style={styles.createdBy}>
+            Created by: {rideCreator || "Loading..."}
+          </Text>
+        </View>
       </View>
 
       <View style={styles.detailRow}>
@@ -209,15 +208,32 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  header: {
   cardDisabled: {
     backgroundColor: "#1a1a1a",
     borderColor: "#333333",
     opacity: 0.7,
   },
+  headerSection: {
+    flexDirection: "row",
+    gap: 4,
+  },
+  headerIcon: {
+    fontSize: 30,
+    color: "#f0f0f0",
+    alignSelf: "center",
+    marginLeft: -5,
+  },
+  headerText: {
+    flexDirection: "column",
+    gap: 4,
+  },
+  createdBy: {
+    fontSize: 12,
+    color: "#f0f0f0",
+  },
+  title: {
     fontSize: 20,
     fontWeight: "700",
-    marginBottom: 12,
     color: "#f0f0f0",
   },
   detailRow: {
