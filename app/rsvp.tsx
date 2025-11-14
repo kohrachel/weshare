@@ -135,10 +135,14 @@ export default function RsvpRidePage() {
   }
 
   return (
-        <View>
-          <SingleRidePost rideId={rideId} />
-        </View>
     <View style={styles.container}>
+      <SingleRidePost rideId={rideId} />
+      <Text style={styles.subtitle}>
+        In this ride:{" "}
+        {rsvpedUsers.length !== 1
+          ? `${rsvpedUsers.length} people`
+          : `${rsvpedUsers.length} person`}
+      </Text>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
@@ -192,6 +196,14 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingTop: 28,
     textAlign: "center",
+  },
+  subtitle: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 16,
+    color: "#e7e7e7",
+    paddingBottom: 10,
+    paddingTop: 15,
+    textAlign: "left",
   },
   detailRow: {
     flexDirection: "row",
