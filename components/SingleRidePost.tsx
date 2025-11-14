@@ -20,11 +20,14 @@ import {
 } from "firebase/firestore";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import Svg, { Rect } from "react-native-svg";
 import { ButtonGreen } from "./button-green";
 
 type SingleRidePostProps = {
   rideId: string;
 };
+
+const CAPACITY_BAR_WIDTH = 330;
 
 export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   const router = useRouter();
@@ -158,15 +161,45 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         <Text style={styles.label}>Gender Restriction: </Text>
         <Text style={styles.value}>
           {rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender + " only"}
+      {/* Capacity Section */}
+      <View style={styles.capacityContainer}>
+        <Text style={styles.capacityText}>
+          {rideData.currPpl} / {rideData.maxPpl} seats taken
         </Text>
+        <Svg width={CAPACITY_BAR_WIDTH} height="10" style={styles.capacityBar}>
+          {/* Background bar (gray for full capacity) */}
+          <Rect
+            x="0"
+            y="0"
+            width={CAPACITY_BAR_WIDTH}
+            height="10"
+            fill="#5f5f5f"
+            rx="5"
+            ry="5"
+          />
+          {/* Foreground bar (green for current people) */}
+          <Rect
+            x="0"
+            y="0"
+            width={`${(rideData.currPpl / (rideData.maxPpl || 1)) * CAPACITY_BAR_WIDTH}`}
+            height="10"
+            fill="#a0fca1"
+            rx="5"
+            ry="5"
+          />
+        </Svg>
       </View>
 
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Capacity: </Text>
-        <Text style={styles.value}>
-          {rideData.currPpl} / {rideData.maxPpl}
-        </Text>
-      </View>
+      {/* Time & Location Section */}
+      <View style={styles.timeLocationSection}>
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>📅 Leaves </Text>
+          <Text style={styles.value}>
+            {formatDate(rideData.date.toDate()) +
+              " @ " +
+              formatTime(rideData.time.toDate())}
+          </Text>
+        </View>
 
       {/* Ride Details */}
       <View style={styles.detailRow}>
@@ -258,5 +291,18 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     fontWeight: "600",
+  capacityContainer: {
+    flexDirection: "column",
+    gap: 4,
+  },
+  capacityText: {
+    color: "#ececec",
+    minWidth: 50,
+    paddingLeft: 5,
+    fontSize: 12,
+  },
+  capacityBar: {
+    alignSelf: "center",
+    borderRadius: 5,
   },
 });
