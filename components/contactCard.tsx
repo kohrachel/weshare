@@ -14,10 +14,9 @@ type ContactCardProps = {
   email: string;
   gender: UserGenderType;
 };
-
-const ContactsCard: React.FC<ContactCardProps> = ({
 type IconGlyphs = "male" | "female" | "male-female";
 
+const ContactsCard: React.FC<ContactCardProps> = ({
   name,
   phoneNum,
   email,
