@@ -134,7 +134,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
       <Text style={styles.header}>{`📍 ${rideData.destination}`}</Text>
 
       <View style={styles.detailRow}>
-        <Text style={styles.label}>Departure: </Text>
+        <Text style={styles.label}>Date: </Text>
         <Text style={styles.value}>
           {formatDate(rideData.date.toDate()) +
             " " +
@@ -169,9 +169,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
       {rideData.luggage && (
         <View style={styles.detailRow}>
-          <Text
-            style={styles.luggageTag}
-          >{`Room for luggage: ${rideData.luggage ? "✅" : "❌"}`}</Text>
+          <Text style={styles.luggageTag}>🧳 Room for luggage</Text>
         </View>
       )}
 
@@ -202,7 +200,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   header: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
     marginBottom: 12,
     color: "#f0f0f0",
@@ -223,10 +221,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   luggageTag: {
-    backgroundColor: "#b1f9b3",
-    color: "#000000",
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    backgroundColor: "#3B5A3D",
+    color: "#f0f0f0",
+    paddingHorizontal: 15,
+    paddingVertical: 8,
     borderRadius: 20,
+    fontWeight: "600",
   },
 });
