@@ -230,8 +230,8 @@ describe("<RSVP />", () => {
     const { queryAllByText } = render(<RsvpRidePage />);
 
     await waitFor(() => {
-      // Phone number from mock data
-      const phoneNumbers = queryAllByText(/1234567890/);
+      // Phone number from mock data (formatted as "(123) 456-7890")
+      const phoneNumbers = queryAllByText("(123) 456-7890");
       expect(phoneNumbers.length).toBeGreaterThan(0);
     });
   });

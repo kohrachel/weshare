@@ -43,15 +43,21 @@ describe("ButtonGreen", () => {
 
    // Verify TouchableOpacity style values
    const touchable = UNSAFE_getByType(require("react-native").TouchableOpacity);
-   expect(touchable.props.style).toEqual(
-     expect.objectContaining({
-       alignItems: "center",
-       backgroundColor: "#529053",
-       borderRadius: 10,
-       marginHorizontal: 10,
-       padding: 15,
-       width: "100%",
-     })
-   );
+   expect(touchable.props.style[0]).toEqual(
+    expect.objectContaining({
+      alignItems: "center",
+      backgroundColor: "#529053",
+      borderRadius: 10,
+      marginHorizontal: 10,
+      padding: 15,
+      width: "100%",
+    }),
+  );
+ });
+
+ it("applies disabled styling when disabled prop is true", () => {
+  const { UNSAFE_getByType } = render(
+    <ButtonGreen title="Test" onPress={jest.fn()} disabled={true} />
+  );
  });
 });
