@@ -5,6 +5,7 @@
  */
 
 import { UserGenderType } from "@/app/rsvp";
+import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
 type ContactCardProps = {
@@ -15,6 +16,8 @@ type ContactCardProps = {
 };
 
 const ContactsCard: React.FC<ContactCardProps> = ({
+type IconGlyphs = "male" | "female" | "male-female";
+
   name,
   phoneNum,
   email,
@@ -24,6 +27,16 @@ const ContactsCard: React.FC<ContactCardProps> = ({
     if (phoneNum === "Not set") return "Not set";
     return phoneNum.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
   };
+
+  const getGenderStyles = (
+    gender: UserGenderType,
+  ): { icon: IconGlyphs; color: string } => {
+    if (gender === "Male") return { icon: "male", color: "#61e3f5" };
+    if (gender === "Female") return { icon: "female", color: "#ff8ba0" };
+    return { icon: "male-female", color: "#a0fca1" };
+  };
+
+  const { icon, color } = getGenderStyles(gender);
   return (
     <View style={styles.card}>
       {/* Name Header */}
@@ -38,6 +51,7 @@ const ContactsCard: React.FC<ContactCardProps> = ({
       <View style={styles.detailRow}>
         <Text style={styles.label}>Email: </Text>
         <Text style={styles.value}>{email}</Text>
+        <Ionicons name={icon} size={24} color={color} />
       </View>
 
       <View style={styles.detailRow}>
