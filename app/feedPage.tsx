@@ -34,8 +34,6 @@ export default function FeedPage() {
           // Get the user document for the ride
           let userData: UserData | null = null;
 
-          // TODO validate entries either here or in create ride
-          // TODO only display rides whose time is not < curr time (keep them sorted somehow?)
           if (ride.creator) {
             try {
               const userSnap = await getDoc(doc(db, "users", ride.creator));
@@ -150,8 +148,10 @@ export default function FeedPage() {
       style={{
         flex: 1,
         backgroundColor: "#181818",
-        paddingVertical: 50,
-        paddingHorizontal: 20,
+        paddingHorizontal: 30,
+        paddingTop: 50,
+        paddingBottom: 50,
+        width: "100%",
       }}
     >
       <Input
@@ -160,7 +160,7 @@ export default function FeedPage() {
         setValue={setSearchQuery}
       />
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+        contentContainerStyle={{ paddingBottom: 80 }}
       >
         {rides.map((ride) => {
           return <SingleRidePost key={ride.id} rideId={ride.id} />;

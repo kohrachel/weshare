@@ -137,9 +137,10 @@ export default function RsvpRidePage() {
       style={{
         flex: 1,
         backgroundColor: "#181818",
+        paddingHorizontal: 30,
         paddingTop: 50,
-        paddingBottom: 100,
-        paddingHorizontal: 10,
+        paddingBottom: 50,
+        width: "100%",
       }}
     >
       <Text style={styles.title}>Ride Details</Text>
@@ -147,7 +148,6 @@ export default function RsvpRidePage() {
         <View>
           <SingleRidePost rideId={rideId} />
         </View>
-        {/* TODO: replace with dynamic data */}
         {rsvpedUsers.map((user, index) => (
           <ContactCard
             key={index}
