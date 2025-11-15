@@ -81,10 +81,8 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true,
-      "router": {
-        "ignorePaths": ["redirect"]
-      }    },
+      "reactCompiler": true
+    },
     "extra": {
       "router": {},
       "eas": {
