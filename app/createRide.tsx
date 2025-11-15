@@ -26,7 +26,18 @@ export default function CreateRide() {
   const [roundTrip, setRoundTrip] = useState(false);
   const [returnDate, setReturnDate] = useState(new Date());
   const [returnTime, setReturnTime] = useState(new Date());
-  const [recurring, setRecurring] = useState(false);
+
+  function mergeDateAndTime(datePart, timePart) {
+    return new Date(
+      datePart.getFullYear(),
+      datePart.getMonth(),
+      datePart.getDate(),
+      timePart.getHours(),
+      timePart.getMinutes(),
+      timePart.getSeconds(),
+      timePart.getMilliseconds()
+    );
+  }
 
   const storeRide = async () => {
     try {
@@ -58,12 +69,11 @@ export default function CreateRide() {
         error += '\nMust allow 2 or more people (including yourself).';
       }
 
-      if (returnDate < date) {
-        error += '\nReturn date must be after departure date.';
-      }
+      const returnDateTime = mergeDateAndTime(returnDate, returnTime);
+      const dateTime = mergeDateAndTime(date, time);
 
-      if (returnDate == date && returnTime < time) {
-        error += '\nReturn time must be after departure time.';
+      if (returnDateTime <= dateTime) {
+        error += '\nReturn must be after departure.';
       }
 
       if (error == "") {
@@ -79,7 +89,6 @@ export default function CreateRide() {
           roundTrip: Boolean(roundTrip),
           returnTime: returnTime,
           returnDate: returnDate,
-          recurring: recurring,
           creationTime: new Date(),
           currPpl: 1,
           creator: id,
@@ -98,8 +107,7 @@ export default function CreateRide() {
           (luggage ? "Luggage" : "No luggage") + "\n" +
           (roundTrip ? "Round Trip" : "One Way") + "\n" +
           returnDate + "\n" +
-          returnTime + "\n" +
-          (recurring ? "Recurring" : "Not recurring")
+          returnTime
         );
 
         // Reset form fields
@@ -113,7 +121,6 @@ export default function CreateRide() {
         setRoundTrip(false);
         setReturnTime(new Date());
         setReturnDate(new Date());
-        setRecurring(false);
       } else {
         alert("Ride not saved, please fix error(s):\n" + error);
         error = "";
@@ -208,39 +215,6 @@ export default function CreateRide() {
             setDateValue={setReturnDate}
             setTimeValue={setReturnTime}
           />
-        )}
-        <View style={styles.switchContainer}>
-          <Text style={styles.label}>Recurring Ride?</Text>
-          <Switch
-            testID = "recurring-switch"
-            value={roundTrip}
-            onValueChange={(value) => setRecurring(value)}
-            trackColor={{ false: "#555", true: "#4CAF50" }}
-            thumbColor={roundTrip ? "#81C784" : "#f4f3f4"}
-          />
-        </View>
-        {recurring && (
-          <View>
-            <Text style={styles.label}>How often?</Text>
-            <Picker
-              selectedValue={recurring}
-              dropdownIconColor="#e7e7e7"
-              style={styles.picker}
-              onValueChange={(itemValue) => setRecurring(itemValue)}
-            >
-              <Picker.Item label="Daily" value="Daily" />
-              <Picker.Item label="Weekly" value="Weekly" />
-              <Picker.Item label="Biweekly" value="Biweekly" />
-              <Picker.Item label="Monthly" value="Monthly" />
-            </Picker>
-            <DateTimeInput
-              label={"Until when?"}
-              dateValue={returnDate}
-              timeValue={returnTime}
-              setDateValue={setReturnDate}
-              setTimeValue={setReturnTime}
-            />
-          </View>
         )}
       </ScrollView>
     <ButtonGreen title="Create New Ride" onPress={storeRide} />
