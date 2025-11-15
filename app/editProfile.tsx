@@ -147,6 +147,15 @@ export default function EditProfile() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await SecureStore.setItemAsync("userid", ""); // logout (for user testing)
+      router.push("/login");
+    } catch (error) {
+      console.error("Can't logout user: " + error);
+    }
+  }
+
   if (loading) {
     return (
       <View style={styles.loading}>
@@ -157,9 +166,20 @@ export default function EditProfile() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-      <Title text={"Edit Profile"}/>
+    <View style={styles.header}>
+      <View style={styles.titleWrapper}>
+        <Title text={"Edit Profile"} />
       </View>
+
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={handleLogout}
+        testID="logout-button"
+        accessibilityLabel="Logout Button"
+      >
+        <Text style={styles.logoutButtonText}>Logout</Text>
+      </TouchableOpacity>
+    </View>
 
       <TouchableOpacity
         style={styles.profilePicContainer}
@@ -245,7 +265,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
-    marginBottom: 40,
+    marginBottom: 20,
   },
   profilePic: { width: 80, height: 80, borderRadius: 40 },
   formArea: {
@@ -255,5 +275,23 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingVertical: 0,
   },
-  buttonContainer: { width: "100%", alignItems: "center", paddingBottom: 90 },
+  buttonContainer: {
+    width: "100%",
+    alignItems: "center",
+    paddingBottom: 90
+  },
+  logoutButton: {
+    backgroundColor: "red",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  logoutButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  titleWrapper: {
+    flex: 1,
+  },
 });
