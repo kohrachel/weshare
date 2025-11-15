@@ -246,13 +246,17 @@ describe("CreateRide Ride Creation Screen", () => {
     });
   });
 
-  it("toggles luggage switch correctly", async () => {
+  it("toggles switches correctly", async () => {
     const { getByTestId } = render(<CreateRide />);
-    const luggageSwitch = getByTestId("mock-switch");
+    const luggageSwitch = getByTestId("luggage-switch");
+    const roundTripSwitch = getByTestId("round-trip-switch");
     expect(luggageSwitch.props.value).toBe(false);
+    expect(roundTripSwitch.props.value).toBe(false);
     fireEvent(luggageSwitch, "valueChange", true);
+    fireEvent(roundTripSwitch, "valueChange", true);
     await waitFor(() => {
       expect(luggageSwitch.props.value).toBe(true);
+      expect(roundTripSwitch.props.value).toBe(true);
     });
   });
 
@@ -263,8 +267,10 @@ describe("CreateRide Ride Creation Screen", () => {
     fireEvent.changeText(getByTestId("How many people (including you)?"), "3");
     fireEvent.press(getByTestId("picker-Male"));
 
-    const luggageSwitch = getByTestId("mock-switch");
+    const luggageSwitch = getByTestId("luggage-switch");
+    const roundTripSwitch = getByTestId("round-trip-switch");
     fireEvent(luggageSwitch, "valueChange", true);
+    fireEvent(roundTripSwitch, "valueChange", true);
 
     fireEvent.press(getByTestId("create-ride-button"));
 
@@ -277,6 +283,7 @@ describe("CreateRide Ride Creation Screen", () => {
           maxPpl: 3,
           gender: "Male",
           luggage: true,
+          roundTrip: true,
         })
       );
     });

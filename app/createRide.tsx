@@ -162,7 +162,7 @@ export default function CreateRide() {
         <View style={styles.switchContainer}>
           <Text style={styles.label}>Room for luggage?</Text>
           <Switch
-            testID = "mock-switch"
+            testID = "luggage-switch"
             value={luggage}
             onValueChange={(value) => setLuggage(value)}
             trackColor={{ false: "#555", true: "#4CAF50" }}
@@ -172,7 +172,7 @@ export default function CreateRide() {
         <View style={styles.switchContainer}>
           <Text style={styles.label}>Round Trip?</Text>
           <Switch
-            testID = "mock-switch"
+            testID = "round-trip-switch"
             value={roundTrip}
             onValueChange={(value) => setRoundTrip(value)}
             trackColor={{ false: "#555", true: "#4CAF50" }}
