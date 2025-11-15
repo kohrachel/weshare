@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 8 hours
+ Emma Reid: 11 hours
  */
 
 import React, { useEffect, useState } from "react";
@@ -29,6 +29,7 @@ export default function Login() {
       clientId: "0b6e0e8a-0d83-459f-9262-cbe067b52bf3",
       redirectUri: AuthSession.makeRedirectUri({
         useProxy: false,
+        path: "login",
       }),
       scopes: ["openid", "profile", "email"],
     },
@@ -37,7 +38,6 @@ export default function Login() {
 
   const checkUser = async () => {
     try {
-//       await SecureStore.setItemAsync("userid", ""); // logout (for user testing)
       const id = await SecureStore.getItemAsync("userid");
       if (id && id != "") {
         const user = await getDoc(doc(db, "users", id));
@@ -66,6 +66,7 @@ export default function Login() {
             code,
             redirectUri: AuthSession.makeRedirectUri({
               useProxy: false,
+              path: "login",
             }),
             extraParams: {
               code_verifier: request.codeVerifier,
