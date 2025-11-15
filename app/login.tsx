@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 8 hours
+ Emma Reid: 11 hours
  */
 
 import React, { useEffect, useState } from "react";

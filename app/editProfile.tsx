@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 3 hours
+ Emma Reid: 5 hours
  Jonny Yang: 4 hours
 */
 
