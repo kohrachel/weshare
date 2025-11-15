@@ -66,7 +66,7 @@ export default function Login() {
             code,
             redirectUri: AuthSession.makeRedirectUri({
               useProxy: false,
-              path: "redirect",
+              path: "login",
             }),
             extraParams: {
               code_verifier: request.codeVerifier,
