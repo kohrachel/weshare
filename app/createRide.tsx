@@ -23,6 +23,7 @@ export default function CreateRide() {
   const [numberPpl, setNumberPpl] = useState("");
   const [gender, setGender] = useState("");
   const [luggage, setLuggage] = useState(false);
+  const [roundTrip, setRoundTrip] = useState(false);
 
   const storeRide = async () => {
     try {
@@ -64,6 +65,7 @@ export default function CreateRide() {
           maxPpl: Number(numberPpl),
           gender: gender,
           luggage: Boolean(luggage),
+          roundTrip: Boolean(roundTrip),
           creationTime: new Date(),
           currPpl: 1,
           creator: id,
@@ -77,8 +79,9 @@ export default function CreateRide() {
           time + "\n" +
           meetLoc + "\n" +
           numberPpl + "\n" +
-          gender + "\n" +
-          (luggage ? "Luggage" : "No luggage")
+          (gender == "" ? "Coed" : gender) + "\n" +
+          (luggage ? "Luggage" : "No luggage") + "\n" +
+          (roundTrip ? "Round Trip" : "One Way")
         );
 
         // Reset form fields
@@ -89,6 +92,7 @@ export default function CreateRide() {
         setNumberPpl("");
         setGender("");
         setLuggage(false);
+        setRoundTrip(false);
       } else {
         alert("Ride not saved, please fix error(s):\n" + error);
         error = "";
@@ -163,6 +167,16 @@ export default function CreateRide() {
             onValueChange={(value) => setLuggage(value)}
             trackColor={{ false: "#555", true: "#4CAF50" }}
             thumbColor={luggage ? "#81C784" : "#f4f3f4"}
+          />
+        </View>
+        <View style={styles.switchContainer}>
+          <Text style={styles.label}>Round Trip?</Text>
+          <Switch
+            testID = "mock-switch"
+            value={roundTrip}
+            onValueChange={(value) => setRoundTrip(value)}
+            trackColor={{ false: "#555", true: "#4CAF50" }}
+            thumbColor={roundTrip ? "#81C784" : "#f4f3f4"}
           />
         </View>
       </ScrollView>
