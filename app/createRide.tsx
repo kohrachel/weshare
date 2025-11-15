@@ -24,6 +24,9 @@ export default function CreateRide() {
   const [gender, setGender] = useState("");
   const [luggage, setLuggage] = useState(false);
   const [roundTrip, setRoundTrip] = useState(false);
+  const [returnDate, setReturnDate] = useState(new Date());
+  const [returnTime, setReturnTime] = useState(new Date());
+  const [recurring, setRecurring] = useState(false);
 
   const storeRide = async () => {
     try {
@@ -55,6 +58,14 @@ export default function CreateRide() {
         error += '\nMust allow 2 or more people (including yourself).';
       }
 
+      if (returnDate < date) {
+        error += '\nReturn date must be after departure date.';
+      }
+
+      if (returnDate == date && returnTime < time) {
+        error += '\nReturn time must be after departure time.';
+      }
+
       if (error == "") {
         // send data to database
         const docRef = await addDoc(collection(db, "rides"), {
@@ -66,6 +77,9 @@ export default function CreateRide() {
           gender: gender,
           luggage: Boolean(luggage),
           roundTrip: Boolean(roundTrip),
+          returnTime: returnTime,
+          returnDate: returnDate,
+          recurring: recurring,
           creationTime: new Date(),
           currPpl: 1,
           creator: id,
@@ -76,12 +90,16 @@ export default function CreateRide() {
         alert(
           "Ride saved!\n" +
           dest + "\n" +
+          date + "\n" +
           time + "\n" +
           meetLoc + "\n" +
           numberPpl + "\n" +
           (gender == "" ? "Coed" : gender) + "\n" +
           (luggage ? "Luggage" : "No luggage") + "\n" +
-          (roundTrip ? "Round Trip" : "One Way")
+          (roundTrip ? "Round Trip" : "One Way") + "\n" +
+          returnDate + "\n" +
+          returnTime + "\n" +
+          (recurring ? "Recurring" : "Not recurring")
         );
 
         // Reset form fields
@@ -93,6 +111,9 @@ export default function CreateRide() {
         setGender("");
         setLuggage(false);
         setRoundTrip(false);
+        setReturnTime(new Date());
+        setReturnDate(new Date());
+        setRecurring(false);
       } else {
         alert("Ride not saved, please fix error(s):\n" + error);
         error = "";
@@ -179,6 +200,48 @@ export default function CreateRide() {
             thumbColor={roundTrip ? "#81C784" : "#f4f3f4"}
           />
         </View>
+        {roundTrip && (
+          <DateTimeInput
+            label={"When are we returning?"}
+            dateValue={returnDate}
+            timeValue={returnTime}
+            setDateValue={setReturnDate}
+            setTimeValue={setReturnTime}
+          />
+        )}
+        <View style={styles.switchContainer}>
+          <Text style={styles.label}>Recurring Ride?</Text>
+          <Switch
+            testID = "recurring-switch"
+            value={roundTrip}
+            onValueChange={(value) => setRecurring(value)}
+            trackColor={{ false: "#555", true: "#4CAF50" }}
+            thumbColor={roundTrip ? "#81C784" : "#f4f3f4"}
+          />
+        </View>
+        {recurring && (
+          <View>
+            <Text style={styles.label}>How often?</Text>
+            <Picker
+              selectedValue={recurring}
+              dropdownIconColor="#e7e7e7"
+              style={styles.picker}
+              onValueChange={(itemValue) => setRecurring(itemValue)}
+            >
+              <Picker.Item label="Daily" value="Daily" />
+              <Picker.Item label="Weekly" value="Weekly" />
+              <Picker.Item label="Biweekly" value="Biweekly" />
+              <Picker.Item label="Monthly" value="Monthly" />
+            </Picker>
+            <DateTimeInput
+              label={"Until when?"}
+              dateValue={returnDate}
+              timeValue={returnTime}
+              setDateValue={setReturnDate}
+              setTimeValue={setReturnTime}
+            />
+          </View>
+        )}
       </ScrollView>
     <ButtonGreen title="Create New Ride" onPress={storeRide} />
     </View>
@@ -191,6 +254,7 @@ const styles = StyleSheet.create({
     gap: 10,
     width: "100%",
     paddingHorizontal: 1, // yes, the 1 is necessary
+    paddingBottom: 10,
   },
   label: {
     color: "#e7e7e7",
