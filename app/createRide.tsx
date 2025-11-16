@@ -72,7 +72,7 @@ export default function CreateRide() {
       const returnDateTime = mergeDateAndTime(returnDate, returnTime);
       const dateTime = mergeDateAndTime(date, time);
 
-      if (returnDateTime <= dateTime) {
+      if (roundTrip && returnDateTime <= dateTime) {
         error += '\nReturn must be after departure.';
       }
 

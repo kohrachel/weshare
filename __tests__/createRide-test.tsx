@@ -39,9 +39,16 @@ jest.mock("@/components/Input", () => (props: any) => (
   />
 ));
 
-jest.mock("@/components/DateTimeInput", () => (props: any) => (
-  <div testID="datetime-input" />
-));
+jest.mock("@/components/DateTimeInput", () => {
+  return function MockDateTimeInput(props: any) {
+    return (
+      <div
+        testID="datetime-input"
+        onClick={() => props.onChange?.(new Date("2025-01-01T12:00:00"))}
+      />
+    );
+  };
+});
 
 jest.mock("../components/backbutton", () => () => <div />);
 
@@ -267,10 +274,10 @@ describe("CreateRide Ride Creation Screen", () => {
     fireEvent.changeText(getByTestId("How many people (including you)?"), "3");
     fireEvent.press(getByTestId("picker-Male"));
 
-    const luggageSwitch = getByTestId("luggage-switch");
-    const roundTripSwitch = getByTestId("round-trip-switch");
-    fireEvent(luggageSwitch, "valueChange", true);
-    fireEvent(roundTripSwitch, "valueChange", true);
+    fireEvent.press(getByTestId("datetime-input"));
+
+    fireEvent(getByTestId("luggage-switch"), "valueChange", true);
+    fireEvent(getByTestId("round-trip-switch"), "valueChange", false);
 
     fireEvent.press(getByTestId("create-ride-button"));
 
@@ -283,7 +290,7 @@ describe("CreateRide Ride Creation Screen", () => {
           maxPpl: 3,
           gender: "Male",
           luggage: true,
-          roundTrip: true,
+          roundTrip: false,
         })
       );
     });
