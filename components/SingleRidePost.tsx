@@ -21,7 +21,7 @@ import {
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Svg, { Rect } from "react-native-svg";
-import { ButtonGreen } from "./button-green";
+import ButtonGreen from "./buttonGreen";
 
 type SingleRidePostProps = {
   rideId: string;

@@ -45,3 +45,4 @@ app-example
 
 .cursor/
 /coverage/
+/__tests__/__snapshots__/
