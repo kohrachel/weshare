@@ -12,33 +12,27 @@ jobs:
 
     permissions:
       contents: read
-      checks: write
       pull-requests: write
+      checks: write
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v1
 
-      - name: Install dependencies
-        run: bun install
+      - run: bun install
 
-      - name: Run Jest with coverage
-        run: bun test --coverage --ci
+      - name: Run Jest
+        run: bun test --coverage --ci --json --outputFile=jest-results.json
 
-      - name: Upload full HTML coverage report
+      - name: Upload Jest test report to GitHub
+        uses: dorny/test-reporter@v1
+        with:
+          name: Jest Tests
+          path: jest-results.json
+          reporter: jest-json
+
+      - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-html
-          path: coverage/lcov-report
-
-      - name: Upload lcov.info for PR summary
-        uses: actions/upload-artifact@v4
-        with:
-          name: lcov
-          path: coverage/lcov.info
-
-      - name: Convert coverage to summary text
-        run: |
-          echo "## Coverage Summary" >> $GITHUB_STEP_SUMMARY
-          bunx jest --coverage --coverageReporters=text-summary >> $GITHUB_STEP_SUMMARY
+          name: coverage
+          path: coverage/
