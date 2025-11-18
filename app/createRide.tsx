@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 7 hours
+ Emma Reid: 7.5 hours
  Rachel Huiqi: 5 hours
  */
 
@@ -23,6 +23,21 @@ export default function CreateRide() {
   const [numberPpl, setNumberPpl] = useState("");
   const [gender, setGender] = useState("");
   const [luggage, setLuggage] = useState(false);
+  const [roundTrip, setRoundTrip] = useState(false);
+  const [returnDate, setReturnDate] = useState(new Date());
+  const [returnTime, setReturnTime] = useState(new Date());
+
+  function mergeDateAndTime(datePart, timePart) {
+    return new Date(
+      datePart.getFullYear(),
+      datePart.getMonth(),
+      datePart.getDate(),
+      timePart.getHours(),
+      timePart.getMinutes(),
+      timePart.getSeconds(),
+      timePart.getMilliseconds()
+    );
+  }
 
   const storeRide = async () => {
     try {
@@ -54,6 +69,13 @@ export default function CreateRide() {
         error += '\nMust allow 2 or more people (including yourself).';
       }
 
+      const returnDateTime = mergeDateAndTime(returnDate, returnTime);
+      const dateTime = mergeDateAndTime(date, time);
+
+      if (roundTrip && returnDateTime <= dateTime) {
+        error += '\nReturn must be after departure.';
+      }
+
       if (error == "") {
         // send data to database
         const docRef = await addDoc(collection(db, "rides"), {
@@ -64,6 +86,9 @@ export default function CreateRide() {
           maxPpl: Number(numberPpl),
           gender: gender,
           luggage: Boolean(luggage),
+          roundTrip: Boolean(roundTrip),
+          returnTime: returnTime,
+          returnDate: returnDate,
           creationTime: new Date(),
           currPpl: 1,
           creator: id,
@@ -74,11 +99,15 @@ export default function CreateRide() {
         alert(
           "Ride saved!\n" +
           dest + "\n" +
+          date + "\n" +
           time + "\n" +
           meetLoc + "\n" +
           numberPpl + "\n" +
-          gender + "\n" +
-          (luggage ? "Luggage" : "No luggage")
+          (gender == "" ? "Coed" : gender) + "\n" +
+          (luggage ? "Luggage" : "No luggage") + "\n" +
+          (roundTrip ? "Round Trip" : "One Way") + "\n" +
+          returnDate + "\n" +
+          returnTime
         );
 
         // Reset form fields
@@ -89,6 +118,9 @@ export default function CreateRide() {
         setNumberPpl("");
         setGender("");
         setLuggage(false);
+        setRoundTrip(false);
+        setReturnTime(new Date());
+        setReturnDate(new Date());
       } else {
         alert("Ride not saved, please fix error(s):\n" + error);
         error = "";
@@ -158,13 +190,32 @@ export default function CreateRide() {
         <View style={styles.switchContainer}>
           <Text style={styles.label}>Room for luggage?</Text>
           <Switch
-            testID = "mock-switch"
+            testID = "luggage-switch"
             value={luggage}
             onValueChange={(value) => setLuggage(value)}
             trackColor={{ false: "#555", true: "#4CAF50" }}
             thumbColor={luggage ? "#81C784" : "#f4f3f4"}
           />
         </View>
+        <View style={styles.switchContainer}>
+          <Text style={styles.label}>Round Trip?</Text>
+          <Switch
+            testID = "round-trip-switch"
+            value={roundTrip}
+            onValueChange={(value) => setRoundTrip(value)}
+            trackColor={{ false: "#555", true: "#4CAF50" }}
+            thumbColor={roundTrip ? "#81C784" : "#f4f3f4"}
+          />
+        </View>
+        {roundTrip && (
+          <DateTimeInput
+            label={"When are we returning?"}
+            dateValue={returnDate}
+            timeValue={returnTime}
+            setDateValue={setReturnDate}
+            setTimeValue={setReturnTime}
+          />
+        )}
       </ScrollView>
     <ButtonGreen title="Create New Ride" onPress={storeRide} />
     </View>
@@ -177,6 +228,7 @@ const styles = StyleSheet.create({
     gap: 10,
     width: "100%",
     paddingHorizontal: 1, // yes, the 1 is necessary
+    paddingBottom: 10,
   },
   label: {
     color: "#e7e7e7",
