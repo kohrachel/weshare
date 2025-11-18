@@ -1,32 +1,44 @@
-name: 'Run Jest tests'
+name: Tests + Coverage
 
 on:
   pull_request:
-    branches:
-      - master
-      - main
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
-      pull-requests: write
       checks: write
+      pull-requests: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
+      - uses: oven-sh/setup-bun@v1
 
-      - name: Run Jest tests
-        uses: ArtiomTr/jest-coverage-report-action@v2
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run Jest with coverage
+        run: bun test --coverage --ci
+
+      - name: Upload full HTML coverage report
+        uses: actions/upload-artifact@v4
         with:
-          test-command: bun test --coverage
+          name: coverage-html
+          path: coverage/lcov-report
+
+      - name: Upload lcov.info for PR summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: lcov
+          path: coverage/lcov.info
+
+      - name: Convert coverage to summary text
+        run: |
+          echo "## Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          bunx jest --coverage --coverageReporters=text-summary >> $GITHUB_STEP_SUMMARY
