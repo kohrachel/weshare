@@ -1,0 +1,19 @@
+name: 'Run Jest tests'
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Jest tests
+        uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          package-manager: bun
