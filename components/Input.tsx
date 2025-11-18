@@ -4,6 +4,7 @@
  Jonny Yang: 5 min
 */
 
+import React, { forwardRef } from "react";
 import {
   StyleProp,
   StyleSheet,
@@ -22,28 +23,28 @@ type InputProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-export default function Input({
-  label,
-  value,
-  setValue,
-  defaultValue,
-  testID,
-  style,
-}: InputProps) {
-  return (
-    <View style={[styles.inputWrapper, style]}>
-      {label && <Text style={styles.inputLabel}>{label}</Text>}
-      <TextInput
-        style={styles.inputBox}
-        value={value}
-        placeholder={defaultValue ?? ""}
-        placeholderTextColor="#999"
-        onChangeText={setValue}
-        testID={testID} // <-- forward testID
-      />
-    </View>
-  );
-}
+const Input = forwardRef<TextInput, InputProps>(
+  ({ label, value, setValue, defaultValue, testID, style }, ref) => {
+    return (
+      <View style={[styles.inputWrapper, style]}>
+        {label && <Text style={styles.inputLabel}>{label}</Text>}
+        <TextInput
+          ref={ref}
+          style={styles.inputBox}
+          value={value}
+          placeholder={defaultValue ?? ""}
+          placeholderTextColor="#999"
+          onChangeText={setValue}
+          testID={testID} // <-- forward testID
+        />
+      </View>
+    );
+  },
+);
+
+Input.displayName = "Input";
+
+export default Input;
 
 export const styles = StyleSheet.create({
   inputWrapper: {
