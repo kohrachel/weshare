@@ -29,4 +29,4 @@ jobs:
       - name: Run Jest tests
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
-          package-manager: bun
+          test-command: bun test --coverage
