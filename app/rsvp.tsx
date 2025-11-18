@@ -34,6 +34,9 @@ export type RideData = {
   ppl: string[];
   gender: "Male" | "Female" | "Co-ed";
   meetLoc: string;
+  roundTrip: Boolean
+  returnTime: Timestamp,
+  returnDate: Timestamp,
 };
 
 export type UserData = {
@@ -87,6 +90,9 @@ export default function RsvpRidePage() {
         ppl: ride.ppl,
         gender: ride.gender,
         meetLoc: ride.meetLoc,
+        roundTrip: ride.roundTrip,
+        returnTime: ride.returnTime,
+        returnDate: ride.returnDate,
       };
 
       setRideData(newRideData);
