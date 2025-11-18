@@ -4,12 +4,14 @@
  Jonny Yang: 6 hours
 */
 
-import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import EditProfile from "@/app/editProfile";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
+import React from "react";
 
 // Mock SecureStore
 import * as SecureStore from "expo-secure-store";
+import { getDoc, setDoc } from "firebase/firestore";
+import { getDownloadURL, uploadBytes } from "firebase/storage";
 jest.mock("expo-secure-store", () => ({
   getItemAsync: jest.fn(),
   setItemAsync: jest.fn(),
@@ -20,21 +22,18 @@ jest.mock("@/firebaseConfig", () => ({
   db: {},
   storage: {},
 }));
-import { db, storage } from "@/firebaseConfig";
 
 jest.mock("firebase/firestore", () => ({
   doc: jest.fn(),
   getDoc: jest.fn(),
   setDoc: jest.fn(),
 }));
-import { doc, getDoc, setDoc } from "firebase/firestore";
 
 jest.mock("firebase/storage", () => ({
   ref: jest.fn(),
   uploadBytes: jest.fn(),
   getDownloadURL: jest.fn(),
 }));
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Mock ImagePicker
 jest.mock("expo-image-picker", () => ({
@@ -69,8 +68,10 @@ describe("EditProfile Screen", () => {
     global.fetch = jest.fn(() =>
       Promise.resolve({
         blob: () =>
-          Promise.resolve(new Blob(["mock image data"], { type: "image/jpeg" })),
-      } as any)
+          Promise.resolve(
+            new Blob(["mock image data"], { type: "image/jpeg" }),
+          ),
+      } as any),
     );
   });
 
@@ -120,7 +121,10 @@ describe("EditProfile Screen", () => {
   it("handles profile picture selection", async () => {
     const { getByTestId } = render(<EditProfile />);
     const pickMock = require("expo-image-picker").launchImageLibraryAsync;
-    pickMock.mockResolvedValue({ canceled: false, assets: [{ uri: "mock-uri" }] });
+    pickMock.mockResolvedValue({
+      canceled: false,
+      assets: [{ uri: "mock-uri" }],
+    });
 
     const profileButton = await waitFor(() => getByTestId("profilePicButton"));
     fireEvent.press(profileButton);
@@ -143,7 +147,10 @@ describe("EditProfile Screen", () => {
     (uploadBytes as jest.Mock).mockRejectedValue(new Error("Upload failed"));
     const { getByTestId } = render(<EditProfile />);
     const pickMock = require("expo-image-picker").launchImageLibraryAsync;
-    pickMock.mockResolvedValue({ canceled: false, assets: [{ uri: "mock-uri" }] });
+    pickMock.mockResolvedValue({
+      canceled: false,
+      assets: [{ uri: "mock-uri" }],
+    });
 
     const profileButton = await waitFor(() => getByTestId("profilePicButton"));
     fireEvent.press(profileButton);
@@ -204,7 +211,7 @@ describe("EditProfile Screen", () => {
   it("renders loading state ActivityIndicator", async () => {
     // Keep getDoc hanging to simulate loading
     (getDoc as jest.Mock).mockImplementationOnce(
-      () => new Promise(() => {}) // never resolves
+      () => new Promise(() => {}), // never resolves
     );
     const { getByTestId } = render(<EditProfile />);
     expect(getByTestId("ActivityIndicator")).toBeTruthy();
