@@ -15,20 +15,25 @@ import React, { useState } from "react";
 import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import Title from "../components/Title";
 
+type AllowedGenders = "Co-Ed" | "Female" | "Male";
+type RecurrenceFrequency = "daily" | "weekly" | "monthly";
 export default function CreateRide() {
   const [dest, setDest] = useState("");
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
   const [meetLoc, setMeetLoc] = useState("");
   const [numberPpl, setNumberPpl] = useState("");
-  const [gender, setGender] = useState("");
+  const [gender, setGender] = useState<AllowedGenders>("Co-Ed");
   const [luggage, setLuggage] = useState(false);
   const [roundTrip, setRoundTrip] = useState(false);
   const [returnDate, setReturnDate] = useState(new Date());
   const [returnTime, setReturnTime] = useState(new Date());
   const [recurringRide, setRecurringRide] = useState(false);
-  const [recurrenceFrequency, setRecurrenceFrequency] = useState("weekly");
-  function mergeDateAndTime(datePart, timePart) {
+  const [recurrenceFrequency, setRecurrenceFrequency] =
+    useState<RecurrenceFrequency>("weekly");
+  const [numOccurrences, setNumOccurrences] = useState("4");
+
+  function mergeDateAndTime(datePart: Date, timePart: Date): Date {
     return new Date(
       datePart.getFullYear(),
       datePart.getMonth(),
@@ -40,6 +45,25 @@ export default function CreateRide() {
     );
   }
 
+  function getNextDate(
+    currentDate: Date,
+    frequency: RecurrenceFrequency,
+  ): Date {
+    const nextDate = new Date(currentDate);
+    switch (frequency) {
+      case "daily":
+        nextDate.setDate(nextDate.getDate() + 1);
+        break;
+      case "weekly":
+        nextDate.setDate(nextDate.getDate() + 7);
+        break;
+      case "monthly":
+        nextDate.setMonth(nextDate.getMonth() + 1);
+        break;
+    }
+    return nextDate;
+  }
+
   const storeRide = async () => {
     try {
       const id = await SecureStore.getItemAsync("userid");
@@ -47,7 +71,7 @@ export default function CreateRide() {
       let error = "";
 
       // Validate data
-      if (id == "") {
+      if (!id || id === "") {
         throw new Error("User id null. Must reopen app to sign in.");
       } else {
         user = await getDoc(doc(db, "users", id));
@@ -57,16 +81,16 @@ export default function CreateRide() {
         throw new Error("User not found. Must reopen app to sign in.");
       }
 
-      if (dest == "") {
+      if (dest === "") {
         console.log("no dest");
         error += "\nDestination is required.";
       }
 
-      if (meetLoc == "") {
+      if (meetLoc === "") {
         error += "\nMeeting location is required.";
       }
 
-      if (numberPpl < 2) {
+      if (Number(numberPpl) < 2) {
         error += "\nMust allow 2 or more people (including yourself).";
       }
 
@@ -77,30 +101,56 @@ export default function CreateRide() {
         error += "\nReturn must be after departure.";
       }
 
-      if (error == "") {
-        // send data to database
-        const docRef = await addDoc(collection(db, "rides"), {
-          destination: dest,
-          date: date,
-          time: time,
-          meetLoc: meetLoc,
-          maxPpl: Number(numberPpl),
-          gender: gender,
-          luggage: Boolean(luggage),
-          roundTrip: Boolean(roundTrip),
-          returnTime: returnTime,
-          returnDate: returnDate,
-          recurringRide: Boolean(recurringRide),
-          recurrenceFrequency: recurringRide ? recurrenceFrequency : null,
-          creationTime: new Date(),
-          currPpl: 1,
-          creator: id,
-          ppl: [id],
-        });
+      if (
+        recurringRide &&
+        (Number(numOccurrences) < 1 || Number(numOccurrences) > 52)
+      ) {
+        error += "\nNumber of occurrences must be between 1 and 52.";
+      }
 
-        console.log("Ride stored with ID:", docRef.id);
+      if (error === "") {
+        // Generate rides based on recurrence
+        const ridesToCreate = recurringRide ? Number(numOccurrences) : 1;
+        let currentDate = new Date(date);
+        let currentReturnDate = new Date(returnDate);
+
+        for (let i = 0; i < ridesToCreate; i++) {
+          // send data to database
+          const docRef = await addDoc(collection(db, "rides"), {
+            destination: dest,
+            date: new Date(currentDate),
+            time: time,
+            meetLoc: meetLoc,
+            maxPpl: Number(numberPpl),
+            gender: gender,
+            luggage: Boolean(luggage),
+            roundTrip: Boolean(roundTrip),
+            returnTime: returnTime,
+            returnDate: new Date(currentReturnDate),
+            creationTime: new Date(),
+            currPpl: 1,
+            creator: id,
+            ppl: [id],
+          });
+
+          console.log("Ride stored with ID:", docRef.id);
+
+          // Calculate next occurrence dates
+          if (i < ridesToCreate - 1) {
+            currentDate = getNextDate(currentDate, recurrenceFrequency);
+            if (roundTrip) {
+              currentReturnDate = getNextDate(
+                currentReturnDate,
+                recurrenceFrequency,
+              );
+            }
+          }
+        }
+
         alert(
-          "Ride saved!\n" +
+          (recurringRide
+            ? `${ridesToCreate} rides saved!\n`
+            : "Ride saved!\n") +
             dest +
             "\n" +
             date +
@@ -111,7 +161,7 @@ export default function CreateRide() {
             "\n" +
             numberPpl +
             "\n" +
-            (gender == "" ? "Coed" : gender) +
+            (gender === "Co-Ed" ? "Co-Ed" : gender) +
             "\n" +
             (luggage ? "Luggage" : "No luggage") +
             "\n" +
@@ -128,13 +178,14 @@ export default function CreateRide() {
         setDate(new Date());
         setMeetLoc("");
         setNumberPpl("");
-        setGender("");
+        setGender("Co-Ed");
         setLuggage(false);
         setRoundTrip(false);
         setReturnTime(new Date());
         setReturnDate(new Date());
         setRecurringRide(false);
         setRecurrenceFrequency("weekly");
+        setNumOccurrences("4");
       } else {
         alert("Ride not saved, please fix error(s):\n" + error);
         error = "";
@@ -193,7 +244,7 @@ export default function CreateRide() {
             style={styles.picker}
             onValueChange={(itemValue) => setGender(itemValue)}
           >
-            <Picker.Item label="Coed" value="Coed" />
+            <Picker.Item label="Co-Ed" value="Co-Ed" />
             <Picker.Item label="Female" value="Female" />
             <Picker.Item label="Male" value="Male" />
           </Picker>
@@ -238,18 +289,26 @@ export default function CreateRide() {
           />
         </View>
         {recurringRide && (
-          <View>
-            <Picker
-              selectedValue={recurrenceFrequency}
-              dropdownIconColor="#e7e7e7"
-              style={styles.picker}
-              onValueChange={(itemValue) => setRecurrenceFrequency(itemValue)}
-            >
-              <Picker.Item label="Repeat every day" value="daily" />
-              <Picker.Item label="Repeat every week" value="weekly" />
-              <Picker.Item label="Repeat every month" value="monthly" />
-            </Picker>
-          </View>
+          <>
+            <View>
+              <Picker
+                selectedValue={recurrenceFrequency}
+                dropdownIconColor="#e7e7e7"
+                style={styles.picker}
+                onValueChange={(itemValue) => setRecurrenceFrequency(itemValue)}
+              >
+                <Picker.Item label="Repeat every day" value="daily" />
+                <Picker.Item label="Repeat every week" value="weekly" />
+                <Picker.Item label="Repeat every month" value="monthly" />
+              </Picker>
+            </View>
+            <Input
+              label={"How many occurrences?"}
+              defaultValue={"e.g. 4"}
+              value={numOccurrences}
+              setValue={setNumOccurrences}
+            />
+          </>
         )}
       </ScrollView>
       <ButtonGreen title="Create New Ride" onPress={storeRide} />
@@ -269,6 +328,11 @@ const styles = StyleSheet.create({
     color: "#e7e7e7",
     fontFamily: "Inter_700Bold",
     fontSize: 16,
+  },
+  header: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
   },
   picker: {
     backgroundColor: "#2a2a2a",
