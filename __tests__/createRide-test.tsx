@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 3 hours
+ Emma Reid: 3.5 hours
  */
 
 import React from "react";
@@ -39,9 +39,16 @@ jest.mock("@/components/Input", () => (props: any) => (
   />
 ));
 
-jest.mock("@/components/DateTimeInput", () => (props: any) => (
-  <div testID="datetime-input" />
-));
+jest.mock("@/components/DateTimeInput", () => {
+  return function MockDateTimeInput(props: any) {
+    return (
+      <div
+        testID="datetime-input"
+        onClick={() => props.onChange?.(new Date("2025-01-01T12:00:00"))}
+      />
+    );
+  };
+});
 
 jest.mock("../components/backbutton", () => () => <div />);
 
@@ -246,13 +253,17 @@ describe("CreateRide Ride Creation Screen", () => {
     });
   });
 
-  it("toggles luggage switch correctly", async () => {
+  it("toggles switches correctly", async () => {
     const { getByTestId } = render(<CreateRide />);
-    const luggageSwitch = getByTestId("mock-switch");
+    const luggageSwitch = getByTestId("luggage-switch");
+    const roundTripSwitch = getByTestId("round-trip-switch");
     expect(luggageSwitch.props.value).toBe(false);
+    expect(roundTripSwitch.props.value).toBe(false);
     fireEvent(luggageSwitch, "valueChange", true);
+    fireEvent(roundTripSwitch, "valueChange", true);
     await waitFor(() => {
       expect(luggageSwitch.props.value).toBe(true);
+      expect(roundTripSwitch.props.value).toBe(true);
     });
   });
 
@@ -263,8 +274,10 @@ describe("CreateRide Ride Creation Screen", () => {
     fireEvent.changeText(getByTestId("How many people (including you)?"), "3");
     fireEvent.press(getByTestId("picker-Male"));
 
-    const luggageSwitch = getByTestId("mock-switch");
-    fireEvent(luggageSwitch, "valueChange", true);
+    fireEvent.press(getByTestId("datetime-input"));
+
+    fireEvent(getByTestId("luggage-switch"), "valueChange", true);
+    fireEvent(getByTestId("round-trip-switch"), "valueChange", false);
 
     fireEvent.press(getByTestId("create-ride-button"));
 
@@ -277,6 +290,7 @@ describe("CreateRide Ride Creation Screen", () => {
           maxPpl: 3,
           gender: "Male",
           luggage: true,
+          roundTrip: false,
         })
       );
     });
