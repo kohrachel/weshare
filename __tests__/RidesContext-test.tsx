@@ -3,6 +3,7 @@
  Rachel Huiqi: 3 hours
  */
 
+import { AllowedGenders } from "@/app/createRide";
 import { RidesContext, RidesProvider } from "@/contexts/RidesContext";
 import { act, renderHook } from "@testing-library/react-native";
 import { Timestamp } from "firebase/firestore";
@@ -24,7 +25,7 @@ describe("RidesContext", () => {
     numRsvpedUsers: 2,
     maxPpl: 4,
     rsvpedUserIds: ["user1", "user2"],
-    gender: "Co-ed",
+    gender: "Co-ed" as AllowedGenders,
     departsFrom: "Parking Lot",
     hasLuggageSpace: true,
     isRoundTrip: false,
@@ -39,7 +40,7 @@ describe("RidesContext", () => {
     numRsvpedUsers: 1,
     maxPpl: 3,
     rsvpedUserIds: ["user3"],
-    gender: "Co-ed",
+    gender: "Co-ed" as AllowedGenders,
     departsFrom: "Main Street",
     hasLuggageSpace: false,
     isRoundTrip: false,
@@ -121,7 +122,7 @@ describe("RidesContext", () => {
     });
 
     const updatedRide = result.current.getSingleRide("ride1");
-    expect(updatedRide?.currPpl).toBe(3);
+    expect(updatedRide?.numRsvpedUsers).toBe(3);
     expect(updatedRide?.destination).toBe("Airport"); // Other fields unchanged
   });
 
@@ -142,8 +143,8 @@ describe("RidesContext", () => {
     });
 
     const updatedRide = result.current.getSingleRide("ride1");
-    expect(updatedRide?.ppl).toEqual(["user1", "user2", "user3"]);
-    expect(updatedRide?.currPpl).toBe(3);
+    expect(updatedRide?.rsvpedUserIds).toEqual(["user1", "user2", "user3"]);
+    expect(updatedRide?.numRsvpedUsers).toBe(3);
     expect(updatedRide?.maxPpl).toBe(4); // Unchanged
   });
 
@@ -179,7 +180,7 @@ describe("RidesContext", () => {
 
     // Should not crash and original ride should be unchanged
     const ride = result.current.getSingleRide("ride1");
-    expect(ride?.currPpl).toBe(2);
+    expect(ride?.numRsvpedUsers).toBe(2);
   });
 
   test("setRides can be used with a function", () => {
@@ -218,7 +219,7 @@ describe("RidesContext", () => {
     });
 
     const ride = result.current.getSingleRide("ride1");
-    expect(ride?.currPpl).toBe(4);
+    expect(ride?.numRsvpedUsers).toBe(4);
   });
 
   test("context provides all required functions", () => {
