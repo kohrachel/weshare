@@ -15,7 +15,7 @@ import React, { useState } from "react";
 import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import Title from "../components/Title";
 
-type AllowedGenders = "Co-Ed" | "Female" | "Male";
+export type AllowedGenders = "Co-ed" | "Female" | "Male";
 type RecurrenceFrequency = "daily" | "weekly" | "monthly";
 export default function CreateRide() {
   const [dest, setDest] = useState("");
@@ -23,7 +23,7 @@ export default function CreateRide() {
   const [time, setTime] = useState(new Date());
   const [meetLoc, setMeetLoc] = useState("");
   const [numberPpl, setNumberPpl] = useState("");
-  const [gender, setGender] = useState<AllowedGenders>("Co-Ed");
+  const [gender, setGender] = useState<AllowedGenders>("Co-ed");
   const [luggage, setLuggage] = useState(false);
   const [roundTrip, setRoundTrip] = useState(false);
   const [returnDate, setReturnDate] = useState(new Date());
@@ -161,7 +161,7 @@ export default function CreateRide() {
             "\n" +
             numberPpl +
             "\n" +
-            (gender === "Co-Ed" ? "Co-Ed" : gender) +
+            (gender === "Co-ed" ? "Co-ed" : gender) +
             "\n" +
             (luggage ? "Luggage" : "No luggage") +
             "\n" +
@@ -178,7 +178,7 @@ export default function CreateRide() {
         setDate(new Date());
         setMeetLoc("");
         setNumberPpl("");
-        setGender("Co-Ed");
+        setGender("Co-ed");
         setLuggage(false);
         setRoundTrip(false);
         setReturnTime(new Date());
@@ -244,7 +244,7 @@ export default function CreateRide() {
             style={styles.picker}
             onValueChange={(itemValue) => setGender(itemValue)}
           >
-            <Picker.Item label="Co-Ed" value="Co-Ed" />
+            <Picker.Item label="Co-ed" value="Co-ed" />
             <Picker.Item label="Female" value="Female" />
             <Picker.Item label="Male" value="Male" />
           </Picker>

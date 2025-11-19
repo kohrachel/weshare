@@ -5,6 +5,7 @@
  Rachel Huiqi: 5 hours
  */
 
+import { AllowedGenders } from "@/app/createRide";
 import Footer from "@/components/Footer";
 import { RidesContext } from "@/contexts/RidesContext";
 import { db } from "@/firebaseConfig";
@@ -20,7 +21,6 @@ import {
 } from "react-native";
 import SingleRidePost from "../components/SingleRidePost";
 import ContactCard from "../components/contactCard";
-
 export type UserGenderType = "Male" | "Female" | "Other" | "Not set";
 
 export type RideData = {
@@ -32,7 +32,7 @@ export type RideData = {
   currPpl: number;
   maxPpl: number;
   ppl: string[];
-  gender: "Male" | "Female" | "Co-ed";
+  gender: AllowedGenders;
   meetLoc: string;
   luggage: boolean;
   roundTrip: boolean;
