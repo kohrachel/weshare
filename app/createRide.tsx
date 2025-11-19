@@ -8,12 +8,12 @@ import ButtonGreen from "@/components/buttonGreen";
 import DateTimeInput from "@/components/DateTimeInput";
 import Input from "@/components/Input";
 import { db } from "@/firebaseConfig";
-import * as SecureStore from "expo-secure-store";
-import { addDoc, getDoc, doc, collection } from "firebase/firestore";
-import React, { useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Switch } from "react-native";
-import Title from "../components/Title";
 import { Picker } from "@react-native-picker/picker";
+import * as SecureStore from "expo-secure-store";
+import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import Title from "../components/Title";
 
 export default function CreateRide() {
   const [dest, setDest] = useState("");
@@ -26,7 +26,8 @@ export default function CreateRide() {
   const [roundTrip, setRoundTrip] = useState(false);
   const [returnDate, setReturnDate] = useState(new Date());
   const [returnTime, setReturnTime] = useState(new Date());
-
+  const [recurringRide, setRecurringRide] = useState(false);
+  const [recurrenceFrequency, setRecurrenceFrequency] = useState("weekly");
   function mergeDateAndTime(datePart, timePart) {
     return new Date(
       datePart.getFullYear(),
@@ -35,7 +36,7 @@ export default function CreateRide() {
       timePart.getHours(),
       timePart.getMinutes(),
       timePart.getSeconds(),
-      timePart.getMilliseconds()
+      timePart.getMilliseconds(),
     );
   }
 
@@ -47,33 +48,33 @@ export default function CreateRide() {
 
       // Validate data
       if (id == "") {
-        throw new Error('User id null. Must reopen app to sign in.');
+        throw new Error("User id null. Must reopen app to sign in.");
       } else {
         user = await getDoc(doc(db, "users", id));
       }
 
       if (!user.exists()) {
-        throw new Error('User not found. Must reopen app to sign in.');
+        throw new Error("User not found. Must reopen app to sign in.");
       }
 
       if (dest == "") {
         console.log("no dest");
-        error += '\nDestination is required.';
+        error += "\nDestination is required.";
       }
 
       if (meetLoc == "") {
-        error += '\nMeeting location is required.';
+        error += "\nMeeting location is required.";
       }
 
       if (numberPpl < 2) {
-        error += '\nMust allow 2 or more people (including yourself).';
+        error += "\nMust allow 2 or more people (including yourself).";
       }
 
       const returnDateTime = mergeDateAndTime(returnDate, returnTime);
       const dateTime = mergeDateAndTime(date, time);
 
       if (roundTrip && returnDateTime <= dateTime) {
-        error += '\nReturn must be after departure.';
+        error += "\nReturn must be after departure.";
       }
 
       if (error == "") {
@@ -89,6 +90,8 @@ export default function CreateRide() {
           roundTrip: Boolean(roundTrip),
           returnTime: returnTime,
           returnDate: returnDate,
+          recurringRide: Boolean(recurringRide),
+          recurrenceFrequency: recurringRide ? recurrenceFrequency : null,
           creationTime: new Date(),
           currPpl: 1,
           creator: id,
@@ -98,16 +101,25 @@ export default function CreateRide() {
         console.log("Ride stored with ID:", docRef.id);
         alert(
           "Ride saved!\n" +
-          dest + "\n" +
-          date + "\n" +
-          time + "\n" +
-          meetLoc + "\n" +
-          numberPpl + "\n" +
-          (gender == "" ? "Coed" : gender) + "\n" +
-          (luggage ? "Luggage" : "No luggage") + "\n" +
-          (roundTrip ? "Round Trip" : "One Way") + "\n" +
-          returnDate + "\n" +
-          returnTime
+            dest +
+            "\n" +
+            date +
+            "\n" +
+            time +
+            "\n" +
+            meetLoc +
+            "\n" +
+            numberPpl +
+            "\n" +
+            (gender == "" ? "Coed" : gender) +
+            "\n" +
+            (luggage ? "Luggage" : "No luggage") +
+            "\n" +
+            (roundTrip ? "Round Trip" : "One Way") +
+            "\n" +
+            returnDate +
+            "\n" +
+            returnTime,
         );
 
         // Reset form fields
@@ -121,11 +133,12 @@ export default function CreateRide() {
         setRoundTrip(false);
         setReturnTime(new Date());
         setReturnDate(new Date());
+        setRecurringRide(false);
+        setRecurrenceFrequency("weekly");
       } else {
         alert("Ride not saved, please fix error(s):\n" + error);
         error = "";
       }
-
     } catch (systemError) {
       console.error("Error adding ride: ", systemError);
       alert("Ride not saved, please try again.\n" + systemError);
@@ -144,11 +157,9 @@ export default function CreateRide() {
       }}
     >
       <View style={styles.header}>
-      <Title text={"Create a Ride"}/>
+        <Title text={"Create a Ride"} />
       </View>
-      <ScrollView
-        contentContainerStyle={styles.formArea}
-      >
+      <ScrollView contentContainerStyle={styles.formArea}>
         <Input
           label={"Where to?"}
           defaultValue={"e.g. BNA"}
@@ -190,7 +201,7 @@ export default function CreateRide() {
         <View style={styles.switchContainer}>
           <Text style={styles.label}>Room for luggage?</Text>
           <Switch
-            testID = "luggage-switch"
+            testID="luggage-switch"
             value={luggage}
             onValueChange={(value) => setLuggage(value)}
             trackColor={{ false: "#555", true: "#4CAF50" }}
@@ -200,7 +211,7 @@ export default function CreateRide() {
         <View style={styles.switchContainer}>
           <Text style={styles.label}>Round Trip?</Text>
           <Switch
-            testID = "round-trip-switch"
+            testID="round-trip-switch"
             value={roundTrip}
             onValueChange={(value) => setRoundTrip(value)}
             trackColor={{ false: "#555", true: "#4CAF50" }}
@@ -216,8 +227,32 @@ export default function CreateRide() {
             setTimeValue={setReturnTime}
           />
         )}
+        <View style={styles.switchContainer}>
+          <Text style={styles.label}>Recurring Ride?</Text>
+          <Switch
+            testID="recurring-ride-switch"
+            value={recurringRide}
+            onValueChange={(value) => setRecurringRide(value)}
+            trackColor={{ false: "#555", true: "#4CAF50" }}
+            thumbColor={recurringRide ? "#81C784" : "#f4f3f4"}
+          />
+        </View>
+        {recurringRide && (
+          <View>
+            <Picker
+              selectedValue={recurrenceFrequency}
+              dropdownIconColor="#e7e7e7"
+              style={styles.picker}
+              onValueChange={(itemValue) => setRecurrenceFrequency(itemValue)}
+            >
+              <Picker.Item label="Repeat every day" value="daily" />
+              <Picker.Item label="Repeat every week" value="weekly" />
+              <Picker.Item label="Repeat every month" value="monthly" />
+            </Picker>
+          </View>
+        )}
       </ScrollView>
-    <ButtonGreen title="Create New Ride" onPress={storeRide} />
+      <ButtonGreen title="Create New Ride" onPress={storeRide} />
     </View>
   );
 }
