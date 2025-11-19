@@ -1,6 +1,6 @@
 /**
  Contributors
- Rachel Huiqi: 2 hours
+ Rachel Huiqi: 3 hours
  */
 
 import { Ionicons } from "@expo/vector-icons";
