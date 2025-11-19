@@ -50,24 +50,34 @@ const flushPromises = () => new Promise(setImmediate);
 const mockRideFuture = {
   id: "ride1",
   data: () => ({
-    creator: "user1",
+    creatorId: "user1",
     destination: "Airport",
-    date: { toDate: () => new Date("2099-12-10T10:00:00") },
-    time: { toDate: () => new Date("2099-12-10T10:00:00") },
-    currPpl: 2,
+    departs: { toDate: () => new Date("2099-12-10T10:00:00") },
+    numRsvpedUsers: 2,
     maxPpl: 4,
+    rsvpedUserIds: ["user1", "user2"],
+    gender: "Co-ed",
+    departsFrom: "Parking Lot",
+    hasLuggageSpace: true,
+    isRoundTrip: false,
+    returns: { toDate: () => new Date("2099-12-10T14:00:00") },
   }),
 };
 
 const mockRidePast = {
   id: "ride2",
   data: () => ({
-    creator: "user2",
+    creatorId: "user2",
     destination: "Downtown",
-    date: { toDate: () => new Date("2000-01-01T08:00:00") },
-    time: { toDate: () => new Date("2000-01-01T08:00:00") },
-    currPpl: 1,
+    departs: { toDate: () => new Date("2000-01-01T08:00:00") },
+    numRsvpedUsers: 1,
     maxPpl: 3,
+    rsvpedUserIds: ["user2"],
+    gender: "Co-ed",
+    departsFrom: "Main Street",
+    hasLuggageSpace: false,
+    isRoundTrip: false,
+    returns: { toDate: () => new Date("2000-01-01T12:00:00") },
   }),
 };
 
@@ -105,8 +115,8 @@ describe("FeedPage - Full Branch Coverage", () => {
 
   test.each([undefined, null, 12345])(
     "skips ride with invalid creator: %p",
-    async (creator) => {
-      const invalidRide = { id: "rideInvalid", data: () => ({ creator }) };
+    async (creatorId) => {
+      const invalidRide = { id: "rideInvalid", data: () => ({ creatorId }) };
       (getDocs as jest.Mock).mockResolvedValue({ docs: [invalidRide] });
       (getDoc as jest.Mock).mockResolvedValue(mockUserSnapshot);
 
@@ -167,10 +177,9 @@ describe("FeedPage - Full Branch Coverage", () => {
     const incompleteRide = {
       id: "rideIncomplete",
       data: () => ({
-        creator: "user3",
+        creatorId: "user3",
         // set future date/time so it passes the upcoming filter
-        date: { toDate: () => new Date(Date.now() + 1000 * 60 * 60) },
-        time: { toDate: () => new Date(Date.now() + 1000 * 60 * 60) },
+        departs: { toDate: () => new Date(Date.now() + 1000 * 60 * 60) },
       }),
     };
     const incompleteUser = { exists: () => true, data: () => ({}) };

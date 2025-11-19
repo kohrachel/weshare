@@ -4,7 +4,7 @@
  Rachel Huiqi: 10 hours
  */
 
-import { RideData, UserData } from "@/app/rsvp";
+import { RideDataType, UserData } from "@/app/rsvp";
 import { RidesContext } from "@/contexts/RidesContext";
 import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
@@ -40,8 +40,8 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     [getSingleRide, rideId],
   );
   const isUserRsvped = useMemo(
-    () => !!(userId && rideData?.ppl?.includes(userId)),
-    [rideData?.ppl, userId],
+    () => !!(userId && rideData?.rsvpedUserIds?.includes(userId)),
+    [rideData?.rsvpedUserIds, userId],
   );
 
   const [rideCreator, setRideCreator] = useState<string>("Loading...");
@@ -58,12 +58,12 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   }, [userId]);
 
   const fetchCreatorInfo = useCallback(async () => {
-    if (!rideData?.creator) return;
-    const creatorDoc = doc(db, "users", rideData.creator);
+    if (!rideData?.creatorId) return;
+    const creatorDoc = doc(db, "users", rideData.creatorId);
     const creatorData = await getDoc(creatorDoc);
     if (!creatorData.exists()) return;
     return creatorData.data().name as string;
-  }, [rideData?.creator]);
+  }, [rideData?.creatorId]);
 
   useEffect(() => {
     fetchCreatorInfo().then((name) => {
@@ -82,7 +82,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
       if (!rideDataDb.exists()) return;
 
-      const rideData = rideDataDb.data() as RideData;
+      const rideData = rideDataDb.data() as RideDataType;
 
       if (!rideData) return;
 
@@ -97,26 +97,26 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
     // update in db
     await updateDoc(doc(db, "rides", rideId), {
-      ppl: isUserRsvped ? arrayRemove(userId) : arrayUnion(userId),
-      currPpl: isUserRsvped ? increment(-1) : increment(1),
+      rsvpedUserIds: isUserRsvped ? arrayRemove(userId) : arrayUnion(userId),
+      numRsvpedUsers: isUserRsvped ? increment(-1) : increment(1),
     });
     // update in context
-    const newPpl: string[] = isUserRsvped
-      ? rideData?.ppl?.filter((id) => id !== userId) || []
-      : [...(rideData?.ppl || []), userId];
-    const currPpl: number = isUserRsvped
-      ? (rideData?.currPpl || 0) - 1
-      : (rideData?.currPpl || 0) + 1;
+    const newRsvpedUserIds: string[] = isUserRsvped
+      ? rideData?.rsvpedUserIds?.filter((id) => id !== userId) || []
+      : [...(rideData?.rsvpedUserIds || []), userId];
+    const numRsvpedUsers: number = isUserRsvped
+      ? (rideData?.numRsvpedUsers || 0) - 1
+      : (rideData?.numRsvpedUsers || 0) + 1;
     setSingleRide(rideId, {
-      ppl: newPpl,
-      currPpl: currPpl,
+      rsvpedUserIds: newRsvpedUserIds,
+      numRsvpedUsers: numRsvpedUsers,
     });
   };
 
   const RSVPButtonText = useMemo(() => {
     if (isUserRsvped) return "RSVPed";
     if (!rideData) return "Loading...";
-    if (rideData.currPpl >= (rideData.maxPpl || 0) && !isUserRsvped)
+    if (rideData.numRsvpedUsers >= (rideData.maxPpl || 0) && !isUserRsvped)
       return "Ride is full";
     if (rideData.gender !== "Co-ed" && rideData.gender !== userData?.gender)
       return rideData.gender + " only ride";
@@ -132,7 +132,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   }
 
   const isRsvpDisabled = () => {
-    if (rideData?.currPpl >= (rideData?.maxPpl || 0) && !isUserRsvped)
+    if (rideData?.numRsvpedUsers >= (rideData?.maxPpl || 0) && !isUserRsvped)
       return true;
     if (rideData?.gender !== "Co-ed" && rideData?.gender !== userData?.gender)
       return true;
@@ -158,7 +158,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
       {/* Capacity Section */}
       <View style={styles.capacityContainer}>
         <Text style={styles.capacityText}>
-          {rideData.currPpl} / {rideData.maxPpl} seats taken
+          {rideData.numRsvpedUsers} / {rideData.maxPpl} seats taken
         </Text>
         <Svg width={CAPACITY_BAR_WIDTH} height="10" style={styles.capacityBar}>
           {/* Background bar (gray for full capacity) */}
@@ -175,7 +175,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
           <Rect
             x="0"
             y="0"
-            width={`${(rideData.currPpl / (rideData.maxPpl || 1)) * CAPACITY_BAR_WIDTH}`}
+            width={`${(rideData.numRsvpedUsers / (rideData.maxPpl || 1)) * CAPACITY_BAR_WIDTH}`}
             height="10"
             fill="#a0fca1"
             rx="5"
@@ -189,27 +189,29 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         <View style={styles.detailRow}>
           <Text style={styles.label}>📅 Leaves </Text>
           <Text style={styles.value}>
-            {formatDate(rideData.date.toDate()) +
+            {formatDate(rideData.departs.toDate()) +
               " @ " +
-              formatTime(rideData.time.toDate())}
+              formatTime(rideData.departs.toDate())}
           </Text>
         </View>
 
         <View style={styles.detailRow}>
           <Text style={styles.label}>🤝🏻 Departs from </Text>
-          <Text style={styles.value}>{rideData.meetLoc}</Text>
+          <Text style={styles.value}>{rideData.departsFrom}</Text>
         </View>
       </View>
 
       {/* Tags Section */}
       <View style={styles.tagsSection}>
-        {rideData.luggage && <Text style={styles.tag}>Space for luggage</Text>}
+        {rideData.hasLuggageSpace && (
+          <Text style={styles.tag}>Space for luggage</Text>
+        )}
         <Text style={styles.tag}>
           {rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender + " only"}
         </Text>
-        {rideData.roundTrip !== undefined && (
+        {rideData.isRoundTrip !== undefined && (
           <Text style={styles.tag}>
-            {rideData.roundTrip ? "Round Trip" : "One Way"}
+            {rideData.isRoundTrip ? "Round Trip" : "One Way"}
           </Text>
         )}
       </View>

@@ -9,13 +9,13 @@ import Footer from "@/components/Footer";
 import { RidesContext } from "@/contexts/RidesContext";
 import { db } from "@/firebaseConfig";
 import { useLocalSearchParams } from "expo-router";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, ScrollView, TextInput, View } from "react-native";
 import FloatingActionButton from "../components/FloatingActionButton";
 import Input from "../components/Input";
 import SingleRidePost from "../components/SingleRidePost";
-import { RideData, UserData } from "./rsvp";
+import { RideDataType } from "./rsvp";
 
 export default function FeedPage() {
   const { rides, setRides } = useContext(RidesContext);
@@ -38,28 +38,10 @@ export default function FeedPage() {
     const fetchRides = async () => {
       try {
         const ridesSnapshot = await getDocs(collection(db, "rides"));
-        const ridesData: RideData[] = [];
+        const ridesData: RideDataType[] = [];
 
         for (const rideDoc of ridesSnapshot.docs) {
-          const ride = rideDoc.data() as RideData;
-
-          // Get the user document for the ride
-          let userData: UserData | null = null;
-
-          // TODO validate entries either here or in create ride
-          // TODO only display rides whose time is not < curr time (keep them sorted somehow?)
-          if (ride.creator) {
-            try {
-              const userSnap = await getDoc(doc(db, "users", ride.creator));
-              if (userSnap.exists()) {
-                userData = userSnap.data() as UserData;
-              } else {
-                console.warn(`User doc not found for creator ID`, ride.creator);
-              }
-            } catch (err) {
-              console.error(`Error fetching user ${ride.creator}:`, err);
-            }
-          }
+          const ride = rideDoc.data() as RideDataType;
 
           if (rideDoc.id === undefined) {
             return;
@@ -67,15 +49,17 @@ export default function FeedPage() {
 
           ridesData.push({
             id: rideDoc.id,
-            creator: userData?.name || "Inactive Account",
+            creatorId: ride.creatorId,
             destination: ride.destination || "Unknown Destination",
-            date: ride.date,
-            currPpl: ride.currPpl,
+            departs: ride.departs,
+            numRsvpedUsers: ride.numRsvpedUsers,
             maxPpl: ride.maxPpl,
-            time: ride.time,
-            ppl: ride.ppl,
+            rsvpedUserIds: ride.rsvpedUserIds,
             gender: ride.gender,
-            meetLoc: ride.meetLoc,
+            departsFrom: ride.departsFrom,
+            hasLuggageSpace: ride.hasLuggageSpace,
+            isRoundTrip: ride.isRoundTrip,
+            returns: ride.returns,
           });
         }
 
@@ -84,34 +68,12 @@ export default function FeedPage() {
 
         // Keep only rides whose departure date/time is in the future
         const upcomingRides = ridesData.filter((ride) => {
-          const departure = new Date(
-            ride.date.toDate().getFullYear(),
-            ride.date.toDate().getMonth(),
-            ride.date.toDate().getDate(),
-            ride.time.toDate().getHours(),
-            ride.time.toDate().getMinutes(),
-          );
-          return departure >= now;
+          return ride.departs.toDate() >= now;
         });
 
         // Sort upcoming rides by date and time (earliest first)
         upcomingRides.sort((a, b) => {
-          const dateA = new Date(
-            a.date.toDate().getFullYear(),
-            a.date.toDate().getMonth(),
-            a.date.toDate().getDate(),
-            a.time.toDate().getHours(),
-            a.time.toDate().getMinutes(),
-          );
-          const dateB = new Date(
-            b.date.toDate().getFullYear(),
-            b.date.toDate().getMonth(),
-            b.date.toDate().getDate(),
-            b.time.toDate().getHours(),
-            b.time.toDate().getMinutes(),
-          );
-
-          return dateA.getTime() - dateB.getTime();
+          return a.departs.toDate().getTime() - b.departs.toDate().getTime();
         });
 
         setRides(upcomingRides);
@@ -130,17 +92,16 @@ export default function FeedPage() {
     const queryWords = searchQuery.toLowerCase().split(" ").filter(Boolean);
 
     return queryWords.every((word) => {
-      const name = ride.creator?.toLowerCase() || "";
       const destination = ride.destination?.toLowerCase() || "";
       const formattedDate =
-        ride.date?.toDate()?.toLocaleDateString().toLowerCase() || "";
-      const formattedTime = ride.time
-        ?.toDate()
-        ?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-        .toLowerCase();
+        ride.departs?.toDate()?.toLocaleDateString().toLowerCase() || "";
+      const formattedTime =
+        ride.departs
+          ?.toDate()
+          ?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+          .toLowerCase() || "";
 
       return (
-        name.includes(word) ||
         destination.includes(word) ||
         formattedDate.includes(word) ||
         formattedTime.includes(word)

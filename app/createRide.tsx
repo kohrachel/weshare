@@ -1,33 +1,53 @@
 /**
  Contributors
  Emma Reid: 7.5 hours
- Rachel Huiqi: 5 hours
+ Rachel Huiqi: 6 hours
  */
 
 import ButtonGreen from "@/components/buttonGreen";
 import DateTimeInput from "@/components/DateTimeInput";
 import Input from "@/components/Input";
 import { db } from "@/firebaseConfig";
-import * as SecureStore from "expo-secure-store";
-import { addDoc, getDoc, doc, collection } from "firebase/firestore";
-import React, { useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Switch } from "react-native";
-import Title from "../components/Title";
 import { Picker } from "@react-native-picker/picker";
+import * as SecureStore from "expo-secure-store";
+import { addDoc, collection, doc, getDoc, Timestamp } from "firebase/firestore";
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import Title from "../components/Title";
+import { RideDataType } from "./rsvp";
+
+export type AllowedGenders = "Co-ed" | "Female" | "Male";
+type RecurrenceFrequency = "daily" | "weekly" | "monthly";
+
+type RideFormData = Omit<RideDataType, "id" | "departs" | "returns"> & {
+  isRecurringRide: boolean;
+  recurrenceFrequency: RecurrenceFrequency;
+  numOccurrences: string;
+};
 
 export default function CreateRide() {
-  const [dest, setDest] = useState("");
-  const [date, setDate] = useState(new Date());
-  const [time, setTime] = useState(new Date());
-  const [meetLoc, setMeetLoc] = useState("");
-  const [numberPpl, setNumberPpl] = useState("");
-  const [gender, setGender] = useState("Co-ed");
-  const [luggage, setLuggage] = useState(false);
-  const [roundTrip, setRoundTrip] = useState(false);
+  // Local state for date and time inputs (to prevent overriding each other)
+  const [departDate, setDepartDate] = useState(new Date());
+  const [departTime, setDepartTime] = useState(new Date());
   const [returnDate, setReturnDate] = useState(new Date());
   const [returnTime, setReturnTime] = useState(new Date());
 
-  function mergeDateAndTime(datePart, timePart) {
+  const [rideData, setRideData] = useState<RideFormData>({
+    destination: "",
+    departsFrom: "",
+    maxPpl: 0,
+    gender: "Co-ed",
+    hasLuggageSpace: false,
+    isRoundTrip: false,
+    creatorId: "",
+    numRsvpedUsers: 0,
+    rsvpedUserIds: [],
+    isRecurringRide: false,
+    recurrenceFrequency: "weekly",
+    numOccurrences: "4",
+  });
+
+  function mergeDateAndTime(datePart: Date, timePart: Date): Date {
     return new Date(
       datePart.getFullYear(),
       datePart.getMonth(),
@@ -35,8 +55,27 @@ export default function CreateRide() {
       timePart.getHours(),
       timePart.getMinutes(),
       timePart.getSeconds(),
-      timePart.getMilliseconds()
+      timePart.getMilliseconds(),
     );
+  }
+
+  function getNextDate(
+    currentDate: Date,
+    frequency: RecurrenceFrequency,
+  ): Date {
+    const nextDate = new Date(currentDate);
+    switch (frequency) {
+      case "daily":
+        nextDate.setDate(nextDate.getDate() + 1);
+        break;
+      case "weekly":
+        nextDate.setDate(nextDate.getDate() + 7);
+        break;
+      case "monthly":
+        nextDate.setMonth(nextDate.getMonth() + 1);
+        break;
+    }
+    return nextDate;
   }
 
   const storeRide = async () => {
@@ -46,86 +85,138 @@ export default function CreateRide() {
       let error = "";
 
       // Validate data
-      if (id == "") {
-        throw new Error('User id null. Must reopen app to sign in.');
+      if (!id || id === "") {
+        throw new Error("User id null. Must reopen app to sign in.");
       } else {
         user = await getDoc(doc(db, "users", id));
       }
 
       if (!user.exists()) {
-        throw new Error('User not found. Must reopen app to sign in.');
+        throw new Error("User not found. Must reopen app to sign in.");
       }
 
-      if (dest == "") {
+      if (rideData.destination === "") {
         console.log("no dest");
-        error += '\nDestination is required.';
+        error += "\nDestination is required.";
       }
 
-      if (meetLoc == "") {
-        error += '\nMeeting location is required.';
+      if (rideData.departsFrom === "") {
+        error += "\nMeeting location is required.";
       }
 
-      if (numberPpl < 2) {
-        error += '\nMust allow 2 or more people (including yourself).';
+      if (rideData.maxPpl < 2) {
+        error += "\nMust allow 2 or more people (including yourself).";
       }
 
       const returnDateTime = mergeDateAndTime(returnDate, returnTime);
-      const dateTime = mergeDateAndTime(date, time);
+      const departDateTime = mergeDateAndTime(departDate, departTime);
 
-      if (roundTrip && returnDateTime <= dateTime) {
-        error += '\nReturn must be after departure.';
+      if (rideData.isRoundTrip && returnDateTime <= departDateTime) {
+        error += "\nReturn must be after departure.";
       }
 
-      if (error == "") {
-        // send data to database
-        const docRef = await addDoc(collection(db, "rides"), {
-          destination: dest,
-          date: date,
-          time: time,
-          meetLoc: meetLoc,
-          maxPpl: Number(numberPpl),
-          gender: gender,
-          luggage: Boolean(luggage),
-          roundTrip: Boolean(roundTrip),
-          returnTime: returnTime,
-          returnDate: returnDate,
-          creationTime: new Date(),
-          currPpl: 1,
-          creator: id,
-          ppl: [id],
-        });
+      if (
+        rideData.isRecurringRide &&
+        (Number(rideData.numOccurrences) < 1 ||
+          Number(rideData.numOccurrences) > 52)
+      ) {
+        error += "\nNumber of occurrences must be between 1 and 52.";
+      }
 
-        console.log("Ride stored with ID:", docRef.id);
+      if (error === "") {
+        // Generate rides based on recurrence
+        const ridesToCreate = rideData.isRecurringRide
+          ? Number(rideData.numOccurrences)
+          : 1;
+        let currentDepartDate = new Date(departDate);
+        let currentReturnDate = new Date(returnDate);
+
+        for (let i = 0; i < ridesToCreate; i++) {
+          // Merge date and time for departs and returns timestamps
+          const departsDate = mergeDateAndTime(currentDepartDate, departTime);
+          const returnsDate = mergeDateAndTime(currentReturnDate, returnTime);
+
+          // send data to database
+          const docRef = await addDoc(collection(db, "rides"), {
+            destination: rideData.destination,
+            departs: Timestamp.fromDate(departsDate),
+            departsFrom: rideData.departsFrom,
+            maxPpl: rideData.maxPpl,
+            gender: rideData.gender,
+            hasLuggageSpace: rideData.hasLuggageSpace,
+            isRoundTrip: rideData.isRoundTrip,
+            returns: Timestamp.fromDate(returnsDate),
+            creationTime: new Date(),
+            numRsvpedUsers: 1,
+            creatorId: id,
+            rsvpedUserIds: [id],
+          });
+
+          console.log("Ride stored with ID:", docRef.id);
+
+          // Calculate next occurrence dates
+          if (i < ridesToCreate - 1) {
+            currentDepartDate = getNextDate(
+              currentDepartDate,
+              rideData.recurrenceFrequency,
+            );
+            if (rideData.isRoundTrip) {
+              currentReturnDate = getNextDate(
+                currentReturnDate,
+                rideData.recurrenceFrequency,
+              );
+            }
+          }
+        }
+
         alert(
-          "Ride saved!\n" +
-          dest + "\n" +
-          date + "\n" +
-          time + "\n" +
-          meetLoc + "\n" +
-          numberPpl + "\n" +
-          (gender == "" ? "Coed" : gender) + "\n" +
-          (luggage ? "Luggage" : "No luggage") + "\n" +
-          (roundTrip ? "Round Trip" : "One Way") + "\n" +
-          returnDate + "\n" +
-          returnTime
+          (rideData.isRecurringRide
+            ? `${ridesToCreate} rides saved!\n`
+            : "Ride saved!\n") +
+            rideData.destination +
+            "\n" +
+            departDate +
+            "\n" +
+            departTime +
+            "\n" +
+            rideData.departsFrom +
+            "\n" +
+            rideData.maxPpl +
+            "\n" +
+            (rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender) +
+            "\n" +
+            (rideData.hasLuggageSpace ? "Luggage" : "No luggage") +
+            "\n" +
+            (rideData.isRoundTrip ? "Round Trip" : "One Way") +
+            "\n" +
+            returnDate +
+            "\n" +
+            returnTime,
         );
 
         // Reset form fields
-        setDest("");
-        setTime(new Date());
-        setDate(new Date());
-        setMeetLoc("");
-        setNumberPpl("");
-        setGender("Co-ed");
-        setLuggage(false);
-        setRoundTrip(false);
-        setReturnTime(new Date());
+        setDepartDate(new Date());
+        setDepartTime(new Date());
         setReturnDate(new Date());
+        setReturnTime(new Date());
+        setRideData({
+          destination: "",
+          departsFrom: "",
+          maxPpl: 0,
+          gender: "Co-ed",
+          hasLuggageSpace: false,
+          isRoundTrip: false,
+          creatorId: "",
+          numRsvpedUsers: 0,
+          rsvpedUserIds: [],
+          isRecurringRide: false,
+          recurrenceFrequency: "weekly",
+          numOccurrences: "4",
+        });
       } else {
         alert("Ride not saved, please fix error(s):\n" + error);
         error = "";
       }
-
     } catch (systemError) {
       console.error("Error adding ride: ", systemError);
       alert("Ride not saved, please try again.\n" + systemError);
@@ -144,45 +235,51 @@ export default function CreateRide() {
       }}
     >
       <View style={styles.header}>
-      <Title text={"Create a Ride"}/>
+        <Title text={"Create a Ride"} />
       </View>
-      <ScrollView
-        contentContainerStyle={styles.formArea}
-      >
+      <ScrollView contentContainerStyle={styles.formArea}>
         <Input
           label={"Where to?"}
           defaultValue={"e.g. BNA"}
-          value={dest}
-          setValue={setDest}
+          value={rideData.destination}
+          setValue={(value) =>
+            setRideData((prev) => ({ ...prev, destination: value }))
+          }
         ></Input>
         <DateTimeInput
           label={"When are we leaving?"}
-          dateValue={date}
-          timeValue={time}
-          setDateValue={setDate}
-          setTimeValue={setTime}
+          dateValue={departDate}
+          timeValue={departTime}
+          setDateValue={setDepartDate}
+          setTimeValue={setDepartTime}
         />
         <Input
           label={"Where to meet?"}
           defaultValue={"e.g. Commons Lawn"}
-          value={meetLoc}
-          setValue={setMeetLoc}
+          value={rideData.departsFrom}
+          setValue={(value) =>
+            setRideData((prev) => ({ ...prev, departsFrom: value }))
+          }
         ></Input>
         <Input
           label={"How many people (including you)?"}
           defaultValue={"e.g. 4"}
-          value={numberPpl}
-          setValue={setNumberPpl}
+          value={String(rideData.maxPpl || "")}
+          setValue={(value) =>
+            setRideData((prev) => ({ ...prev, maxPpl: Number(value) || 0 }))
+          }
         ></Input>
         <View>
           <Text style={styles.label}>What genders allowed?</Text>
           <Picker
-            selectedValue={gender}
+            selectedValue={rideData.gender}
             dropdownIconColor="#e7e7e7"
             style={styles.picker}
-            onValueChange={(itemValue) => setGender(itemValue)}
+            onValueChange={(itemValue) =>
+              setRideData((prev) => ({ ...prev, gender: itemValue }))
+            }
           >
-            <Picker.Item label="Coed" value="Coed" />
+            <Picker.Item label="Co-ed" value="Co-ed" />
             <Picker.Item label="Female" value="Female" />
             <Picker.Item label="Male" value="Male" />
           </Picker>
@@ -190,24 +287,28 @@ export default function CreateRide() {
         <View style={styles.switchContainer}>
           <Text style={styles.label}>Room for luggage?</Text>
           <Switch
-            testID = "luggage-switch"
-            value={luggage}
-            onValueChange={(value) => setLuggage(value)}
+            testID="luggage-switch"
+            value={rideData.hasLuggageSpace}
+            onValueChange={(value) =>
+              setRideData((prev) => ({ ...prev, hasLuggageSpace: value }))
+            }
             trackColor={{ false: "#555", true: "#4CAF50" }}
-            thumbColor={luggage ? "#81C784" : "#f4f3f4"}
+            thumbColor={rideData.hasLuggageSpace ? "#81C784" : "#f4f3f4"}
           />
         </View>
         <View style={styles.switchContainer}>
           <Text style={styles.label}>Round Trip?</Text>
           <Switch
-            testID = "round-trip-switch"
-            value={roundTrip}
-            onValueChange={(value) => setRoundTrip(value)}
+            testID="round-trip-switch"
+            value={rideData.isRoundTrip}
+            onValueChange={(value) =>
+              setRideData((prev) => ({ ...prev, isRoundTrip: value }))
+            }
             trackColor={{ false: "#555", true: "#4CAF50" }}
-            thumbColor={roundTrip ? "#81C784" : "#f4f3f4"}
+            thumbColor={rideData.isRoundTrip ? "#81C784" : "#f4f3f4"}
           />
         </View>
-        {roundTrip && (
+        {rideData.isRoundTrip && (
           <DateTimeInput
             label={"When are we returning?"}
             dateValue={returnDate}
@@ -216,8 +317,49 @@ export default function CreateRide() {
             setTimeValue={setReturnTime}
           />
         )}
+        <View style={styles.switchContainer}>
+          <Text style={styles.label}>Recurring Ride?</Text>
+          <Switch
+            testID="recurring-ride-switch"
+            value={rideData.isRecurringRide}
+            onValueChange={(value) =>
+              setRideData((prev) => ({ ...prev, isRecurringRide: value }))
+            }
+            trackColor={{ false: "#555", true: "#4CAF50" }}
+            thumbColor={rideData.isRecurringRide ? "#81C784" : "#f4f3f4"}
+          />
+        </View>
+        {rideData.isRecurringRide && (
+          <>
+            <View>
+              <Picker
+                selectedValue={rideData.recurrenceFrequency}
+                dropdownIconColor="#e7e7e7"
+                style={styles.picker}
+                onValueChange={(itemValue) =>
+                  setRideData((prev) => ({
+                    ...prev,
+                    recurrenceFrequency: itemValue,
+                  }))
+                }
+              >
+                <Picker.Item label="Repeat every day" value="daily" />
+                <Picker.Item label="Repeat every week" value="weekly" />
+                <Picker.Item label="Repeat every month" value="monthly" />
+              </Picker>
+            </View>
+            <Input
+              label={"How many occurrences?"}
+              defaultValue={"e.g. 4"}
+              value={rideData.numOccurrences}
+              setValue={(value) =>
+                setRideData((prev) => ({ ...prev, numOccurrences: value }))
+              }
+            />
+          </>
+        )}
       </ScrollView>
-    <ButtonGreen title="Create New Ride" onPress={storeRide} />
+      <ButtonGreen title="Create New Ride" onPress={storeRide} />
     </View>
   );
 }
@@ -234,6 +376,11 @@ const styles = StyleSheet.create({
     color: "#e7e7e7",
     fontFamily: "Inter_700Bold",
     fontSize: 16,
+  },
+  header: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
   },
   picker: {
     backgroundColor: "#2a2a2a",

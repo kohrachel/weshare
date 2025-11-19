@@ -1,4 +1,4 @@
-import { RideData } from "@/app/rsvp";
+import { RideDataType } from "@/app/rsvp";
 import {
   createContext,
   Dispatch,
@@ -9,10 +9,10 @@ import {
 } from "react";
 
 export const RidesContext = createContext<{
-  rides: RideData[];
-  setRides: Dispatch<SetStateAction<RideData[]>>;
-  getSingleRide: (rideId: string) => RideData | undefined;
-  setSingleRide: (rideId: string, rideData: Partial<RideData>) => void;
+  rides: RideDataType[];
+  setRides: Dispatch<SetStateAction<RideDataType[]>>;
+  getSingleRide: (rideId: string) => RideDataType | undefined;
+  setSingleRide: (rideId: string, rideData: Partial<RideDataType>) => void;
 }>({
   rides: [],
   setRides: () => {},
@@ -22,7 +22,7 @@ export const RidesContext = createContext<{
 
 export const RidesProvider = ({ children }: { children: ReactNode }) => {
   // keep track of all rides
-  const [rides, setRides] = useState<RideData[]>([]);
+  const [rides, setRides] = useState<RideDataType[]>([]);
 
   const getSingleRide = useCallback(
     (rideId: string) => {
@@ -33,7 +33,7 @@ export const RidesProvider = ({ children }: { children: ReactNode }) => {
 
   // helper function to set a single ride in the rides array
   const setSingleRide = useCallback(
-    (rideId: string, rideData: Partial<RideData>) => {
+    (rideId: string, rideData: Partial<RideDataType>) => {
       setRides((prevRides) =>
         prevRides.map((ride) =>
           ride.id === rideId ? { ...ride, ...rideData } : ride,
