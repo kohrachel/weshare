@@ -1,6 +1,7 @@
 /**
  Contributors
  Emma Reid: 3.5 hours
+ Rachel Huiqi: 1 hour
  */
 
 import { fireEvent, render, waitFor } from "@testing-library/react-native";

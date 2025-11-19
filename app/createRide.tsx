@@ -1,7 +1,7 @@
 /**
  Contributors
  Emma Reid: 7.5 hours
- Rachel Huiqi: 5 hours
+ Rachel Huiqi: 6 hours
  */
 
 import ButtonGreen from "@/components/buttonGreen";
