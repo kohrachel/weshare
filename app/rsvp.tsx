@@ -2,7 +2,7 @@
  Contributors
  Kevin Song: 2 hours
  Emma Reid: 2 hours
- Rachel Huiqi: 4 hours
+ Rachel Huiqi: 5 hours
  */
 
 import Footer from "@/components/Footer";
@@ -34,9 +34,10 @@ export type RideData = {
   ppl: string[];
   gender: "Male" | "Female" | "Co-ed";
   meetLoc: string;
-  roundTrip: Boolean
-  returnTime: Timestamp,
-  returnDate: Timestamp,
+  luggage: boolean;
+  roundTrip: boolean;
+  returnTime: Timestamp;
+  returnDate: Timestamp;
 };
 
 export type UserData = {
@@ -90,6 +91,7 @@ export default function RsvpRidePage() {
         ppl: ride.ppl,
         gender: ride.gender,
         meetLoc: ride.meetLoc,
+        luggage: ride.luggage,
         roundTrip: ride.roundTrip,
         returnTime: ride.returnTime,
         returnDate: ride.returnDate,
@@ -139,20 +141,18 @@ export default function RsvpRidePage() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#181818",
-        paddingTop: 50,
-        paddingBottom: 100,
-        paddingHorizontal: 10,
-      }}
-    >
-      <Text style={styles.title}>Ride Details</Text>
-      <ScrollView style={{ flex: 1 }}>
-        <View>
-          <SingleRidePost rideId={rideId} />
-        </View>
+    <View style={styles.container}>
+      <SingleRidePost rideId={rideId} />
+      <Text style={styles.subtitle}>
+        In this ride:{" "}
+        {rsvpedUsers.length !== 1
+          ? `${rsvpedUsers.length} people`
+          : `${rsvpedUsers.length} person`}
+      </Text>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContent}
+      >
         {/* TODO: replace with dynamic data */}
         {rsvpedUsers.map((user, index) => (
           <ContactCard
@@ -170,6 +170,13 @@ export default function RsvpRidePage() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#181818",
+    paddingTop: 40,
+    paddingBottom: 100,
+    paddingHorizontal: 20,
+  },
   card: {
     backgroundColor: "#fff",
     borderRadius: 12,
@@ -196,6 +203,14 @@ const styles = StyleSheet.create({
     paddingTop: 28,
     textAlign: "center",
   },
+  subtitle: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 16,
+    color: "#e7e7e7",
+    paddingBottom: 10,
+    paddingTop: 15,
+    textAlign: "left",
+  },
   detailRow: {
     flexDirection: "row",
     marginBottom: 6,
@@ -217,5 +232,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#181818",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    gap: 12,
+    flexDirection: "column",
   },
 });

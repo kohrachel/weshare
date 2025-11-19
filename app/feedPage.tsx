@@ -2,15 +2,16 @@
  Contributors
  Emma Reid: 3 hours
  Kevin Song: 7 hours
- Rachel Huiqi: 3 hours
+ Rachel Huiqi: 4 hours
  */
 
 import Footer from "@/components/Footer";
 import { RidesContext } from "@/contexts/RidesContext";
 import { db } from "@/firebaseConfig";
+import { useLocalSearchParams } from "expo-router";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
-import React, { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, ScrollView, TextInput, View } from "react-native";
 import FloatingActionButton from "../components/FloatingActionButton";
 import Input from "../components/Input";
 import SingleRidePost from "../components/SingleRidePost";
@@ -20,6 +21,17 @@ export default function FeedPage() {
   const { rides, setRides } = useContext(RidesContext);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<TextInput>(null);
+  const params = useLocalSearchParams();
+
+  // Focus search input when navigating with focusSearch param
+  useEffect(() => {
+    if (params.focusSearch === "true") {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }
+  }, [params.focusSearch]);
 
   // fetch rides from db and set in context
   useEffect(() => {
@@ -155,12 +167,18 @@ export default function FeedPage() {
       }}
     >
       <Input
-        defaultValue="Search rides by user name, destination, or date/time"
+        ref={searchInputRef}
+        defaultValue="Search rides by destination, date/time, or creator"
         value={searchQuery}
         setValue={setSearchQuery}
+        style={{ marginBottom: 16 }}
       />
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+        contentContainerStyle={{
+          paddingBottom: 80,
+          flexDirection: "column",
+          gap: 16,
+        }}
       >
         {rides.map((ride) => {
           return <SingleRidePost key={ride.id} rideId={ride.id} />;

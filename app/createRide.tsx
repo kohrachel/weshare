@@ -21,7 +21,7 @@ export default function CreateRide() {
   const [time, setTime] = useState(new Date());
   const [meetLoc, setMeetLoc] = useState("");
   const [numberPpl, setNumberPpl] = useState("");
-  const [gender, setGender] = useState("");
+  const [gender, setGender] = useState("Co-ed");
   const [luggage, setLuggage] = useState(false);
   const [roundTrip, setRoundTrip] = useState(false);
   const [returnDate, setReturnDate] = useState(new Date());
@@ -116,7 +116,7 @@ export default function CreateRide() {
         setDate(new Date());
         setMeetLoc("");
         setNumberPpl("");
-        setGender("");
+        setGender("Co-ed");
         setLuggage(false);
         setRoundTrip(false);
         setReturnTime(new Date());

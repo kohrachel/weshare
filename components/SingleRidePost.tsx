@@ -1,7 +1,7 @@
 /**
  Contributors
  Kevin Song: 3 hours
- Rachel Huiqi: 7 hours
+ Rachel Huiqi: 10 hours
  */
 
 import { RideData, UserData } from "@/app/rsvp";
@@ -9,7 +9,6 @@ import { RidesContext } from "@/contexts/RidesContext";
 import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
 import { formatDate, formatTime } from "@/utils";
-import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import {
   arrayRemove,
@@ -20,16 +19,18 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import Svg, { Rect } from "react-native-svg";
 import ButtonGreen from "./buttonGreen";
 
 type SingleRidePostProps = {
   rideId: string;
 };
 
+const CAPACITY_BAR_WIDTH = 330;
+
 export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   const router = useRouter();
-  const route = useRoute();
 
   const { getSingleRide, setSingleRide } = useContext(RidesContext);
   const { userId } = useContext(UserContext);
@@ -112,7 +113,15 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     });
   };
 
-  const isRsvpRoute = route.name === "rsvp";
+  const RSVPButtonText = useMemo(() => {
+    if (isUserRsvped) return "RSVPed";
+    if (!rideData) return "Loading...";
+    if (rideData.currPpl >= (rideData.maxPpl || 0) && !isUserRsvped)
+      return "Ride is full";
+    if (rideData.gender !== "Co-ed" && rideData.gender !== userData?.gender)
+      return rideData.gender + " only ride";
+    return "RSVP to this ride";
+  }, [isUserRsvped, rideData, userData]);
 
   if (!rideData) {
     return (
@@ -131,99 +140,178 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   };
 
   return (
-    <View style={styles.card}>
-      {/* Name Header */}
-      <Text
-        style={styles.header}
-      >{`Destination: ${rideData.destination}`}</Text>
+    <Pressable
+      style={[styles.card, isRsvpDisabled() && styles.cardDisabled]}
+      onPress={() => router.navigate(`/rsvp?rideId=${rideId}`)}
+    >
+      {/* Header Section */}
+      <View style={styles.headerSection}>
+        <Text style={styles.headerIcon}>📍</Text>
+        <View style={styles.headerText}>
+          <Text style={styles.title}>{rideData.destination}</Text>
+          <Text style={styles.createdBy}>
+            Created by: {rideCreator || "Loading..."}
+          </Text>
+        </View>
+      </View>
 
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Departure: </Text>
-        <Text style={styles.value}>
-          {formatDate(rideData.date.toDate()) +
-            " " +
-            formatTime(rideData.time.toDate())}
+      {/* Capacity Section */}
+      <View style={styles.capacityContainer}>
+        <Text style={styles.capacityText}>
+          {rideData.currPpl} / {rideData.maxPpl} seats taken
         </Text>
+        <Svg width={CAPACITY_BAR_WIDTH} height="10" style={styles.capacityBar}>
+          {/* Background bar (gray for full capacity) */}
+          <Rect
+            x="0"
+            y="0"
+            width={CAPACITY_BAR_WIDTH}
+            height="10"
+            fill="#5f5f5f"
+            rx="5"
+            ry="5"
+          />
+          {/* Foreground bar (green for current people) */}
+          <Rect
+            x="0"
+            y="0"
+            width={`${(rideData.currPpl / (rideData.maxPpl || 1)) * CAPACITY_BAR_WIDTH}`}
+            height="10"
+            fill="#a0fca1"
+            rx="5"
+            ry="5"
+          />
+        </Svg>
       </View>
 
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Meeting at: </Text>
-        <Text style={styles.value}>{rideData.meetLoc}</Text>
+      {/* Time & Location Section */}
+      <View style={styles.timeLocationSection}>
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>📅 Leaves </Text>
+          <Text style={styles.value}>
+            {formatDate(rideData.date.toDate()) +
+              " @ " +
+              formatTime(rideData.time.toDate())}
+          </Text>
+        </View>
+
+        <View style={styles.detailRow}>
+          <Text style={styles.label}>🤝🏻 Departs from </Text>
+          <Text style={styles.value}>{rideData.meetLoc}</Text>
+        </View>
       </View>
 
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Gender Restriction: </Text>
-        <Text style={styles.value}>
+      {/* Tags Section */}
+      <View style={styles.tagsSection}>
+        {rideData.luggage && <Text style={styles.tag}>Space for luggage</Text>}
+        <Text style={styles.tag}>
           {rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender + " only"}
         </Text>
-      </View>
-
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Capacity: </Text>
-        <Text style={styles.value}>
-          {rideData.currPpl} / {rideData.maxPpl}
-        </Text>
-      </View>
-
-      {/* Ride Details */}
-      <View style={styles.detailRow}>
-        <Text style={styles.label}>Created by: </Text>
-        <Text style={styles.value}>{rideCreator || "Loading..."}</Text>
+        {rideData.roundTrip !== undefined && (
+          <Text style={styles.tag}>
+            {rideData.roundTrip ? "Round Trip" : "One Way"}
+          </Text>
+        )}
       </View>
 
       {/* RSVP Button */}
       <View style={styles.buttonWrapper}>
         <ButtonGreen
-          title={isUserRsvped ? "RSVPed" : "RSVP"}
+          title={RSVPButtonText}
           onPress={toggleRSVP}
           disabled={isRsvpDisabled()}
         />
       </View>
-
-      {!isRsvpRoute && (
-        <View style={styles.buttonWrapper}>
-          <ButtonGreen
-            title="More Info"
-            onPress={() => router.navigate(`/rsvp?rideId=${rideId}`)}
-          />
-        </View>
-      )}
-    </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
+    flexDirection: "column",
+    gap: 16,
+    backgroundColor: "#2D2D2D",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "#4c4c4c",
     borderRadius: 12,
     padding: 16,
-    marginVertical: 8,
-    marginHorizontal: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  header: {
-    fontSize: 18,
+  cardDisabled: {
+    backgroundColor: "#1a1a1a",
+    borderColor: "#333333",
+    opacity: 0.7,
+  },
+  headerSection: {
+    flexDirection: "row",
+    gap: 4,
+  },
+  headerIcon: {
+    fontSize: 30,
+    color: "#f0f0f0",
+    alignSelf: "center",
+    marginLeft: -5,
+  },
+  headerText: {
+    flexDirection: "column",
+    gap: 4,
+  },
+  createdBy: {
+    fontSize: 12,
+    color: "#f0f0f0",
+  },
+  title: {
+    fontSize: 20,
     fontWeight: "700",
-    marginBottom: 12,
-    color: "#333",
+    color: "#f0f0f0",
+  },
+  timeLocationSection: {
+    flexDirection: "column",
+    gap: 2,
   },
   detailRow: {
     flexDirection: "row",
-    marginBottom: 6,
-  },
-  label: {
-    fontWeight: "600",
-    color: "#555",
   },
   value: {
-    color: "#333",
+    fontWeight: "600",
+    color: "#f0f0f0",
+  },
+  label: {
+    color: "#ececec",
   },
   buttonWrapper: {
-    marginTop: 16,
     alignItems: "center",
+  },
+  tagsSection: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  tag: {
+    backgroundColor: "#3B5A3D",
+    color: "#f0f0f0",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    fontWeight: "600",
+    fontSize: 12,
+  },
+  capacityContainer: {
+    flexDirection: "column",
+    gap: 4,
+  },
+  capacityText: {
+    color: "#ececec",
+    minWidth: 50,
+    paddingLeft: 5,
+    fontSize: 12,
+  },
+  capacityBar: {
+    alignSelf: "center",
+    borderRadius: 5,
   },
 });

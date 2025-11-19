@@ -37,17 +37,17 @@ const styles = StyleSheet.create({
   buttonContainer: {
     alignItems: "center",
     backgroundColor: "#529053",
-    borderRadius: 10,
+    borderRadius: 15,
     marginHorizontal: 10,
-    padding: 15,
+    padding: 10,
     width: "100%",
   },
   disabled: {
-    backgroundColor: "#888888",
+    backgroundColor: "#5f5f5f",
   },
   buttonText: {
     color: "white",
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: "Inter_700Bold",
   },
 });
