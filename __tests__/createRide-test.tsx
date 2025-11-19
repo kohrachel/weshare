@@ -168,7 +168,7 @@ describe("CreateRide Ride Creation Screen", () => {
     await waitFor(() => {
       expect(addDoc).toHaveBeenCalledWith("mockCollectionRef", expect.objectContaining({
         destination: "Airport",
-        meetLoc: "Commons Lawn",
+        departsFrom: "Commons Lawn",
         maxPpl: 3,
       }));
       expect(global.alert).toHaveBeenCalledWith(
@@ -286,11 +286,11 @@ describe("CreateRide Ride Creation Screen", () => {
         "mockCollectionRef",
         expect.objectContaining({
           destination: "Airport",
-          meetLoc: "Commons Lawn",
+          departsFrom: "Commons Lawn",
           maxPpl: 3,
           gender: "Male",
-          luggage: true,
-          roundTrip: false,
+          hasLuggageSpace: true,
+          isRoundTrip: false,
         })
       );
     });

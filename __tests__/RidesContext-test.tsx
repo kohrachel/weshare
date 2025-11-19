@@ -18,24 +18,32 @@ jest.mock("firebase/firestore", () => ({
 describe("RidesContext", () => {
   const mockRideData = {
     id: "ride1",
-    creator: "user1",
+    creatorId: "user1",
     destination: "Airport",
-    date: { toDate: () => new Date("2025-12-01") } as Timestamp,
-    time: { toDate: () => new Date("2025-12-01T10:00:00") } as Timestamp,
-    currPpl: 2,
+    departs: { toDate: () => new Date("2025-12-01T10:00:00") } as Timestamp,
+    numRsvpedUsers: 2,
     maxPpl: 4,
-    ppl: ["user1", "user2"],
+    rsvpedUserIds: ["user1", "user2"],
+    gender: "Co-ed",
+    departsFrom: "Parking Lot",
+    hasLuggageSpace: true,
+    isRoundTrip: false,
+    returns: { toDate: () => new Date("2025-12-01T14:00:00") } as Timestamp,
   };
 
   const mockRideData2 = {
     id: "ride2",
-    creator: "user3",
+    creatorId: "user3",
     destination: "Downtown",
-    date: { toDate: () => new Date("2025-12-02") } as Timestamp,
-    time: { toDate: () => new Date("2025-12-02T14:00:00") } as Timestamp,
-    currPpl: 1,
+    departs: { toDate: () => new Date("2025-12-02T14:00:00") } as Timestamp,
+    numRsvpedUsers: 1,
     maxPpl: 3,
-    ppl: ["user3"],
+    rsvpedUserIds: ["user3"],
+    gender: "Co-ed",
+    departsFrom: "Main Street",
+    hasLuggageSpace: false,
+    isRoundTrip: false,
+    returns: { toDate: () => new Date("2025-12-02T18:00:00") } as Timestamp,
   };
 
   test("provides initial empty rides array", () => {
@@ -109,7 +117,7 @@ describe("RidesContext", () => {
     });
 
     act(() => {
-      result.current.setSingleRide("ride1", { currPpl: 3 });
+      result.current.setSingleRide("ride1", { numRsvpedUsers: 3 });
     });
 
     const updatedRide = result.current.getSingleRide("ride1");
@@ -128,8 +136,8 @@ describe("RidesContext", () => {
 
     act(() => {
       result.current.setSingleRide("ride1", {
-        ppl: ["user1", "user2", "user3"],
-        currPpl: 3,
+        rsvpedUserIds: ["user1", "user2", "user3"],
+        numRsvpedUsers: 3,
       });
     });
 
@@ -149,7 +157,7 @@ describe("RidesContext", () => {
     });
 
     act(() => {
-      result.current.setSingleRide("ride1", { currPpl: 3 });
+      result.current.setSingleRide("ride1", { numRsvpedUsers: 3 });
     });
 
     const unchangedRide = result.current.getSingleRide("ride2");
@@ -166,7 +174,7 @@ describe("RidesContext", () => {
     });
 
     act(() => {
-      result.current.setSingleRide("nonexistent", { currPpl: 5 });
+      result.current.setSingleRide("nonexistent", { numRsvpedUsers: 5 });
     });
 
     // Should not crash and original ride should be unchanged
@@ -202,11 +210,11 @@ describe("RidesContext", () => {
     });
 
     act(() => {
-      result.current.setSingleRide("ride1", { currPpl: 3 });
+      result.current.setSingleRide("ride1", { numRsvpedUsers: 3 });
     });
 
     act(() => {
-      result.current.setSingleRide("ride1", { currPpl: 4 });
+      result.current.setSingleRide("ride1", { numRsvpedUsers: 4 });
     });
 
     const ride = result.current.getSingleRide("ride1");

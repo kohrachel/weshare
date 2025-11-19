@@ -84,23 +84,24 @@ describe("SingleRidePost", () => {
 
   const mockRideData = {
     destination: "Mountain Peak",
-    date: {
+    departs: {
       toDate: () => new Date("2025-01-15T10:00:00"),
       seconds: 1736938800,
       nanoseconds: 0,
     },
-    time: {
-      toDate: () => new Date("2025-01-15T10:00:00"),
-      seconds: 1736938800,
-      nanoseconds: 0,
-    },
-    meetLoc: "Parking Lot A",
+    departsFrom: "Parking Lot A",
     gender: "Co-ed",
-    currPpl: 3,
+    numRsvpedUsers: 3,
     maxPpl: 5,
-    ppl: ["user456", "user789"],
-    creator: "creator123",
-    luggage: true,
+    rsvpedUserIds: ["user456", "user789"],
+    creatorId: "creator123",
+    hasLuggageSpace: true,
+    isRoundTrip: false,
+    returns: {
+      toDate: () => new Date("2025-01-15T14:00:00"),
+      seconds: 1736952400,
+      nanoseconds: 0,
+    },
   };
 
   const mockUserData = {
@@ -278,7 +279,7 @@ describe("SingleRidePost", () => {
     it("should not fetch creator info when ride data has no creator", async () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
-        creator: undefined,
+        creatorId: undefined,
       });
 
       renderComponent();
@@ -337,7 +338,7 @@ describe("SingleRidePost", () => {
     it("should show RSVPed button when user is already RSVPed", () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
-        ppl: ["user123", "user456"],
+        rsvpedUserIds: ["user123", "user456"],
       });
       const { getByText } = renderComponent();
       expect(getByText("RSVPed")).toBeTruthy();
@@ -352,8 +353,8 @@ describe("SingleRidePost", () => {
       await waitFor(() => {
         expect(mockUpdateDoc).toHaveBeenCalled();
         expect(mockSetSingleRide).toHaveBeenCalledWith("ride123", {
-          ppl: ["user456", "user789", "user123"],
-          currPpl: 4,
+          rsvpedUserIds: ["user456", "user789", "user123"],
+          numRsvpedUsers: 4,
         });
       });
     });
@@ -361,8 +362,8 @@ describe("SingleRidePost", () => {
     it("should handle un-RSVP when user is already RSVPed", async () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
-        ppl: ["user123", "user456", "user789"],
-        currPpl: 3,
+        rsvpedUserIds: ["user123", "user456", "user789"],
+        numRsvpedUsers: 3,
       });
 
       const { getByText } = renderComponent();
@@ -373,8 +374,8 @@ describe("SingleRidePost", () => {
       await waitFor(() => {
         expect(mockUpdateDoc).toHaveBeenCalled();
         expect(mockSetSingleRide).toHaveBeenCalledWith("ride123", {
-          ppl: ["user456", "user789"],
-          currPpl: 2,
+          rsvpedUserIds: ["user456", "user789"],
+          numRsvpedUsers: 2,
         });
       });
     });
@@ -414,9 +415,9 @@ describe("SingleRidePost", () => {
     it("should disable RSVP when ride is full and user is not RSVPed", async () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
-        currPpl: 5,
+        numRsvpedUsers: 5,
         maxPpl: 5,
-        ppl: ["user456", "user789", "user111", "user222", "user333"],
+        rsvpedUserIds: ["user456", "user789", "user111", "user222", "user333"],
       });
 
       const { getByText, UNSAFE_getAllByType } = renderComponent();
@@ -440,9 +441,9 @@ describe("SingleRidePost", () => {
     it("should not disable RSVP when ride is full but user is RSVPed", async () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
-        currPpl: 5,
+        numRsvpedUsers: 5,
         maxPpl: 5,
-        ppl: ["user123", "user456", "user789", "user111", "user222"],
+        rsvpedUserIds: ["user123", "user456", "user789", "user111", "user222"],
       });
 
       const { getByText, UNSAFE_getAllByType } = renderComponent();
@@ -516,7 +517,7 @@ describe("SingleRidePost", () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
         maxPpl: undefined,
-        currPpl: 10,
+        numRsvpedUsers: 10,
       });
 
       const { getByText, UNSAFE_getAllByType } = renderComponent();
@@ -581,8 +582,8 @@ describe("SingleRidePost", () => {
     it("should handle ride with empty ppl array", () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
-        ppl: [],
-        currPpl: 0,
+        rsvpedUserIds: [],
+        numRsvpedUsers: 0,
       });
 
       const { getByText } = renderComponent();
@@ -592,8 +593,8 @@ describe("SingleRidePost", () => {
     it("should handle ride with undefined ppl array when RSVPing", async () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
-        ppl: undefined,
-        currPpl: 0,
+        rsvpedUserIds: undefined,
+        numRsvpedUsers: 0,
       });
       mockUpdateDoc.mockResolvedValue(undefined);
 
@@ -604,8 +605,8 @@ describe("SingleRidePost", () => {
 
       await waitFor(() => {
         expect(mockSetSingleRide).toHaveBeenCalledWith("ride123", {
-          ppl: ["user123"],
-          currPpl: 1,
+          rsvpedUserIds: ["user123"],
+          numRsvpedUsers: 1,
         });
       });
     });
@@ -613,8 +614,8 @@ describe("SingleRidePost", () => {
     it("should handle ride with undefined currPpl when un-RSVPing", async () => {
       mockGetSingleRide.mockReturnValue({
         ...mockRideData,
-        ppl: ["user123"],
-        currPpl: undefined,
+        rsvpedUserIds: ["user123"],
+        numRsvpedUsers: undefined,
       });
       mockUpdateDoc.mockResolvedValue(undefined);
 
@@ -625,8 +626,8 @@ describe("SingleRidePost", () => {
 
       await waitFor(() => {
         expect(mockSetSingleRide).toHaveBeenCalledWith("ride123", {
-          ppl: [],
-          currPpl: -1,
+          rsvpedUserIds: [],
+          numRsvpedUsers: -1,
         });
       });
     });

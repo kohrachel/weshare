@@ -14,33 +14,35 @@ import { addDoc, collection, doc, getDoc, Timestamp } from "firebase/firestore";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import Title from "../components/Title";
-import { RideData } from "./rsvp";
+import { RideDataType } from "./rsvp";
 
 export type AllowedGenders = "Co-ed" | "Female" | "Male";
 type RecurrenceFrequency = "daily" | "weekly" | "monthly";
 
-type RideFormData = Omit<RideData, "id"> & {
-  recurringRide: boolean;
+type RideFormData = Omit<RideDataType, "id" | "departs" | "returns"> & {
+  isRecurringRide: boolean;
   recurrenceFrequency: RecurrenceFrequency;
   numOccurrences: string;
 };
 
 export default function CreateRide() {
+  // Local state for date and time inputs (to prevent overriding each other)
+  const [departDate, setDepartDate] = useState(new Date());
+  const [departTime, setDepartTime] = useState(new Date());
+  const [returnDate, setReturnDate] = useState(new Date());
+  const [returnTime, setReturnTime] = useState(new Date());
+
   const [rideData, setRideData] = useState<RideFormData>({
     destination: "",
-    date: Timestamp.fromDate(new Date()),
-    time: Timestamp.fromDate(new Date()),
-    meetLoc: "",
+    departsFrom: "",
     maxPpl: 0,
     gender: "Co-ed",
-    luggage: false,
-    roundTrip: false,
-    returnTime: Timestamp.fromDate(new Date()),
-    returnDate: Timestamp.fromDate(new Date()),
-    creator: "",
-    currPpl: 0,
-    ppl: [],
-    recurringRide: false,
+    hasLuggageSpace: false,
+    isRoundTrip: false,
+    creatorId: "",
+    numRsvpedUsers: 0,
+    rsvpedUserIds: [],
+    isRecurringRide: false,
     recurrenceFrequency: "weekly",
     numOccurrences: "4",
   });
@@ -98,7 +100,7 @@ export default function CreateRide() {
         error += "\nDestination is required.";
       }
 
-      if (rideData.meetLoc === "") {
+      if (rideData.departsFrom === "") {
         error += "\nMeeting location is required.";
       }
 
@@ -106,21 +108,15 @@ export default function CreateRide() {
         error += "\nMust allow 2 or more people (including yourself).";
       }
 
-      const returnDateTime = mergeDateAndTime(
-        rideData.returnDate.toDate(),
-        rideData.returnTime.toDate(),
-      );
-      const dateTime = mergeDateAndTime(
-        rideData.date.toDate(),
-        rideData.time.toDate(),
-      );
+      const returnDateTime = mergeDateAndTime(returnDate, returnTime);
+      const departDateTime = mergeDateAndTime(departDate, departTime);
 
-      if (rideData.roundTrip && returnDateTime <= dateTime) {
+      if (rideData.isRoundTrip && returnDateTime <= departDateTime) {
         error += "\nReturn must be after departure.";
       }
 
       if (
-        rideData.recurringRide &&
+        rideData.isRecurringRide &&
         (Number(rideData.numOccurrences) < 1 ||
           Number(rideData.numOccurrences) > 52)
       ) {
@@ -129,40 +125,42 @@ export default function CreateRide() {
 
       if (error === "") {
         // Generate rides based on recurrence
-        const ridesToCreate = rideData.recurringRide
+        const ridesToCreate = rideData.isRecurringRide
           ? Number(rideData.numOccurrences)
           : 1;
-        let currentDate = rideData.date.toDate();
-        let currentReturnDate = rideData.returnDate.toDate();
+        let currentDepartDate = new Date(departDate);
+        let currentReturnDate = new Date(returnDate);
 
         for (let i = 0; i < ridesToCreate; i++) {
+          // Merge date and time for departs and returns timestamps
+          const departsDate = mergeDateAndTime(currentDepartDate, departTime);
+          const returnsDate = mergeDateAndTime(currentReturnDate, returnTime);
+
           // send data to database
           const docRef = await addDoc(collection(db, "rides"), {
             destination: rideData.destination,
-            date: new Date(currentDate),
-            time: rideData.time.toDate(),
-            meetLoc: rideData.meetLoc,
+            departs: Timestamp.fromDate(departsDate),
+            departsFrom: rideData.departsFrom,
             maxPpl: rideData.maxPpl,
             gender: rideData.gender,
-            luggage: rideData.luggage,
-            roundTrip: rideData.roundTrip,
-            returnTime: rideData.returnTime.toDate(),
-            returnDate: new Date(currentReturnDate),
+            hasLuggageSpace: rideData.hasLuggageSpace,
+            isRoundTrip: rideData.isRoundTrip,
+            returns: Timestamp.fromDate(returnsDate),
             creationTime: new Date(),
-            currPpl: 1,
-            creator: id,
-            ppl: [id],
+            numRsvpedUsers: 1,
+            creatorId: id,
+            rsvpedUserIds: [id],
           });
 
           console.log("Ride stored with ID:", docRef.id);
 
           // Calculate next occurrence dates
           if (i < ridesToCreate - 1) {
-            currentDate = getNextDate(
-              currentDate,
+            currentDepartDate = getNextDate(
+              currentDepartDate,
               rideData.recurrenceFrequency,
             );
-            if (rideData.roundTrip) {
+            if (rideData.isRoundTrip) {
               currentReturnDate = getNextDate(
                 currentReturnDate,
                 rideData.recurrenceFrequency,
@@ -172,46 +170,46 @@ export default function CreateRide() {
         }
 
         alert(
-          (rideData.recurringRide
+          (rideData.isRecurringRide
             ? `${ridesToCreate} rides saved!\n`
             : "Ride saved!\n") +
             rideData.destination +
             "\n" +
-            rideData.date.toDate() +
+            departDate +
             "\n" +
-            rideData.time.toDate() +
+            departTime +
             "\n" +
-            rideData.meetLoc +
+            rideData.departsFrom +
             "\n" +
             rideData.maxPpl +
             "\n" +
             (rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender) +
             "\n" +
-            (rideData.luggage ? "Luggage" : "No luggage") +
+            (rideData.hasLuggageSpace ? "Luggage" : "No luggage") +
             "\n" +
-            (rideData.roundTrip ? "Round Trip" : "One Way") +
+            (rideData.isRoundTrip ? "Round Trip" : "One Way") +
             "\n" +
-            rideData.returnDate.toDate() +
+            returnDate +
             "\n" +
-            rideData.returnTime.toDate(),
+            returnTime,
         );
 
         // Reset form fields
+        setDepartDate(new Date());
+        setDepartTime(new Date());
+        setReturnDate(new Date());
+        setReturnTime(new Date());
         setRideData({
           destination: "",
-          date: Timestamp.fromDate(new Date()),
-          time: Timestamp.fromDate(new Date()),
-          meetLoc: "",
+          departsFrom: "",
           maxPpl: 0,
           gender: "Co-ed",
-          luggage: false,
-          roundTrip: false,
-          returnTime: Timestamp.fromDate(new Date()),
-          returnDate: Timestamp.fromDate(new Date()),
-          creator: "",
-          currPpl: 0,
-          ppl: [],
-          recurringRide: false,
+          hasLuggageSpace: false,
+          isRoundTrip: false,
+          creatorId: "",
+          numRsvpedUsers: 0,
+          rsvpedUserIds: [],
+          isRecurringRide: false,
           recurrenceFrequency: "weekly",
           numOccurrences: "4",
         });
@@ -250,35 +248,17 @@ export default function CreateRide() {
         ></Input>
         <DateTimeInput
           label={"When are we leaving?"}
-          dateValue={rideData.date.toDate()}
-          timeValue={rideData.time.toDate()}
-          setDateValue={(value) => {
-            const date =
-              typeof value === "function"
-                ? (value as (prev: Date) => Date)(rideData.date.toDate())
-                : value;
-            setRideData((prev) => ({
-              ...prev,
-              date: Timestamp.fromDate(date),
-            }));
-          }}
-          setTimeValue={(value) => {
-            const time =
-              typeof value === "function"
-                ? (value as (prev: Date) => Date)(rideData.time.toDate())
-                : value;
-            setRideData((prev) => ({
-              ...prev,
-              time: Timestamp.fromDate(time),
-            }));
-          }}
+          dateValue={departDate}
+          timeValue={departTime}
+          setDateValue={setDepartDate}
+          setTimeValue={setDepartTime}
         />
         <Input
           label={"Where to meet?"}
           defaultValue={"e.g. Commons Lawn"}
-          value={rideData.meetLoc}
+          value={rideData.departsFrom}
           setValue={(value) =>
-            setRideData((prev) => ({ ...prev, meetLoc: value }))
+            setRideData((prev) => ({ ...prev, departsFrom: value }))
           }
         ></Input>
         <Input
@@ -308,70 +288,48 @@ export default function CreateRide() {
           <Text style={styles.label}>Room for luggage?</Text>
           <Switch
             testID="luggage-switch"
-            value={rideData.luggage}
+            value={rideData.hasLuggageSpace}
             onValueChange={(value) =>
-              setRideData((prev) => ({ ...prev, luggage: value }))
+              setRideData((prev) => ({ ...prev, hasLuggageSpace: value }))
             }
             trackColor={{ false: "#555", true: "#4CAF50" }}
-            thumbColor={rideData.luggage ? "#81C784" : "#f4f3f4"}
+            thumbColor={rideData.hasLuggageSpace ? "#81C784" : "#f4f3f4"}
           />
         </View>
         <View style={styles.switchContainer}>
           <Text style={styles.label}>Round Trip?</Text>
           <Switch
             testID="round-trip-switch"
-            value={rideData.roundTrip}
+            value={rideData.isRoundTrip}
             onValueChange={(value) =>
-              setRideData((prev) => ({ ...prev, roundTrip: value }))
+              setRideData((prev) => ({ ...prev, isRoundTrip: value }))
             }
             trackColor={{ false: "#555", true: "#4CAF50" }}
-            thumbColor={rideData.roundTrip ? "#81C784" : "#f4f3f4"}
+            thumbColor={rideData.isRoundTrip ? "#81C784" : "#f4f3f4"}
           />
         </View>
-        {rideData.roundTrip && (
+        {rideData.isRoundTrip && (
           <DateTimeInput
             label={"When are we returning?"}
-            dateValue={rideData.returnDate.toDate()}
-            timeValue={rideData.returnTime.toDate()}
-            setDateValue={(value) => {
-              const date =
-                typeof value === "function"
-                  ? (value as (prev: Date) => Date)(
-                      rideData.returnDate.toDate(),
-                    )
-                  : value;
-              setRideData((prev) => ({
-                ...prev,
-                returnDate: Timestamp.fromDate(date),
-              }));
-            }}
-            setTimeValue={(value) => {
-              const time =
-                typeof value === "function"
-                  ? (value as (prev: Date) => Date)(
-                      rideData.returnTime.toDate(),
-                    )
-                  : value;
-              setRideData((prev) => ({
-                ...prev,
-                returnTime: Timestamp.fromDate(time),
-              }));
-            }}
+            dateValue={returnDate}
+            timeValue={returnTime}
+            setDateValue={setReturnDate}
+            setTimeValue={setReturnTime}
           />
         )}
         <View style={styles.switchContainer}>
           <Text style={styles.label}>Recurring Ride?</Text>
           <Switch
             testID="recurring-ride-switch"
-            value={rideData.recurringRide}
+            value={rideData.isRecurringRide}
             onValueChange={(value) =>
-              setRideData((prev) => ({ ...prev, recurringRide: value }))
+              setRideData((prev) => ({ ...prev, isRecurringRide: value }))
             }
             trackColor={{ false: "#555", true: "#4CAF50" }}
-            thumbColor={rideData.recurringRide ? "#81C784" : "#f4f3f4"}
+            thumbColor={rideData.isRecurringRide ? "#81C784" : "#f4f3f4"}
           />
         </View>
-        {rideData.recurringRide && (
+        {rideData.isRecurringRide && (
           <>
             <View>
               <Picker

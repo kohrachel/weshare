@@ -3,7 +3,7 @@
  Rachel Huiqi: 3 hours
  */
 
-import RsvpRidePage, { RideData } from "@/app/rsvp";
+import RsvpRidePage, { RideDataType } from "@/app/rsvp";
 import { RidesContext, RidesProvider } from "@/contexts/RidesContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { render, waitFor } from "@testing-library/react-native";
@@ -57,16 +57,17 @@ jest.mock("firebase/firestore", () => {
         exists: () => true,
         data: () => ({
           id: rideId,
-          creator: "creatorUserId",
+          creatorId: "creatorUserId",
           destination: "Test Destination",
-          date: { toDate: () => new Date("2025-11-03T10:00:00Z") },
-          time: { toDate: () => new Date("2025-11-03T12:00:00Z") },
-          currPpl: 2,
+          departs: { toDate: () => new Date("2025-11-03T10:00:00Z") },
+          numRsvpedUsers: 2,
           maxPpl: 4,
-          ppl: ["user1", "user2"],
+          rsvpedUserIds: ["user1", "user2"],
           gender: "Co-ed",
-          meetLoc: "Test Location",
-          luggage: true,
+          departsFrom: "Test Location",
+          hasLuggageSpace: true,
+          isRoundTrip: false,
+          returns: { toDate: () => new Date("2025-11-03T14:00:00Z") },
         }),
       };
     }
@@ -96,18 +97,19 @@ const renderWithProviders = (component: React.ReactElement) => {
     React.useEffect(() => {
       // Pre-populate context with the test ride so SingleRidePost can find it
       // This simulates the ride being in context before SingleRidePost renders
-      const testRide: RideData = {
+      const testRide: RideDataType = {
         id: "testRideId",
-        creator: "creatorUserId",
+        creatorId: "creatorUserId",
         destination: "Test Destination",
-        date: { toDate: () => new Date("2025-11-03T10:00:00Z") } as any,
-        time: { toDate: () => new Date("2025-11-03T12:00:00Z") } as any,
-        currPpl: 2,
+        departs: { toDate: () => new Date("2025-11-03T10:00:00Z") } as any,
+        numRsvpedUsers: 2,
         maxPpl: 4,
-        ppl: ["user1", "user2"],
+        rsvpedUserIds: ["user1", "user2"],
         gender: "Co-ed",
-        meetLoc: "Test Location",
-        luggage: true,
+        departsFrom: "Test Location",
+        hasLuggageSpace: true,
+        isRoundTrip: false,
+        returns: { toDate: () => new Date("2025-11-03T14:00:00Z") } as any,
       };
       setRides([testRide]);
       setInitialized(true);
@@ -381,18 +383,19 @@ describe("<RSVP /> - Additional Coverage", () => {
       const [initialized, setInitialized] = React.useState(false);
 
       React.useEffect(() => {
-        const testRide: RideData = {
+        const testRide: RideDataType = {
           id: "DHbTvTZQQugk83PjwYup", // Fallback rideId
-          creator: "creatorUserId",
+          creatorId: "creatorUserId",
           destination: "Test Destination",
-          date: { toDate: () => new Date("2025-11-03T10:00:00Z") } as any,
-          time: { toDate: () => new Date("2025-11-03T12:00:00Z") } as any,
-          currPpl: 2,
+          departs: { toDate: () => new Date("2025-11-03T10:00:00Z") } as any,
+          numRsvpedUsers: 2,
           maxPpl: 4,
-          ppl: ["user1", "user2"],
+          rsvpedUserIds: ["user1", "user2"],
           gender: "Co-ed",
-          meetLoc: "Test Location",
-          luggage: true,
+          departsFrom: "Test Location",
+          hasLuggageSpace: true,
+          isRoundTrip: false,
+          returns: { toDate: () => new Date("2025-11-03T14:00:00Z") } as any,
         };
         setRides([testRide]);
         setInitialized(true);
@@ -469,16 +472,17 @@ describe("<RSVP /> - Additional Coverage", () => {
             exists: () => true,
             data: () => ({
               id: rideId,
-              creator: "creatorUserId",
+              creatorId: "creatorUserId",
               destination: "Test Destination",
-              date: { toDate: () => new Date("2025-11-03T10:00:00Z") },
-              time: { toDate: () => new Date("2025-11-03T12:00:00Z") },
-              currPpl: 2,
+              departs: { toDate: () => new Date("2025-11-03T10:00:00Z") },
+              numRsvpedUsers: 2,
               maxPpl: 4,
-              ppl: ["user1", "", "user2"], // Include empty string
+              rsvpedUserIds: ["user1", "", "user2"], // Include empty string
               gender: "Co-ed",
-              meetLoc: "Test Location",
-              luggage: true,
+              departsFrom: "Test Location",
+              hasLuggageSpace: true,
+              isRoundTrip: false,
+              returns: { toDate: () => new Date("2025-11-03T14:00:00Z") },
             }),
           };
         }
@@ -536,16 +540,17 @@ describe("<RSVP /> - Additional Coverage", () => {
             exists: () => true,
             data: () => ({
               id: rideId,
-              creator: "creatorUserId",
+              creatorId: "creatorUserId",
               destination: "Test Destination",
-              date: { toDate: () => new Date("2025-11-03T10:00:00Z") },
-              time: { toDate: () => new Date("2025-11-03T12:00:00Z") },
-              currPpl: 1,
+              departs: { toDate: () => new Date("2025-11-03T10:00:00Z") },
+              numRsvpedUsers: 1,
               maxPpl: 4,
-              ppl: ["user1"], // Only one user
+              rsvpedUserIds: ["user1"], // Only one user
               gender: "Co-ed",
-              meetLoc: "Test Location",
-              luggage: true,
+              departsFrom: "Test Location",
+              hasLuggageSpace: true,
+              isRoundTrip: false,
+              returns: { toDate: () => new Date("2025-11-03T14:00:00Z") },
             }),
           };
         }
@@ -580,16 +585,17 @@ describe("<RSVP /> - Additional Coverage", () => {
             exists: () => true,
             data: () => ({
               id: rideId,
-              creator: "creatorUserId",
+              creatorId: "creatorUserId",
               destination: "Test Destination",
-              date: { toDate: () => new Date("2025-11-03T10:00:00Z") },
-              time: { toDate: () => new Date("2025-11-03T12:00:00Z") },
-              currPpl: 2,
+              departs: { toDate: () => new Date("2025-11-03T10:00:00Z") },
+              numRsvpedUsers: 2,
               maxPpl: 4,
-              ppl: ["user1", "nonexistentUser"], // One user doesn't exist
+              rsvpedUserIds: ["user1", "nonexistentUser"], // One user doesn't exist
               gender: "Co-ed",
-              meetLoc: "Test Location",
-              luggage: true,
+              departsFrom: "Test Location",
+              hasLuggageSpace: true,
+              isRoundTrip: false,
+              returns: { toDate: () => new Date("2025-11-03T14:00:00Z") },
             }),
           };
         }

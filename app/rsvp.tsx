@@ -23,21 +23,19 @@ import SingleRidePost from "../components/SingleRidePost";
 import ContactCard from "../components/contactCard";
 export type UserGenderType = "Male" | "Female" | "Other" | "Not set";
 
-export type RideData = {
+export type RideDataType = {
   id: string;
-  creator: string;
+  creatorId: string;
   destination: string;
-  date: Timestamp;
-  time: Timestamp;
-  currPpl: number;
+  departs: Timestamp;
+  numRsvpedUsers: number;
   maxPpl: number;
-  ppl: string[];
+  rsvpedUserIds: string[];
   gender: AllowedGenders;
-  meetLoc: string;
-  luggage: boolean;
-  roundTrip: boolean;
-  returnTime: Timestamp;
-  returnDate: Timestamp;
+  departsFrom: string;
+  hasLuggageSpace: boolean;
+  isRoundTrip: boolean;
+  returns: Timestamp;
 };
 
 export type UserData = {
@@ -57,10 +55,10 @@ const unknownUser: UserData = {
 export default function RsvpRidePage() {
   const { setRides } = useContext(RidesContext);
 
-  const [rideData, setRideData] = useState<RideData | null>(null);
+  const [rideData, setRideData] = useState<RideDataType | null>(null);
   const [rsvpedUsers, setRsvpedUsers] = useState<UserData[]>([unknownUser]);
 
-  const rideCreator = useMemo(() => rideData?.creator, [rideData]);
+  const rideCreator = useMemo(() => rideData?.creatorId, [rideData]);
 
   // Get ride ID from route params
   const route = useRoute();
@@ -78,23 +76,21 @@ export default function RsvpRidePage() {
 
       if (!rideData.exists()) return;
 
-      const ride = rideData.data() as RideData;
+      const ride = rideData.data() as RideDataType;
 
-      const newRideData: RideData = {
+      const newRideData: RideDataType = {
         id: rideId,
-        creator: ride.creator,
+        creatorId: ride.creatorId,
         destination: ride.destination,
-        date: ride.date,
-        time: ride.time,
-        currPpl: ride.currPpl,
+        departs: ride.departs,
+        numRsvpedUsers: ride.numRsvpedUsers,
         maxPpl: ride.maxPpl,
-        ppl: ride.ppl,
+        rsvpedUserIds: ride.rsvpedUserIds,
         gender: ride.gender,
-        meetLoc: ride.meetLoc,
-        luggage: ride.luggage,
-        roundTrip: ride.roundTrip,
-        returnTime: ride.returnTime,
-        returnDate: ride.returnDate,
+        departsFrom: ride.departsFrom,
+        hasLuggageSpace: ride.hasLuggageSpace,
+        isRoundTrip: ride.isRoundTrip,
+        returns: ride.returns,
       };
 
       setRideData(newRideData);
@@ -128,7 +124,7 @@ export default function RsvpRidePage() {
       );
       setRsvpedUsers(rsvpedUsers);
     };
-    fetchRsvpedUsers(rideData?.ppl || []);
+    fetchRsvpedUsers(rideData?.rsvpedUserIds || []);
   }, [rideData]);
 
   // Show loading indicator while ride data or ride creator are not loaded
