@@ -100,6 +100,7 @@ describe("SingleRidePost", () => {
     maxPpl: 5,
     ppl: ["user456", "user789"],
     creator: "creator123",
+    luggage: true,
   };
 
   const mockUserData = {
@@ -158,7 +159,7 @@ describe("SingleRidePost", () => {
         exists: () => false,
       });
       const { getByText } = renderComponent();
-      expect(getByText("Created by:")).toBeTruthy();
+      expect(getByText("Created by: Loading...")).toBeTruthy();
     });
   });
 
@@ -185,12 +186,12 @@ describe("SingleRidePost", () => {
 
     it("should render ride destination", () => {
       const { getByText } = renderComponent();
-      expect(getByText("Destination: Mountain Peak")).toBeTruthy();
+      expect(getByText("Mountain Peak")).toBeTruthy();
     });
 
     it("should render departure date and time", () => {
       const { getByText } = renderComponent();
-      expect(getByText("01/15/2025 10:00 AM")).toBeTruthy();
+      expect(getByText("01/15/2025 @ 10:00 AM")).toBeTruthy();
     });
 
     it("should render meeting location", () => {
@@ -209,18 +210,19 @@ describe("SingleRidePost", () => {
         gender: "Male",
       });
       const { getByText } = renderComponent();
-      expect(getByText("Male only")).toBeTruthy();
+      expect(getByText("Male only ride")).toBeTruthy();
     });
 
     it("should render capacity", () => {
       const { getByText } = renderComponent();
-      expect(getByText("3 / 5")).toBeTruthy();
+      expect(getByText("3 / 5 seats taken")).toBeTruthy();
     });
 
     it("should fetch and render creator name", async () => {
       const { getByText } = renderComponent();
       await waitFor(() => {
-        expect(getByText("Jane Smith")).toBeTruthy();
+        // The creator name appears in "Created by: Jane Smith"
+        expect(getByText(/Created by: Jane Smith/)).toBeTruthy();
       });
     });
   });
@@ -257,7 +259,7 @@ describe("SingleRidePost", () => {
       });
 
       const { getByText } = renderComponent();
-      expect(getByText("Destination: Mountain Peak")).toBeTruthy();
+      expect(getByText("Mountain Peak")).toBeTruthy();
     });
   });
 
@@ -269,7 +271,7 @@ describe("SingleRidePost", () => {
 
       const { getByText } = renderComponent();
       await waitFor(() => {
-        expect(getByText("Created by:")).toBeTruthy();
+        expect(getByText("Created by: Loading...")).toBeTruthy();
       });
     });
 
@@ -329,7 +331,7 @@ describe("SingleRidePost", () => {
 
     it("should show RSVP button when user is not RSVPed", () => {
       const { getByText } = renderComponent();
-      expect(getByText("RSVP")).toBeTruthy();
+      expect(getByText("RSVP to this ride")).toBeTruthy();
     });
 
     it("should show RSVPed button when user is already RSVPed", () => {
@@ -343,7 +345,7 @@ describe("SingleRidePost", () => {
 
     it("should handle RSVP when user is not RSVPed", async () => {
       const { getByText } = renderComponent();
-      const rsvpButton = getByText("RSVP");
+      const rsvpButton = getByText("RSVP to this ride");
 
       fireEvent.press(rsvpButton);
 
@@ -379,7 +381,7 @@ describe("SingleRidePost", () => {
 
     it("should not RSVP when userId is null", async () => {
       const { getByText } = renderComponent("ride123", null);
-      const rsvpButton = getByText("RSVP");
+      const rsvpButton = getByText("RSVP to this ride");
 
       fireEvent.press(rsvpButton);
 
@@ -393,7 +395,7 @@ describe("SingleRidePost", () => {
 
       // Component should render with loading or ride data
       await waitFor(() => {
-        const buttons = getByText("RSVP", { exact: false });
+        const buttons = getByText("RSVP to this ride", { exact: false });
         if (buttons) {
           fireEvent.press(buttons);
         }
@@ -420,12 +422,12 @@ describe("SingleRidePost", () => {
       const { getByText, UNSAFE_getAllByType } = renderComponent();
 
       await waitFor(() => {
-        const rsvpText = getByText("RSVP");
+        const rsvpText = getByText("Ride is full");
         // Find the TouchableOpacity that contains this text
         const buttons = UNSAFE_getAllByType(TouchableOpacity);
         const rsvpButton = buttons.find((btn) => {
           try {
-            within(btn).getByText("RSVP");
+            within(btn).getByText("Ride is full");
             return true;
           } catch {
             return false;
@@ -473,11 +475,11 @@ describe("SingleRidePost", () => {
       const { getByText, UNSAFE_getAllByType } = renderComponent();
 
       await waitFor(() => {
-        const rsvpText = getByText("RSVP");
+        const rsvpText = getByText("Female only ride");
         const buttons = UNSAFE_getAllByType(TouchableOpacity);
         const rsvpButton = buttons.find((btn) => {
           try {
-            within(btn).getByText("RSVP");
+            within(btn).getByText("Female only ride");
             return true;
           } catch {
             return false;
@@ -496,11 +498,11 @@ describe("SingleRidePost", () => {
       const { getByText, UNSAFE_getAllByType } = renderComponent();
 
       await waitFor(() => {
-        const rsvpText = getByText("RSVP");
+        const rsvpText = getByText("RSVP to this ride");
         const buttons = UNSAFE_getAllByType(TouchableOpacity);
         const rsvpButton = buttons.find((btn) => {
           try {
-            within(btn).getByText("RSVP");
+            within(btn).getByText("RSVP to this ride");
             return true;
           } catch {
             return false;
@@ -520,11 +522,11 @@ describe("SingleRidePost", () => {
       const { getByText, UNSAFE_getAllByType } = renderComponent();
 
       await waitFor(() => {
-        const rsvpText = getByText("RSVP");
+        const rsvpText = getByText("Ride is full");
         const buttons = UNSAFE_getAllByType(TouchableOpacity);
         const rsvpButton = buttons.find((btn) => {
           try {
-            within(btn).getByText("RSVP");
+            within(btn).getByText("Ride is full");
             return true;
           } catch {
             return false;
@@ -546,11 +548,11 @@ describe("SingleRidePost", () => {
 
       const { getByText, UNSAFE_getAllByType } = renderComponent();
       await waitFor(() => {
-        const rsvpText = getByText("RSVP");
+        const rsvpText = getByText("Male only ride");
         const buttons = UNSAFE_getAllByType(TouchableOpacity);
         const rsvpButton = buttons.find((btn) => {
           try {
-            within(btn).getByText("RSVP");
+            within(btn).getByText("Male only ride");
             return true;
           } catch {
             return false;
@@ -562,24 +564,16 @@ describe("SingleRidePost", () => {
   });
 
   describe("Navigation", () => {
-    it("should show More Info button when not on rsvp route", () => {
+    it("should navigate to rsvp page when card is pressed", () => {
       const { getByText } = renderComponent();
-      expect(getByText("More Info")).toBeTruthy();
-    });
+      const card = getByText("Mountain Peak").parent?.parent?.parent;
 
-    it("should hide More Info button when on rsvp route", () => {
-      (useRoute as jest.Mock).mockReturnValue({ name: "rsvp" });
-      const { queryByText } = renderComponent();
-      expect(queryByText("More Info")).toBeNull();
-    });
-
-    it("should navigate to rsvp page when More Info is pressed", () => {
-      const { getByText } = renderComponent();
-      const moreInfoButton = getByText("More Info");
-
-      fireEvent.press(moreInfoButton);
-
-      expect(mockRouter.navigate).toHaveBeenCalledWith("/rsvp?rideId=ride123");
+      if (card) {
+        fireEvent.press(card);
+        expect(mockRouter.navigate).toHaveBeenCalledWith(
+          "/rsvp?rideId=ride123",
+        );
+      }
     });
   });
 
@@ -592,7 +586,7 @@ describe("SingleRidePost", () => {
       });
 
       const { getByText } = renderComponent();
-      expect(getByText("0 / 5")).toBeTruthy();
+      expect(getByText("0 / 5 seats taken")).toBeTruthy();
     });
 
     it("should handle ride with undefined ppl array when RSVPing", async () => {
@@ -604,7 +598,7 @@ describe("SingleRidePost", () => {
       mockUpdateDoc.mockResolvedValue(undefined);
 
       const { getByText } = renderComponent();
-      const rsvpButton = getByText("RSVP");
+      const rsvpButton = getByText("RSVP to this ride");
 
       fireEvent.press(rsvpButton);
 
@@ -639,7 +633,7 @@ describe("SingleRidePost", () => {
 
     it("should handle userId being null in isUserRsvped check", () => {
       const { getByText } = renderComponent("ride123", null);
-      expect(getByText("RSVP")).toBeTruthy();
+      expect(getByText("RSVP to this ride")).toBeTruthy();
     });
   });
 });

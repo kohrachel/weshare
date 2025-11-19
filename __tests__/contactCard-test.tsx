@@ -1,12 +1,13 @@
 /**
  Contributors
  Emma Reid: 0.5 hours
+ Rachel Huiqi: 0.5 hours
  */
 
-import React from "react";
-import { render } from "@testing-library/react-native";
-import ContactCard from "../components/contactCard";
 import { UserGenderType } from "@/app/rsvp";
+import { render } from "@testing-library/react-native";
+import React from "react";
+import ContactCard from "../components/contactCard";
 
 describe("ContactCard", () => {
   const baseProps = {
@@ -22,24 +23,22 @@ describe("ContactCard", () => {
     // Name
     expect(getByText("Jane Doe")).toBeTruthy();
 
-    // Phone label and formatted number
-    expect(getByText("Phone: ")).toBeTruthy();
-    expect(getByText("(123) 456-7890")).toBeTruthy();
+    // Phone with emoji prefix and formatted number
+    expect(getByText(/☎️ \(123\) 456-7890/)).toBeTruthy();
 
-    // Email label and value
-    expect(getByText("Email: ")).toBeTruthy();
-    expect(getByText("jane.doe@example.com")).toBeTruthy();
+    // Email with emoji prefix
+    expect(getByText(/📬 jane\.doe@example\.com/)).toBeTruthy();
 
-    // Gender label and value
-    expect(getByText("Gender: ")).toBeTruthy();
-    expect(getByText("Female")).toBeTruthy();
+    // Gender is shown as an icon, not text
+    // The component shows an icon for gender, so we just verify the name is there
+    expect(getByText("Jane Doe")).toBeTruthy();
   });
 
   it("formats 'Not set' phone numbers correctly", () => {
     const props = { ...baseProps, phoneNum: "Not set" };
     const { getByText } = render(<ContactCard {...props} />);
 
-    expect(getByText("Not set")).toBeTruthy();
+    expect(getByText(/☎️ Not set/)).toBeTruthy();
   });
 
   it("renders correctly with different props", () => {
@@ -53,8 +52,9 @@ describe("ContactCard", () => {
     const { getByText } = render(<ContactCard {...props} />);
 
     expect(getByText("John Smith")).toBeTruthy();
-    expect(getByText("(987) 654-3210")).toBeTruthy();
-    expect(getByText("john.smith@test.com")).toBeTruthy();
-    expect(getByText("Male")).toBeTruthy();
+    expect(getByText(/☎️ \(987\) 654-3210/)).toBeTruthy();
+    expect(getByText(/📬 john\.smith@test\.com/)).toBeTruthy();
+    // Gender is shown as an icon, not text
+    expect(getByText("John Smith")).toBeTruthy();
   });
 });

@@ -20,11 +20,10 @@ import {
 } from "react-native";
 
 // Components
-import Input from "@/components/Input";
 import ButtonGreen from "@/components/buttonGreen";
 import Footer from "@/components/Footer";
-import Title from '@/components/Title';
-
+import Input from "@/components/Input";
+import Title from "@/components/Title";
 
 // Firebase
 import { db, storage } from "@/firebaseConfig";
@@ -154,7 +153,7 @@ export default function EditProfile() {
     } catch (error) {
       console.error("Can't logout user: " + error);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -166,20 +165,20 @@ export default function EditProfile() {
 
   return (
     <View style={styles.container}>
-    <View style={styles.header}>
-      <View style={styles.titleWrapper}>
-        <Title text={"Edit Profile"} />
-      </View>
+      <View style={styles.header}>
+        <View style={styles.titleWrapper}>
+          <Title text={"Edit Profile"} />
+        </View>
 
-      <TouchableOpacity
-        style={styles.logoutButton}
-        onPress={handleLogout}
-        testID="logout-button"
-        accessibilityLabel="Logout Button"
-      >
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={handleLogout}
+          testID="logout-button"
+          accessibilityLabel="Logout Button"
+        >
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity
         style={styles.profilePicContainer}
@@ -227,7 +226,11 @@ export default function EditProfile() {
       </View>
 
       <View style={styles.buttonContainer}>
-        <ButtonGreen title="Save" onPress={storeInfo} testID="save-button" />
+        <ButtonGreen
+          title="Save Changes"
+          onPress={storeInfo}
+          testID="save-button"
+        />
       </View>
 
       <Footer />
@@ -278,7 +281,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: "100%",
     alignItems: "center",
-    paddingBottom: 90
+    paddingBottom: 120,
   },
   logoutButton: {
     backgroundColor: "red",
