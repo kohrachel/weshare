@@ -34,13 +34,10 @@ export type RideData = {
   ppl: string[];
   gender: "Male" | "Female" | "Co-ed";
   meetLoc: string;
-<<<<<<< HEAD
   luggage: boolean;
-=======
-  roundTrip: Boolean
-  returnTime: Timestamp,
-  returnDate: Timestamp,
->>>>>>> b29102134b72e70c1f8a8ce846a55ae1d036779b
+  roundTrip: boolean;
+  returnTime: Timestamp;
+  returnDate: Timestamp;
 };
 
 export type UserData = {
@@ -94,13 +91,10 @@ export default function RsvpRidePage() {
         ppl: ride.ppl,
         gender: ride.gender,
         meetLoc: ride.meetLoc,
-<<<<<<< HEAD
         luggage: ride.luggage,
-=======
         roundTrip: ride.roundTrip,
         returnTime: ride.returnTime,
         returnDate: ride.returnDate,
->>>>>>> b29102134b72e70c1f8a8ce846a55ae1d036779b
       };
 
       setRideData(newRideData);

@@ -202,14 +202,17 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
       </View>
 
       {/* Tags Section */}
-      {rideData.luggage && (
-        <View style={styles.tagsSection}>
-          <Text style={styles.tag}>Space for luggage</Text>
+      <View style={styles.tagsSection}>
+        {rideData.luggage && <Text style={styles.tag}>Space for luggage</Text>}
+        <Text style={styles.tag}>
+          {rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender + " only"}
+        </Text>
+        {rideData.roundTrip !== undefined && (
           <Text style={styles.tag}>
-            {rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender + " only"}
+            {rideData.roundTrip ? "Round Trip" : "One Way"}
           </Text>
-        </View>
-      )}
+        )}
+      </View>
 
       {/* RSVP Button */}
       <View style={styles.buttonWrapper}>
