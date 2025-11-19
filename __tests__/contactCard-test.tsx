@@ -1,6 +1,7 @@
 /**
  Contributors
  Emma Reid: 0.5 hours
+ Rachel Huiqi: 0.5 hours
  */
 
 import { UserGenderType } from "@/app/rsvp";
