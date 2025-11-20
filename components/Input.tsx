@@ -21,12 +21,12 @@ type InputProps = {
   defaultValue?: string;
   testID?: string;
   style?: StyleProp<ViewStyle>;
-  onFocus?: () => void;
+  onPress?: () => void;
   onBlur?: () => void;
 };
 
 const Input = forwardRef<TextInput, InputProps>(
-  ({ label, value, setValue, defaultValue, testID, style, onFocus, onBlur }, ref) => {
+  ({ label, value, setValue, defaultValue, testID, style, onPress, onBlur }, ref) => {
     return (
       <View style={[styles.inputWrapper, style]}>
         {label && <Text style={styles.inputLabel}>{label}</Text>}
@@ -38,7 +38,7 @@ const Input = forwardRef<TextInput, InputProps>(
           placeholderTextColor="#999"
           onChangeText={setValue}
           testID={testID}
-          onFocus={onFocus}
+          onPress={onPress}
           onBlur={onBlur}
         />
       </View>

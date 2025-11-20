@@ -185,7 +185,7 @@ export default function FeedPage() {
             defaultValue="Search rides by destination, date/time, or creator"
             value={searchQuery}
             setValue={setSearchQuery}
-            onFocus={() => setIsFocused(true)}
+            onPress={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
           />
 
