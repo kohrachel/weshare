@@ -106,13 +106,25 @@ export default function FeedPage() {
   }, [setRides, rides.length]);
 
   const onSave = async () => {
+    let updatedSearches: string[];
+
+    if (searches.includes(searchQuery)) {
+      updatedSearches = searches.filter(s => s !== searchQuery);
+    } else {
+      updatedSearches = [...searches, searchQuery];
+    }
+
+    // Need searches and updatedSearches separate
+    // because state is not updated fast enough
+    setSearches(updatedSearches);
+
     try {
       const id = await SecureStore.getItemAsync("userid");
       const docRef = doc(db, "users", id);
 
       await setDoc(
         docRef,
-        { searches: arrayUnion(searchQuery) },
+        { searches: updatedSearches },
         { merge: true }
       );
 
