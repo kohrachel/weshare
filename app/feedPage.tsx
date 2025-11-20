@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 5 hours
+ Emma Reid: 6 hours
  Kevin Song: 7 hours
  Rachel Huiqi: 4 hours
  */
