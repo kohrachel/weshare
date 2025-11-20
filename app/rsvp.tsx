@@ -1,6 +1,6 @@
 /**
  Contributors
- Kevin Song: 2 hours
+ Kevin Song: 4 hours
  Emma Reid: 2 hours
  Rachel Huiqi: 5 hours
  */
@@ -43,6 +43,7 @@ export type UserData = {
   phone: string;
   email: string;
   gender: UserGenderType;
+  paymentMethods?: string[];
 };
 
 const unknownUser: UserData = {
@@ -110,15 +111,21 @@ export default function RsvpRidePage() {
           if (!userId || userId === "") return unknownUser;
           const userData = await getDoc(doc(db, "users", userId));
           if (!userData.exists()) return unknownUser;
-
-          const user = userData.data();
-          const { name, gender = "Not set", phone = "Not set", email } = user;
+          const user = userData.data() as UserData;
+          const {
+            name,
+            gender = "Not set",
+            phone = "Not set",
+            email,
+            paymentMethods,
+          } = user;
 
           return {
             name,
             gender,
             phone,
             email,
+            paymentMethods: paymentMethods || [],
           };
         }),
       );
@@ -157,6 +164,7 @@ export default function RsvpRidePage() {
             phoneNum={user.phone}
             email={user.email}
             gender={user.gender}
+            paymentMethods={user.paymentMethods || []}
           />
         ))}
       </ScrollView>
