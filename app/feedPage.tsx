@@ -9,18 +9,22 @@ import Footer from "@/components/Footer";
 import { RidesContext } from "@/contexts/RidesContext";
 import { db } from "@/firebaseConfig";
 import { useLocalSearchParams } from "expo-router";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, setDoc, ArrayUnion } from "firebase/firestore";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, ScrollView, TextInput, View } from "react-native";
+import { ActivityIndicator, ScrollView, TextInput, View, TouchableOpacity } from "react-native";
 import FloatingActionButton from "../components/FloatingActionButton";
 import Input from "../components/Input";
 import SingleRidePost from "../components/SingleRidePost";
+import * as SecureStore from "expo-secure-store";
+import { Ionicons } from "@expo/vector-icons";
 import { RideDataType } from "./rsvp";
 
 export default function FeedPage() {
   const { rides, setRides } = useContext(RidesContext);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searches, setSearches] = useState([]);
+  const [isFocused, setIsFocused] = useState(false);
   const searchInputRef = useRef<TextInput>(null);
   const params = useLocalSearchParams();
 
@@ -32,6 +36,19 @@ export default function FeedPage() {
       }, 100);
     }
   }, [params.focusSearch]);
+
+useEffect(() => {
+  const fetchInfo = async () => {
+    try {
+      const id = await SecureStore.getItemAsync("userid");
+      const userDoc = await getDoc(doc(db, "users", id));
+      setSearches(userDoc.data()?.searches || ["test"]);
+    } catch (error) {
+      console.error("Error fetching saved searches:", error);
+    }
+  };
+  fetchInfo();
+}, []);
 
   // fetch rides from db and set in context
   useEffect(() => {
@@ -87,6 +104,20 @@ export default function FeedPage() {
     fetchRides();
   }, [setRides, rides.length]);
 
+  const onSave = async () => {
+    try {
+      const id = await SecureStore.getItemAsync("userid");
+      const docRef = doc(db, "users", id);
+
+      await setDoc(docRef, {
+        searches: arrayUnion(searchQuery)
+      })
+    } catch (error) {
+      console.error("Error saving search: ", error);
+      alert("Search not saved, please try again. " + error);
+    }
+  };
+
   // Filtering logic
   const filteredRides = rides.filter((ride) => {
     const queryWords = searchQuery.toLowerCase().split(" ").filter(Boolean);
@@ -118,7 +149,6 @@ export default function FeedPage() {
   }
 
   return (
-    // TODO: fix styles for padding
     <View
       style={{
         flex: 1,
@@ -127,13 +157,62 @@ export default function FeedPage() {
         paddingHorizontal: 20,
       }}
     >
-      <Input
-        ref={searchInputRef}
-        defaultValue="Search rides by destination, date/time, or creator"
-        value={searchQuery}
-        setValue={setSearchQuery}
-        style={{ marginBottom: 16 }}
-      />
+
+      {/* Search Row */}
+      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
+
+        {/* Search Input */}
+        <View style={{ flex: 1 }}>
+          <Input
+            ref={searchInputRef}
+            defaultValue="Search rides by destination, date/time, or creator"
+            value={searchQuery}
+            setValue={setSearchQuery}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+
+          {/* Dropdown of saved searches */}
+          {isFocused && searches?.length > 0 && (
+            <View
+              style={{
+                backgroundColor: "#222",
+                padding: 10,
+                borderRadius: 8,
+                marginTop: 4,
+                elevation: 5,
+              }}
+            >
+              {searches.map((s, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => {
+                    setSearchQuery(s);
+                    setIsFocused(false);
+                  }}
+                  style={{
+                    paddingVertical: 8,
+                    borderBottomColor: "#333",
+                    borderBottomWidth: i !== searches.length - 1 ? 1 : 0,
+                  }}
+                >
+                  <Text style={{ color: "white" }}>{s}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Heart button */}
+        <TouchableOpacity
+          onPress={onSave}
+          style={{ marginLeft: 10, padding: 10 }}
+        >
+          <Ionicons name="heart-outline" size={28} color="white" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Ride list */}
       <ScrollView
         contentContainerStyle={{
           paddingBottom: 80,
