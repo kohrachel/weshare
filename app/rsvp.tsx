@@ -38,6 +38,10 @@ export type RideDataType = {
   returns: Timestamp;
 };
 
+export type RideWithCreatorName = RideDataType & {
+  creatorName: string;
+};
+
 export type UserData = {
   name: string;
   phone: string;
