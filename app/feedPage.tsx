@@ -141,7 +141,7 @@ export default function FeedPage() {
           gap: 16,
         }}
       >
-        {rides.map((ride) => {
+        {filteredRides.map((ride) => {
           return <SingleRidePost key={ride.id} rideId={ride.id} />;
         })}
       </ScrollView>
