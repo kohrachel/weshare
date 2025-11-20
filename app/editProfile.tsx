@@ -1,4 +1,4 @@
-// Emma Reid: 4 hours
+// Emma Reid: 5 hours
 // Jonny Yang: 7 hours
 
 import { Ionicons } from "@expo/vector-icons";
