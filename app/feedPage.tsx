@@ -37,16 +37,17 @@ export default function FeedPage() {
     }
   }, [params.focusSearch]);
 
+  const fetchInfo = async () => {
+    try {
+      const id = await SecureStore.getItemAsync("userid");
+      const userDoc = await getDoc(doc(db, "users", id));
+      setSearches(userDoc.data()?.searches || []);
+    } catch (error) {
+      console.error("Error fetching saved searches:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchInfo = async () => {
-      try {
-        const id = await SecureStore.getItemAsync("userid");
-        const userDoc = await getDoc(doc(db, "users", id));
-        setSearches(userDoc.data()?.searches || [""]);
-      } catch (error) {
-        console.error("Error fetching saved searches:", error);
-      }
-    };
     fetchInfo();
   }, []);
 
@@ -115,6 +116,7 @@ export default function FeedPage() {
         { merge: true }
       );
 
+      fetchInfo();
     } catch (error) {
       console.error("Error saving search: ", error);
       alert("Search not saved, please try again. " + error);
@@ -211,7 +213,7 @@ export default function FeedPage() {
           onPress={onSave}
           style={{ marginLeft: 10, padding: 10, alignSelf: "flex-start" }}
         >
-          <Ionicons name="heart-outline" size={28} color="white" />
+          <Ionicons name="heart-outline" size={28} color="white" color="#529053" />
         </TouchableOpacity>
       </View>
 
