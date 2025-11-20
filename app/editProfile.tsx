@@ -1,3 +1,6 @@
+// Emma Reid: 4 hours
+// Jonny Yang: 7 hours
+
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
