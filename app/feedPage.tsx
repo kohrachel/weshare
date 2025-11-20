@@ -213,7 +213,7 @@ export default function FeedPage() {
           onPress={onSave}
           style={{ marginLeft: 10, padding: 10, alignSelf: "flex-start" }}
         >
-          <Ionicons name="heart-outline" size={28} color="white" color="#529053" />
+          <Ionicons name="heart" size={28} color="white" color="#529053" />
         </TouchableOpacity>
       </View>
 
