@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 4 hours
+ Emma Reid: 5 hours
  Kevin Song: 7 hours
  Rachel Huiqi: 4 hours
  */
@@ -9,9 +9,9 @@ import Footer from "@/components/Footer";
 import { RidesContext } from "@/contexts/RidesContext";
 import { db } from "@/firebaseConfig";
 import { useLocalSearchParams } from "expo-router";
-import { collection, doc, getDoc, getDocs, setDoc, ArrayUnion } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, setDoc, arrayUnion } from "firebase/firestore";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, ScrollView, TextInput, View, TouchableOpacity } from "react-native";
+import { ActivityIndicator, ScrollView, TextInput, View, TouchableOpacity, Text } from "react-native";
 import FloatingActionButton from "../components/FloatingActionButton";
 import Input from "../components/Input";
 import SingleRidePost from "../components/SingleRidePost";
@@ -37,18 +37,18 @@ export default function FeedPage() {
     }
   }, [params.focusSearch]);
 
-useEffect(() => {
-  const fetchInfo = async () => {
-    try {
-      const id = await SecureStore.getItemAsync("userid");
-      const userDoc = await getDoc(doc(db, "users", id));
-      setSearches(userDoc.data()?.searches || ["test"]);
-    } catch (error) {
-      console.error("Error fetching saved searches:", error);
-    }
-  };
-  fetchInfo();
-}, []);
+  useEffect(() => {
+    const fetchInfo = async () => {
+      try {
+        const id = await SecureStore.getItemAsync("userid");
+        const userDoc = await getDoc(doc(db, "users", id));
+        setSearches(userDoc.data()?.searches || [""]);
+      } catch (error) {
+        console.error("Error fetching saved searches:", error);
+      }
+    };
+    fetchInfo();
+  }, []);
 
   // fetch rides from db and set in context
   useEffect(() => {
@@ -109,9 +109,12 @@ useEffect(() => {
       const id = await SecureStore.getItemAsync("userid");
       const docRef = doc(db, "users", id);
 
-      await setDoc(docRef, {
-        searches: arrayUnion(searchQuery)
-      })
+      await setDoc(
+        docRef,
+        { searches: arrayUnion(searchQuery) },
+        { merge: true }
+      );
+
     } catch (error) {
       console.error("Error saving search: ", error);
       alert("Search not saved, please try again. " + error);
@@ -206,7 +209,7 @@ useEffect(() => {
         {/* Heart button */}
         <TouchableOpacity
           onPress={onSave}
-          style={{ marginLeft: 10, padding: 10 }}
+          style={{ marginLeft: 10, padding: 10, alignSelf: "flex-start" }}
         >
           <Ionicons name="heart-outline" size={28} color="white" />
         </TouchableOpacity>
