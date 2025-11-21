@@ -171,7 +171,6 @@ export default function FeedPage() {
     <View
       style={{
         flex: 1,
-        position: absolute,
         backgroundColor: "#181818",
         paddingVertical: 50,
         paddingHorizontal: 20,
@@ -196,11 +195,15 @@ export default function FeedPage() {
           {isFocused && searches?.length > 0 && (
             <View
               style={{
+                position: "absolute",
+                top: 60, // distance from the top of the input wrapper
+                left: 0,
+                right: 0,
                 backgroundColor: "#222",
                 padding: 10,
                 borderRadius: 8,
-                marginTop: 4,
-                elevation: 5,
+                elevation: 10,
+                zIndex: 999,
               }}
             >
               {searches.map((s, i) => (
