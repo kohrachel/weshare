@@ -102,7 +102,7 @@ async function scheduleRideNotification(departsDate: Date) {
       sound: "default",
       data: { type: "ride-reminder" },
     },
-    trigger: triggerTime, // real scheduled date trigger
+    trigger: triggerTime,
   });
 
   console.log("Notification scheduled for:", triggerTime.toString());
