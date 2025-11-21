@@ -278,7 +278,8 @@ export default function CreateRide() {
             }
           }
 
-          // TODO: call set notifications here within recurring ride creation
+          // set notifications here within recurring ride creation loop
+          await sendPushNotification(expoPushToken);
         }
 
         alert(
