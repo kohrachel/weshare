@@ -7,13 +7,14 @@
 import { UserGenderType } from "@/app/rsvp";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
+import { AllowedPaymentMethodsType } from "@/app/rsvp";
 
 type ContactCardProps = {
   name: string;
   phoneNum: string;
   email: string;
   gender: UserGenderType;
-  paymentMethods: string[];
+  paymentMethods: AllowedPaymentMethodsType[];
 };
 type IconGlyphs = "male" | "female" | "male-female";
 

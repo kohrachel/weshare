@@ -22,6 +22,13 @@ import {
 import SingleRidePost from "../components/SingleRidePost";
 import ContactCard from "../components/contactCard";
 export type UserGenderType = "Male" | "Female" | "Other" | "Not set";
+export type AllowedPaymentMethodsType =
+  | "PayPal"
+  | "Apple Cash"
+  | "Venmo"
+  | "Zelle"
+  | "Google Pay"
+  | "Cash App";
 
 export type RideDataType = {
   id: string;
@@ -47,7 +54,7 @@ export type UserData = {
   phone: string;
   email: string;
   gender: UserGenderType;
-  paymentMethods?: string[];
+  paymentMethods?: AllowedPaymentMethodsType[];
 };
 
 const unknownUser: UserData = {

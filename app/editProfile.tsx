@@ -374,8 +374,8 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   paymentOptionSelected: {
-    backgroundColor: "#4CAF50",
-    borderColor: "#4CAF50",
+    backgroundColor: "#529053",
+    borderColor: "#529053",
   },
   paymentOptionText: {
     color: "#fff",
