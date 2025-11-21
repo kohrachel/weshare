@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 7.5 hours
+ Emma Reid: 12 hours
  Rachel Huiqi: 6 hours
  */
 
@@ -37,26 +37,6 @@ Notifications.setNotificationHandler({
     shouldShowList: true,
   }),
 });
-
-async function sendPushNotification(expoPushToken: string) {
-  const message = {
-    to: expoPushToken,
-    sound: 'default',
-    title: 'Original Title',
-    body: 'And here is the body!',
-    data: { someData: 'goes here' },
-  };
-
-  await fetch('https://exp.host/--/api/v2/push/send', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Accept-encoding': 'gzip, deflate',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(message),
-  });
-}
 
 function handleRegistrationError(errorMessage: string) {
   alert(errorMessage);
@@ -104,6 +84,30 @@ async function registerForPushNotificationsAsync() {
     handleRegistrationError('Must use physical device for push notifications');
   }
 }
+
+async function scheduleRideNotification(departsDate: Date) {
+  // 10 minutes before
+  const triggerTime = new Date(departsDate.getTime() - 10 * 60 * 1000);
+
+  // If the trigger time is already passed, skip scheduling
+  if (triggerTime <= new Date()) {
+    console.log("Skipping notification: departure is too soon or time already passed");
+    return;
+  }
+
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Upcoming Ride Reminder 🚗",
+      body: "Your ride is coming up in 10 minutes!",
+      sound: "default",
+      data: { type: "ride-reminder" },
+    },
+    trigger: triggerTime, // real scheduled date trigger
+  });
+
+  console.log("Notification scheduled for:", triggerTime.toString());
+}
+
 //////////////////// End of Notification Logic Functions //////////////////////////////////////
 
 export default function CreateRide() {
@@ -113,28 +117,12 @@ export default function CreateRide() {
   const [returnDate, setReturnDate] = useState(new Date());
   const [returnTime, setReturnTime] = useState(new Date());
   const [expoPushToken, setExpoPushToken] = useState('');
-  const [notification, setNotification] = useState<Notifications.Notification | undefined>(
-    undefined
-  );
 
   // Setup notifications
   useEffect(() => {
     registerForPushNotificationsAsync()
       .then(token => setExpoPushToken(token ?? ''))
       .catch((error: any) => setExpoPushToken(`${error}`));
-
-    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
-    });
-
-    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
-    });
-
-    return () => {
-      notificationListener.remove();
-      responseListener.remove();
-    };
   }, []);
 
   const [rideData, setRideData] = useState<RideFormData>({
@@ -279,7 +267,7 @@ export default function CreateRide() {
           }
 
           // set notifications here within recurring ride creation loop
-          await sendPushNotification(expoPushToken);
+          await scheduleRideNotification(departsDate);
         }
 
         alert(
