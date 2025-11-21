@@ -11,10 +11,13 @@ import { db } from "@/firebaseConfig";
 import { Picker } from "@react-native-picker/picker";
 import * as SecureStore from "expo-secure-store";
 import { addDoc, collection, doc, getDoc, Timestamp } from "firebase/firestore";
-import React, { useState } from "react";
-import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { ScrollView, StyleSheet, Switch, Text, View, Button, Platform } from "react-native";
 import Title from "../components/Title";
 import { RideDataType } from "./rsvp";
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 
 export type AllowedGenders = "Co-ed" | "Female" | "Male";
 type RecurrenceFrequency = "daily" | "weekly" | "monthly";
@@ -25,12 +28,114 @@ type RideFormData = Omit<RideDataType, "id" | "departs" | "returns"> & {
   numOccurrences: string;
 };
 
+//////////////////// Notification Logic Functions //////////////////////////////////////
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
+async function sendPushNotification(expoPushToken: string) {
+  const message = {
+    to: expoPushToken,
+    sound: 'default',
+    title: 'Original Title',
+    body: 'And here is the body!',
+    data: { someData: 'goes here' },
+  };
+
+  await fetch('https://exp.host/--/api/v2/push/send', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Accept-encoding': 'gzip, deflate',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message),
+  });
+}
+
+function handleRegistrationError(errorMessage: string) {
+  alert(errorMessage);
+  throw new Error(errorMessage);
+}
+
+async function registerForPushNotificationsAsync() {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      handleRegistrationError('Permission not granted to get push token for push notification!');
+      return;
+    }
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+    if (!projectId) {
+      handleRegistrationError('Project ID not found');
+    }
+    try {
+      const pushTokenString = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data;
+      console.log(pushTokenString);
+      return pushTokenString;
+    } catch (e: unknown) {
+      handleRegistrationError(`${e}`);
+    }
+  } else {
+    handleRegistrationError('Must use physical device for push notifications');
+  }
+}
+//////////////////// End of Notification Logic Functions //////////////////////////////////////
+
 export default function CreateRide() {
   // Local state for date and time inputs (to prevent overriding each other)
   const [departDate, setDepartDate] = useState(new Date());
   const [departTime, setDepartTime] = useState(new Date());
   const [returnDate, setReturnDate] = useState(new Date());
   const [returnTime, setReturnTime] = useState(new Date());
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [notification, setNotification] = useState<Notifications.Notification | undefined>(
+    undefined
+  );
+
+  // Setup notifications
+  useEffect(() => {
+    registerForPushNotificationsAsync()
+      .then(token => setExpoPushToken(token ?? ''))
+      .catch((error: any) => setExpoPushToken(`${error}`));
+
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+    });
+
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      notificationListener.remove();
+      responseListener.remove();
+    };
+  }, []);
 
   const [rideData, setRideData] = useState<RideFormData>({
     destination: "",
@@ -47,6 +152,8 @@ export default function CreateRide() {
     numOccurrences: "4",
   });
 
+  // Merges the date part of one timestamp with the time part of another timestamp
+  // Date and time are two separate fields and are picked separately so need to be put together
   function mergeDateAndTime(datePart: Date, timePart: Date): Date {
     return new Date(
       datePart.getFullYear(),
@@ -59,6 +166,7 @@ export default function CreateRide() {
     );
   }
 
+  // Produces a date a specified time (daily/weekly/monthly) after the input date
   function getNextDate(
     currentDate: Date,
     frequency: RecurrenceFrequency,
@@ -78,6 +186,8 @@ export default function CreateRide() {
     return nextDate;
   }
 
+  // Validates and pushes a new ride to the Firebase,
+  // or multiple rides if a recurring schedule is set
   const storeRide = async () => {
     try {
       const id = await SecureStore.getItemAsync("userid");
@@ -167,6 +277,8 @@ export default function CreateRide() {
               );
             }
           }
+
+          // TODO: call set notifications here within recurring ride creation
         }
 
         alert(
