@@ -13,6 +13,7 @@ To access it:
 1. Download the APK file
 2. Install it on your Android mobile device
    - You may have to grant permissions to install unknown apps
+   - For a more in-depth explanation, see [this blog post from Android Authority](https://www.androidauthority.com/how-to-install-apks-31494/)
 
 > [!IMPORTANT]
 > You cannot run the app on an iOS device.
