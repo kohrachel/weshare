@@ -111,7 +111,9 @@ export default function FeedPage() {
     if (searches.includes(searchQuery)) {
       updatedSearches = searches.filter(s => s !== searchQuery);
     } else {
-      updatedSearches = [...searches, searchQuery];
+      if (searchQuery != "") {
+        updatedSearches = [...searches, searchQuery];
+      }
     }
 
     // Need searches and updatedSearches separate
@@ -169,6 +171,7 @@ export default function FeedPage() {
     <View
       style={{
         flex: 1,
+        position: absolute,
         backgroundColor: "#181818",
         paddingVertical: 50,
         paddingHorizontal: 20,
