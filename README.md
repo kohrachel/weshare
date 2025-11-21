@@ -4,6 +4,34 @@ Contributors:
   Emma Reid - 1 hour
 -->
 
+# Grading Material: APK
+
+This is an Android app. We have submitted the latest APK build of the app with the submission of our final project.
+
+To access it:
+
+1. Download the APK file
+2. Install it on your Android mobile device
+   - You may have to grant permissions to install unknown apps
+
+> [!IMPORTANT]
+> You cannot run the app on an iOS device.
+
+If you would prefer to recreate the APK file:
+
+1. Clone this repository and ensure you have all prerequisites (see instructions below)
+2. Run `bun run android`
+   - NOTE: You may have to install Expo Go, Expo Orbit, and Android Studio
+3. In the terminal output, look for lines with something like:
+   ```bash
+   # QR code and Expo CLI options...
+   › Installing /path-to-cloned-folder/weshare/android/app/build/outputs/apk/debug/app-debug.apk
+   › Opening weshare://expo-development-client on Medium_Phone_API_36.0
+   # ... More info lines
+   ```
+4. Access the `.apk` file at the specified path
+5. Send the file to an Android mobile device where you can download and install it (see instructions above). You may also be able to run the APK on your Android simulator on a laptop, but certain functionality may not match the experience on a physical device exactly (e.g. input bars do not open the keyboard)
+
 # Using Bun
 
 A guide on using Bun with Expo and EAS.
@@ -176,18 +204,21 @@ We are currently in test mode (The default security rules for test mode allow an
 - Using Microsoft login to require Vanderbilt login following [this document](https://medium.com/@shaikabbas101/microsoft-authentication-in-react-native-using-react-native-app-auth-3041565e914c)
 - Using expo-auth-session instead of react-native-app-auth due to compatibility issues with Expo
 - Redirect URI: com.wesharenative://oauth/auth/
-- Expo Go always has a changing redirect uri which must be updated in Azure each time the project is run. This issue is specific to Expo Go and would not affect production as production would have a stable uri. 
+- Expo Go always has a changing redirect uri which must be updated in Azure each time the project is run. This issue is specific to Expo Go and would not affect production as production would have a stable uri.
 - Weshare login secret will be valid for 6 months (until 11 April 2026)
 
 ## Testing
 
 - Unit tests: (Jest)[https://docs.expo.dev/develop/unit-testing/]
-   ```bash
-   bun run test
-   ```
+
+  ```bash
+  bun run test
+  ```
+
   - Check coverage in weshare/coverage/lcov-report/index.html (open in browser)
 
 ## APK Generation
+
 - Optional: Change first screen to Login, not Index.
 - Run `bunx expo prebuild --platform android --clean`
 - Create `local.properties` file in android folder and add this line (assuming this is where your SDK is, can check in file explorer): sdk.dir=C:/Users/username/AppData/Local/Android/Sdk
