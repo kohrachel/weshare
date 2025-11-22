@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 1 hours
+ Emma Reid: 5 hours
  */
 
 import { Platform } from "react-native";
@@ -99,4 +99,49 @@ export async function scheduleRideNotification(departsDate: Date) {
   });
 
   console.log("Notification scheduled for:", triggerTime.toString());
+}
+
+// Cancel the notification scheduled exactly 10 minutes before the given date/time.
+export async function cancelRideNotification(targetDateTime: Date) {
+  try {
+    const tenMinutesBefore = new Date(targetDateTime.getTime() - 10 * 60 * 1000);
+
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+
+    for (const notif of scheduled) {
+      const trigger = notif.trigger;
+
+      // ---- Case 1: Timestamp trigger ----
+      if (typeof trigger === "number") {
+        const triggerDate = new Date(trigger);
+
+        if (Math.abs(triggerDate.getTime() - tenMinutesBefore.getTime()) < 1000) {
+          // match within 1 second - likely necessary for current use cases,
+          // but built in to work with as many other use cases as possible
+          await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+          return true;
+        }
+      }
+
+      // ---- Case 2: Calendar trigger object ----
+      if (trigger && typeof trigger === "object" && "hour" in trigger) {
+        const matches =
+          trigger.year === tenMinutesBefore.getFullYear() &&
+          trigger.month === tenMinutesBefore.getMonth() + 1 &&
+          trigger.day === tenMinutesBefore.getDate() &&
+          trigger.hour === tenMinutesBefore.getHours() &&
+          trigger.minute === tenMinutesBefore.getMinutes();
+
+        if (matches) {
+          await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+          return true;
+        }
+      }
+    }
+
+    return false;
+  } catch (err) {
+    console.error("Error cancelling notification:", err);
+    return false;
+  }
 }
