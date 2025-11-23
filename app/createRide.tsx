@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 7.5 hours
+ Emma Reid: 9 hours
  Rachel Huiqi: 6 hours
  */
 
@@ -11,10 +11,14 @@ import { db } from "@/firebaseConfig";
 import { Picker } from "@react-native-picker/picker";
 import * as SecureStore from "expo-secure-store";
 import { addDoc, collection, doc, getDoc, Timestamp } from "firebase/firestore";
-import React, { useState } from "react";
-import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { ScrollView, StyleSheet, Switch, Text, View, Button, Platform } from "react-native";
 import Title from "../components/Title";
 import { RideDataType } from "./rsvp";
+import {
+  registerForPushNotificationsAsync,
+  scheduleRideNotification
+} from "@/utils/notifications";
 
 export type AllowedGenders = "Co-ed" | "Female" | "Male";
 type RecurrenceFrequency = "daily" | "weekly" | "monthly";
@@ -31,6 +35,14 @@ export default function CreateRide() {
   const [departTime, setDepartTime] = useState(new Date());
   const [returnDate, setReturnDate] = useState(new Date());
   const [returnTime, setReturnTime] = useState(new Date());
+  const [expoPushToken, setExpoPushToken] = useState('');
+
+  // Setup notifications
+  useEffect(() => {
+    registerForPushNotificationsAsync()
+      .then(token => setExpoPushToken(token ?? ''))
+      .catch((error: any) => setExpoPushToken(`${error}`));
+  }, []);
 
   const [rideData, setRideData] = useState<RideFormData>({
     destination: "",
@@ -47,6 +59,8 @@ export default function CreateRide() {
     numOccurrences: "4",
   });
 
+  // Merges the date part of one timestamp with the time part of another timestamp
+  // Date and time are two separate fields and are picked separately so need to be put together
   function mergeDateAndTime(datePart: Date, timePart: Date): Date {
     return new Date(
       datePart.getFullYear(),
@@ -59,6 +73,7 @@ export default function CreateRide() {
     );
   }
 
+  // Produces a date a specified time (daily/weekly/monthly) after the input date
   function getNextDate(
     currentDate: Date,
     frequency: RecurrenceFrequency,
@@ -78,6 +93,8 @@ export default function CreateRide() {
     return nextDate;
   }
 
+  // Validates and pushes a new ride to the Firebase,
+  // or multiple rides if a recurring schedule is set
   const storeRide = async () => {
     try {
       const id = await SecureStore.getItemAsync("userid");
@@ -167,6 +184,9 @@ export default function CreateRide() {
               );
             }
           }
+
+          // set notifications here within recurring ride creation loop
+          await scheduleRideNotification(departsDate);
         }
 
         alert(

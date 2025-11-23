@@ -2,6 +2,7 @@
  Contributors
  Kevin Song: 3 hours
  Rachel Huiqi: 10 hours
+ Emma Reid: 1 hour
  */
 
 import { RideDataType, UserData } from "@/app/rsvp";
@@ -22,6 +23,11 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Svg, { Rect } from "react-native-svg";
 import ButtonGreen from "./buttonGreen";
+import {
+  registerForPushNotificationsAsync,
+  scheduleRideNotification,
+  cancelRideNotification
+} from "@/utils/notifications";
 
 type SingleRidePostProps = {
   rideId: string;
@@ -46,6 +52,13 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
   const [rideCreator, setRideCreator] = useState<string>("Loading...");
   const [userData, setUserData] = useState<UserData | undefined>(undefined);
+
+  // Setup notifications
+  useEffect(() => {
+    registerForPushNotificationsAsync()
+      .then(token => setExpoPushToken(token ?? ''))
+      .catch((error: any) => setExpoPushToken(`${error}`));
+  }, []);
 
   useEffect(() => {
     if (!userId) return;
@@ -100,6 +113,14 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
       rsvpedUserIds: isUserRsvped ? arrayRemove(userId) : arrayUnion(userId),
       numRsvpedUsers: isUserRsvped ? increment(-1) : increment(1),
     });
+
+    // update notifications
+    if (!isUserRsvped) {
+      await scheduleRideNotification(rideData.departs.toDate());
+    } else if (isUserRsvped) {
+      await cancelRideNotification(rideData.departs.toDate());
+    }
+
     // update in context
     const newRsvpedUserIds: string[] = isUserRsvped
       ? rideData?.rsvpedUserIds?.filter((id) => id !== userId) || []

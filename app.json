@@ -49,6 +49,7 @@
       "@react-native-firebase/auth",
       "@react-native-firebase/crashlytics",
       "expo-secure-store",
+      "expo-notifications",
       [
         "expo-secure-store",
         {
