@@ -14,7 +14,7 @@ import { addDoc, collection, doc, getDoc, Timestamp } from "firebase/firestore";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import Title from "../components/Title";
-import { RideDataType, RideWithCreatorName } from "./rsvp";
+import { RideDataType } from "./rsvp";
 
 export type AllowedGenders = "Co-ed" | "Female" | "Male";
 type RecurrenceFrequency = "daily" | "weekly" | "monthly";
@@ -279,6 +279,7 @@ export default function CreateRide() {
           setValue={(value) =>
             setRideData((prev) => ({ ...prev, destination: value }))
           }
+          required
         ></Input>
         <DateTimeInput
           label={"When are we leaving?"}
@@ -286,6 +287,7 @@ export default function CreateRide() {
           timeValue={departTime}
           setDateValue={setDepartDate}
           setTimeValue={setDepartTime}
+          required
         />
         <Input
           label={"Where to meet?"}
@@ -294,6 +296,7 @@ export default function CreateRide() {
           setValue={(value) =>
             setRideData((prev) => ({ ...prev, departsFrom: value }))
           }
+          required
         ></Input>
         <Input
           label={"How many people (including you)?"}
@@ -302,9 +305,13 @@ export default function CreateRide() {
           setValue={(value) =>
             setRideData((prev) => ({ ...prev, maxPpl: Number(value) || 0 }))
           }
+          required
         ></Input>
         <View>
-          <Text style={styles.label}>What genders allowed?</Text>
+          <Text style={styles.label}>
+            What genders allowed?
+            <Text style={styles.requiredAsterisk}> *</Text>
+          </Text>
           <Picker
             selectedValue={rideData.gender}
             dropdownIconColor="#e7e7e7"
@@ -349,6 +356,7 @@ export default function CreateRide() {
             timeValue={returnTime}
             setDateValue={setReturnDate}
             setTimeValue={setReturnTime}
+            required
           />
         )}
         <View style={styles.switchContainer}>
@@ -389,6 +397,7 @@ export default function CreateRide() {
               setValue={(value) =>
                 setRideData((prev) => ({ ...prev, numOccurrences: value }))
               }
+              required
             />
           </>
         )}
@@ -429,5 +438,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  requiredAsterisk: {
+    color: "#ff0000",
   },
 });

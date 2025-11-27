@@ -21,13 +21,19 @@ type InputProps = {
   defaultValue?: string;
   testID?: string; // <-- add testID prop
   style?: StyleProp<ViewStyle>;
+  required?: boolean;
 };
 
 const Input = forwardRef<TextInput, InputProps>(
-  ({ label, value, setValue, defaultValue, testID, style }, ref) => {
+  ({ label, value, setValue, defaultValue, testID, style, required }, ref) => {
     return (
       <View style={[styles.inputWrapper, style]}>
-        {label && <Text style={styles.inputLabel}>{label}</Text>}
+        {label && (
+          <Text style={styles.inputLabel}>
+            {label}
+            {required && <Text style={styles.requiredAsterisk}> *</Text>}
+          </Text>
+        )}
         <TextInput
           ref={ref}
           style={styles.inputBox}
@@ -69,5 +75,8 @@ export const styles = StyleSheet.create({
     color: "#e7e7e7",
     fontFamily: "Inter_700Bold",
     fontSize: 16,
+  },
+  requiredAsterisk: {
+    color: "#ff0000",
   },
 });
