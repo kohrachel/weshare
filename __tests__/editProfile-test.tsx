@@ -653,13 +653,13 @@ it("handles remove profile picture functionality", async () => {
     }),
   });
 
-  const { getByText } = render(<EditProfile />);
+  const { getByTestId } = render(<EditProfile />);
 
   await waitFor(() => {
-    expect(getByText("Remove Photo")).toBeTruthy();
+    expect(getByTestId("remove-photo-button")).toBeTruthy();
   }, { timeout: 3000 });
 
-  const removeButton = getByText("Remove Photo");
+  const removeButton = getByTestId("remove-photo-button");
   fireEvent.press(removeButton);
 
   await waitFor(() => {
