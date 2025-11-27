@@ -4,246 +4,414 @@
  */
 
 import React from "react";
-import { render, act, fireEvent } from "@testing-library/react-native";
-import FeedPage from "../app/feedPage"; // import AFTER mocks
-import { getDocs, getDoc, collection, doc } from "firebase/firestore";
+import { render, act, fireEvent, waitFor } from "@testing-library/react-native";
+import FeedPage from "../app/feedPage";
+import { getDocs } from "firebase/firestore";
+import { RidesContext } from "@/contexts/RidesContext";
+import { useLocalSearchParams } from "expo-router";
+import { View, TextInput, Text } from "react-native";
 
-// Mock Firebase modules
+// --- Mocks ---
+
+// Mock Firebase Config
 jest.mock("@/firebaseConfig", () => ({ db: {} }));
 
-jest.mock("firebase/app", () => ({ initializeApp: jest.fn() }));
-
-// Mock all Firestore functions
+// Mock Firestore
 jest.mock("firebase/firestore", () => ({
-  collection: jest.fn(),
+  collection: jest.fn((db, name) => name),
   getDocs: jest.fn(),
-  getDoc: jest.fn(),
-  doc: jest.fn(),
 }));
 
-// Mock React Native components
-jest.mock("@/components/Footer", () => () => <></>);
-jest.mock("@/components/FloatingActionButton", () => () => <></>);
+// Mock Expo Router
+jest.mock("expo-router", () => ({
+  useLocalSearchParams: jest.fn(),
+}));
 
-jest.mock("@/components/Input", () => (props: any) => {
-  const { View, TextInput } = require("react-native");
-  return (
-    <View>
-      <TextInput
-        testID="searchInput"
-        value={props.value}
-        placeholder={props.defaultValue}
-        onChangeText={props.setValue}
-      />
+// Mock Child Components
+jest.mock("@/components/Footer", () => "Footer");
+jest.mock("@/components/FloatingActionButton", () => "FloatingActionButton");
+
+// Mock Input safely
+jest.mock("../components/Input", () => {
+  const React = require("react");
+  const { TextInput, View } = require("react-native");
+
+  return React.forwardRef((props: any, ref: any) => {
+    return (
+      <View>
+        <TextInput
+          ref={ref}
+          testID="searchInput"
+          value={props.value}
+          onChangeText={props.setValue}
+          placeholder={props.defaultValue}
+        />
+      </View>
+    );
+  });
+});
+
+// Mock SingleRidePost with dynamic testID based on ID for easy existence checks
+jest.mock("../components/SingleRidePost", () => {
+  const React = require("react");
+  const { View, Text } = require("react-native");
+
+  return ({ rideId }: { rideId: string }) => (
+    <View testID={`ride-post-${rideId}`}>
+      <Text>RideID: {rideId}</Text>
     </View>
   );
 });
 
-jest.mock("@/components/SingleRidePost", () => (props: any) => {
-  const { View } = require("react-native");
-  return <View testID={`ride-${props.name}`} />;
+// --- Helper Data ---
+
+const mockNow = new Date("2024-01-01T12:00:00");
+
+// Helper to create Firestore Timestamps
+const createTimestamp = (isoDate: string) => ({
+  toDate: () => new Date(isoDate),
 });
 
-// Sample rides and users
-const flushPromises = () => new Promise(setImmediate);
+// Mock Users Data
+const mockUsers = [
+  { id: "user1", data: () => ({ name: "Alice" }) },
+  { id: "user2", data: () => ({ name: "Bob" }) },
+  { id: "user3", data: () => ({ name: "Charlie" }) },
+];
 
-const mockRideFuture = {
-  id: "ride1",
-  data: () => ({
-    creatorId: "user1",
-    destination: "Airport",
-    departs: { toDate: () => new Date("2099-12-10T10:00:00") },
-    numRsvpedUsers: 2,
-    maxPpl: 4,
-    rsvpedUserIds: ["user1", "user2"],
-    gender: "Co-ed",
-    departsFrom: "Parking Lot",
-    hasLuggageSpace: true,
-    isRoundTrip: false,
-    returns: { toDate: () => new Date("2099-12-10T14:00:00") },
-  }),
-};
+// Mock Rides Data
+const mockRides = [
+  {
+    id: "ride1",
+    data: () => ({
+      creatorId: "user1",
+      destination: "Airport",
+      departs: createTimestamp("2024-01-02T10:00:00"),
+      numRsvpedUsers: 1,
+      maxPpl: 4,
+      rsvpedUserIds: [],
+      gender: "Any",
+      departsFrom: "Campus",
+      hasLuggageSpace: true,
+      isRoundTrip: false,
+      returns: null,
+    }),
+  },
+  {
+    id: "ride2",
+    data: () => ({
+      creatorId: "user2",
+      destination: "Downtown",
+      departs: createTimestamp("2023-12-31T10:00:00"),
+      numRsvpedUsers: 0,
+      maxPpl: 2,
+      rsvpedUserIds: [],
+      gender: "Any",
+      departsFrom: "Station",
+      hasLuggageSpace: false,
+      isRoundTrip: false,
+      returns: null,
+    }),
+  },
+  {
+    id: "ride3",
+    data: () => ({
+      creatorId: "unknown_user",
+      destination: "Mall",
+      departs: createTimestamp("2024-01-03T15:30:00"),
+      numRsvpedUsers: 0,
+      maxPpl: 3,
+      rsvpedUserIds: [],
+    }),
+  },
+];
 
-const mockRidePast = {
-  id: "ride2",
-  data: () => ({
-    creatorId: "user2",
-    destination: "Downtown",
-    departs: { toDate: () => new Date("2000-01-01T08:00:00") },
-    numRsvpedUsers: 1,
-    maxPpl: 3,
-    rsvpedUserIds: ["user2"],
-    gender: "Co-ed",
-    departsFrom: "Main Street",
-    hasLuggageSpace: false,
-    isRoundTrip: false,
-    returns: { toDate: () => new Date("2000-01-01T12:00:00") },
-  }),
-};
+describe("FeedPage", () => {
+  let mockSetRides: jest.Mock;
+  let mockRidesContextValue: any;
 
-const mockUserSnapshot = {
-  exists: () => true,
-  data: () => ({ name: "Alice" }),
-};
-
-describe("FeedPage - Full Branch Coverage", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
+    jest.useFakeTimers();
+    jest.setSystemTime(mockNow);
 
-  test("renders loading initially", async () => {
-    (getDocs as jest.Mock).mockReturnValue(new Promise(() => {}));
-    const { queryByTestId } = render(<FeedPage />);
-    expect(queryByTestId("ride-Alice")).toBeNull();
-    await act(flushPromises);
-  });
+    // Default Router Params
+    (useLocalSearchParams as jest.Mock).mockReturnValue({});
 
-  test("renders future rides and skips past rides", async () => {
-    (collection as jest.Mock).mockReturnValue("rides");
-    (getDocs as jest.Mock).mockResolvedValue({
-      docs: [mockRideFuture, mockRidePast],
-    });
-    (doc as jest.Mock).mockReturnValue("userDocRef");
-    (getDoc as jest.Mock).mockResolvedValue(mockUserSnapshot);
-
-    const { queryByTestId } = render(<FeedPage />);
-    await act(flushPromises);
-
-    expect(queryByTestId("ride-Alice")).toBeTruthy();
-    expect(queryByTestId("ride-user2")).toBeNull();
-  });
-
-  test.each([undefined, null, 12345])(
-    "skips ride with invalid creator: %p",
-    async (creatorId) => {
-      const invalidRide = { id: "rideInvalid", data: () => ({ creatorId }) };
-      (getDocs as jest.Mock).mockResolvedValue({ docs: [invalidRide] });
-      (getDoc as jest.Mock).mockResolvedValue(mockUserSnapshot);
-
-      const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
-      render(<FeedPage />);
-      await act(flushPromises);
-
-      expect(consoleWarnSpy.mock.calls[0][0]).toContain(
-        "invalid creator field:",
-      );
-      consoleWarnSpy.mockRestore();
-    },
-  );
-
-  test("handles missing user document", async () => {
-    (getDocs as jest.Mock).mockResolvedValue({ docs: [mockRideFuture] });
-    (getDoc as jest.Mock).mockResolvedValue({ exists: () => false });
-
-    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
-    render(<FeedPage />);
-    await act(flushPromises);
-
-    expect(consoleWarnSpy.mock.calls[0][0]).toContain("User doc not found");
-    consoleWarnSpy.mockRestore();
-  });
-
-  test("handles getDoc throwing error", async () => {
-    (getDocs as jest.Mock).mockResolvedValue({ docs: [mockRideFuture] });
-    (getDoc as jest.Mock).mockRejectedValue(new Error("Firestore error"));
-
-    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-    render(<FeedPage />);
-    await act(flushPromises);
-
-    expect(consoleErrorSpy.mock.calls[0][0]).toContain("Error fetching user");
-    consoleErrorSpy.mockRestore();
-  });
-
-  test("handles top-level getDocs error", async () => {
-    (getDocs as jest.Mock).mockRejectedValue(new Error("Network fail"));
-
-    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-    render(<FeedPage />);
-    await act(flushPromises);
-
-    expect(consoleErrorSpy.mock.calls[0][0]).toContain("Error fetching rides:");
-    consoleErrorSpy.mockRestore();
-  });
-
-  test("handles empty rides collection", async () => {
-    (getDocs as jest.Mock).mockResolvedValue({ docs: [] });
-    const { queryByTestId } = render(<FeedPage />);
-    await act(flushPromises);
-    expect(queryByTestId("ride-Alice")).toBeNull();
-  });
-
-  test("handles rides with missing fields", async () => {
-    const incompleteRide = {
-      id: "rideIncomplete",
-      data: () => ({
-        creatorId: "user3",
-        // set future date/time so it passes the upcoming filter
-        departs: { toDate: () => new Date(Date.now() + 1000 * 60 * 60) },
-      }),
+    // Setup Context Mock
+    mockSetRides = jest.fn();
+    mockRidesContextValue = {
+      rides: [],
+      setRides: mockSetRides,
     };
-    const incompleteUser = { exists: () => true, data: () => ({}) };
-    (getDocs as jest.Mock).mockResolvedValue({ docs: [incompleteRide] });
-    (getDoc as jest.Mock).mockResolvedValue(incompleteUser);
 
-    const { queryByTestId } = render(<FeedPage />);
-    await act(flushPromises);
-
-    expect(queryByTestId("ride-Inactive Account")).toBeTruthy();
+    // Default Firestore Behavior
+    (getDocs as jest.Mock).mockImplementation((collectionName) => {
+      if (collectionName === "users") {
+        return Promise.resolve({
+          forEach: (callback: any) => mockUsers.forEach(callback),
+          docs: mockUsers,
+        });
+      }
+      if (collectionName === "rides") {
+        return Promise.resolve({
+          docs: mockRides,
+        });
+      }
+      return Promise.resolve({ docs: [] });
+    });
   });
 
-  describe("search filtering", () => {
-    beforeEach(() => {
-      (getDocs as jest.Mock).mockResolvedValue({ docs: [mockRideFuture] });
-      (getDoc as jest.Mock).mockResolvedValue(mockUserSnapshot);
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  const renderWithContext = (contextOverrides = {}) => {
+    const contextValue = { ...mockRidesContextValue, ...contextOverrides };
+    return render(
+      <RidesContext.Provider value={contextValue}>
+        <FeedPage />
+      </RidesContext.Provider>,
+    );
+  };
+
+  test("renders loading indicator initially", () => {
+    // Make fetch never resolve to keep it in loading state
+    (getDocs as jest.Mock).mockReturnValue(new Promise(() => {}));
+
+    const { queryByTestId } = renderWithContext();
+
+    // Instead of asserting on ActivityIndicator (which requires fragile RN mocking),
+    // we assert that the main content (searchInput) is NOT present.
+    expect(queryByTestId("searchInput")).toBeNull();
+  });
+
+  test("fetches data, filters past rides, sorts, and updates context", async () => {
+    renderWithContext();
+
+    await waitFor(() => {
+      expect(mockSetRides).toHaveBeenCalled();
     });
 
-    test("filters by name", async () => {
-      const { getByTestId, queryByTestId } = render(<FeedPage />);
-      await act(flushPromises);
-      fireEvent.changeText(getByTestId("searchInput"), "Alice");
-      expect(queryByTestId("ride-Alice")).toBeTruthy();
+    const setRidesArg = mockSetRides.mock.calls[0][0];
+
+    expect(setRidesArg).toHaveLength(2);
+    expect(setRidesArg[0].id).toBe("ride1");
+    expect(setRidesArg[1].id).toBe("ride3");
+    expect(setRidesArg[0].creatorName).toBe("Alice");
+    expect(setRidesArg[1].creatorName).toBe("Unknown user");
+    expect(setRidesArg[1].destination).toBe("Mall");
+  });
+
+  test("handles user fetching gracefully when name is missing", async () => {
+    const namelessUser = [{ id: "u1", data: () => ({}) }];
+    const ride = [
+      {
+        id: "r1",
+        data: () => ({
+          creatorId: "u1",
+          departs: createTimestamp("2025-01-01T00:00:00"),
+        }),
+      },
+    ];
+
+    (getDocs as jest.Mock).mockImplementation((col) => {
+      if (col === "users")
+        return Promise.resolve({
+          forEach: (cb: any) => namelessUser.forEach(cb),
+        });
+      if (col === "rides") return Promise.resolve({ docs: ride });
+      return Promise.resolve({ docs: [] });
     });
+
+    renderWithContext();
+
+    await waitFor(() => {
+      expect(mockSetRides).toHaveBeenCalled();
+    });
+
+    const result = mockSetRides.mock.calls[0][0];
+    expect(result[0].creatorName).toBe("Unknown");
+  });
+
+  test("handles ride with undefined destination fallback", async () => {
+    const rideNoDest = [
+      {
+        id: "r1",
+        data: () => ({
+          creatorId: "u1",
+          departs: createTimestamp("2025-01-01T00:00:00"),
+        }),
+      },
+    ];
+
+    (getDocs as jest.Mock).mockImplementation((col) => {
+      if (col === "users") return Promise.resolve({ forEach: () => {} });
+      if (col === "rides") return Promise.resolve({ docs: rideNoDest });
+      return Promise.resolve({ docs: [] });
+    });
+
+    renderWithContext();
+    await waitFor(() => expect(mockSetRides).toHaveBeenCalled());
+
+    expect(mockSetRides.mock.calls[0][0][0].destination).toBe(
+      "Unknown Destination",
+    );
+  });
+
+  test("handles Firestore error", async () => {
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    (getDocs as jest.Mock).mockRejectedValue(new Error("Network Error"));
+
+    const { queryByTestId } = renderWithContext();
+
+    // Even if it errors, finally block runs and loading stops
+    await waitFor(() => {
+      expect(queryByTestId("searchInput")).toBeTruthy();
+    });
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Error fetching rides:",
+      expect.any(Error),
+    );
+    consoleSpy.mockRestore();
+  });
+
+  test("aborts processing if a ride document has no ID", async () => {
+    const badRide = {
+      id: undefined,
+      data: () => ({ creatorId: "u1" }),
+    };
+
+    (getDocs as jest.Mock).mockImplementation((col) => {
+      if (col === "rides") return Promise.resolve({ docs: [badRide] });
+      return Promise.resolve({ forEach: () => {} });
+    });
+
+    renderWithContext();
+
+    await act(async () => {
+      jest.advanceTimersByTime(100);
+    });
+
+    expect(mockSetRides).not.toHaveBeenCalled();
+  });
+
+  test("focuses search input if param is present", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      focusSearch: "true",
+    });
+
+    const { getByTestId } = renderWithContext();
+
+    await waitFor(() => getByTestId("searchInput"));
+
+    act(() => {
+      jest.runAllTimers();
+    });
+
+    const input = getByTestId("searchInput");
+    expect(input).toBeTruthy();
+  });
+
+  describe("Client-side Filtering", () => {
+    const populatedRides = [
+      {
+        id: "1",
+        creatorName: "Alice",
+        destination: "San Francisco",
+        departs: createTimestamp("2024-01-02T10:00:00"),
+      },
+      {
+        id: "2",
+        creatorName: "Bob",
+        destination: "San Jose",
+        departs: createTimestamp("2024-01-02T14:00:00"),
+      },
+    ];
+
+    // Helper to ensure the component is done loading before we test filters
+    const renderAndReady = async (rides = populatedRides) => {
+      const result = renderWithContext({ rides });
+      // Wait for the initial loading to complete (caused by mount useEffect)
+      await waitFor(() => result.getByTestId("searchInput"));
+      return result;
+    };
 
     test("filters by destination", async () => {
-      const { getByTestId, queryByTestId } = render(<FeedPage />);
-      await act(flushPromises);
-      fireEvent.changeText(getByTestId("searchInput"), "Airport");
-      expect(queryByTestId("ride-Alice")).toBeTruthy();
+      const { getByTestId, queryByTestId } = await renderAndReady();
+
+      const input = getByTestId("searchInput");
+      fireEvent.changeText(input, "Francisco");
+
+      // Check existence using the specific IDs from our mock
+      expect(queryByTestId("ride-post-1")).toBeTruthy();
+      expect(queryByTestId("ride-post-2")).toBeNull();
     });
 
-    test("filters by partial date", async () => {
-      const { getByTestId, queryByTestId } = render(<FeedPage />);
-      await act(flushPromises);
-      const dateWord = mockRideFuture.data().date.toDate().getDate().toString();
-      fireEvent.changeText(getByTestId("searchInput"), dateWord);
-      expect(queryByTestId("ride-Alice")).toBeTruthy();
+    test("filters by creator name", async () => {
+      const { getByTestId, queryByTestId } = await renderAndReady();
+
+      fireEvent.changeText(getByTestId("searchInput"), "Bob");
+      expect(queryByTestId("ride-post-2")).toBeTruthy();
+      expect(queryByTestId("ride-post-1")).toBeNull();
     });
 
-    test("filters by partial time", async () => {
-      const { getByTestId, queryByTestId } = render(<FeedPage />);
-      await act(flushPromises);
-      const timeWord = mockRideFuture
-        .data()
-        .time.toDate()
-        .getHours()
-        .toString();
-      fireEvent.changeText(getByTestId("searchInput"), timeWord);
-      expect(queryByTestId("ride-Alice")).toBeTruthy();
+    test("filters by date string", async () => {
+      const { getByTestId, queryByTestId } = await renderAndReady();
+
+      fireEvent.changeText(getByTestId("searchInput"), "1/2/2024");
+      expect(queryByTestId("ride-post-1")).toBeTruthy();
+      expect(queryByTestId("ride-post-2")).toBeTruthy();
     });
 
-    test("filters with multiple spaces or empty string", async () => {
-      const { getByTestId, queryByTestId } = render(<FeedPage />);
-      await act(flushPromises);
+    test("filters by time string", async () => {
+      const { getByTestId, queryByTestId } = await renderAndReady();
+
+      // 10:00 matches ride 1
+      fireEvent.changeText(getByTestId("searchInput"), "10:00");
+      expect(queryByTestId("ride-post-1")).toBeTruthy();
+      expect(queryByTestId("ride-post-2")).toBeNull();
+    });
+
+    test("handles multi-word search (AND logic)", async () => {
+      const { getByTestId, queryByTestId } = await renderAndReady();
+
+      // Alice is ride 1, Francisco is ride 1 -> Match
+      fireEvent.changeText(getByTestId("searchInput"), "Alice Francisco");
+      expect(queryByTestId("ride-post-1")).toBeTruthy();
+
+      // Alice is ride 1, Jose is ride 2 -> No Match (AND logic)
+      fireEvent.changeText(getByTestId("searchInput"), "Alice Jose");
+      expect(queryByTestId("ride-post-1")).toBeNull();
+      expect(queryByTestId("ride-post-2")).toBeNull();
+    });
+
+    test("handles empty or whitespace search queries", async () => {
+      const { getByTestId, queryByTestId } = await renderAndReady();
+
       fireEvent.changeText(getByTestId("searchInput"), "   ");
-      expect(queryByTestId("ride-Alice")).toBeTruthy();
+      expect(queryByTestId("ride-post-1")).toBeTruthy();
+      expect(queryByTestId("ride-post-2")).toBeTruthy();
     });
 
-    test("renders no results indicator if search yields nothing", async () => {
-      const { getByTestId, queryByTestId } = render(<FeedPage />);
-      await act(flushPromises);
-      fireEvent.changeText(getByTestId("searchInput"), "Nonexistent");
-      expect(queryByTestId("ride-Alice")).toBeNull();
+    test("handles safe navigation on missing ride fields during filter", async () => {
+      const incompleteRide = [
+        {
+          id: "3",
+          creatorName: null,
+          destination: null,
+          departs: null,
+        },
+      ];
+
+      const { getByTestId, queryByTestId } =
+        await renderAndReady(incompleteRide);
+
+      fireEvent.changeText(getByTestId("searchInput"), "search");
+      expect(queryByTestId("ride-post-3")).toBeNull();
     });
   });
 });

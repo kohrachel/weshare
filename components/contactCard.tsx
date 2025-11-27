@@ -1,18 +1,20 @@
 /**
  Contributors
- Kevin Song: 3 hours
+ Kevin Song: 5 hours
  Rachel Huiqi: 5 hours
  */
 
 import { UserGenderType } from "@/app/rsvp";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
+import { AllowedPaymentMethodsType } from "@/app/rsvp";
 
 type ContactCardProps = {
   name: string;
   phoneNum: string;
   email: string;
   gender: UserGenderType;
+  paymentMethods: AllowedPaymentMethodsType[];
 };
 type IconGlyphs = "male" | "female" | "male-female";
 
@@ -21,6 +23,7 @@ export default function ContactCard({
   phoneNum,
   email,
   gender,
+  paymentMethods,
 }: ContactCardProps) {
   const formatPhoneNumber = (phoneNum: string) => {
     if (phoneNum === "Not set") return "Not set";
@@ -49,9 +52,35 @@ export default function ContactCard({
         <Text style={styles.value}>☎️ {formatPhoneNumber(phoneNum)}</Text>
         <Text style={styles.value}>📬 {email}</Text>
       </View>
+      {/* Payment Methods */}
+      {paymentMethods && paymentMethods.length > 0 && (
+        <View style={{ marginTop: 10 }}>
+          <Text style={{ color: "#ddd", marginBottom: 6, fontWeight: "600" }}>
+            Payment Methods
+          </Text>
+
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            {paymentMethods.map((method) => (
+              <View
+                key={method}
+                style={{
+                  paddingVertical: 4,
+                  paddingHorizontal: 10,
+                  borderRadius: 12,
+                  backgroundColor: "#3d3d3d",
+                  borderWidth: 1,
+                  borderColor: "#555",
+                }}
+              >
+                <Text style={{ color: "#fff", fontSize: 13 }}>{method}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   nameRow: {

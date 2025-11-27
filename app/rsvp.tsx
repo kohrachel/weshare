@@ -1,6 +1,6 @@
 /**
  Contributors
- Kevin Song: 2 hours
+ Kevin Song: 4 hours
  Emma Reid: 2 hours
  Rachel Huiqi: 5 hours
  */
@@ -22,6 +22,13 @@ import {
 import SingleRidePost from "../components/SingleRidePost";
 import ContactCard from "../components/contactCard";
 export type UserGenderType = "Male" | "Female" | "Other" | "Not set";
+export type AllowedPaymentMethodsType =
+  | "PayPal"
+  | "Apple Cash"
+  | "Venmo"
+  | "Zelle"
+  | "Google Pay"
+  | "Cash App";
 
 export type RideDataType = {
   id: string;
@@ -38,11 +45,16 @@ export type RideDataType = {
   returns: Timestamp;
 };
 
+export type RideWithCreatorName = RideDataType & {
+  creatorName: string;
+};
+
 export type UserData = {
   name: string;
   phone: string;
   email: string;
   gender: UserGenderType;
+  paymentMethods?: AllowedPaymentMethodsType[];
 };
 
 const unknownUser: UserData = {
@@ -110,15 +122,21 @@ export default function RsvpRidePage() {
           if (!userId || userId === "") return unknownUser;
           const userData = await getDoc(doc(db, "users", userId));
           if (!userData.exists()) return unknownUser;
-
-          const user = userData.data();
-          const { name, gender = "Not set", phone = "Not set", email } = user;
+          const user = userData.data() as UserData;
+          const {
+            name,
+            gender = "Not set",
+            phone = "Not set",
+            email,
+            paymentMethods,
+          } = user;
 
           return {
             name,
             gender,
             phone,
             email,
+            paymentMethods: paymentMethods || [],
           };
         }),
       );
@@ -157,6 +175,7 @@ export default function RsvpRidePage() {
             phoneNum={user.phone}
             email={user.email}
             gender={user.gender}
+            paymentMethods={user.paymentMethods || []}
           />
         ))}
       </ScrollView>
