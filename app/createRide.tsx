@@ -78,6 +78,40 @@ export default function CreateRide() {
     return nextDate;
   }
 
+  function isFormValid(): boolean {
+    // Check mandatory fields
+    if (rideData.destination === "") {
+      return false;
+    }
+
+    if (rideData.departsFrom === "") {
+      return false;
+    }
+
+    if (rideData.maxPpl < 2) {
+      return false;
+    }
+
+    // If round trip, validate return is after departure
+    if (rideData.isRoundTrip) {
+      const returnDateTime = mergeDateAndTime(returnDate, returnTime);
+      const departDateTime = mergeDateAndTime(departDate, departTime);
+      if (returnDateTime <= departDateTime) {
+        return false;
+      }
+    }
+
+    // If recurring ride, validate number of occurrences
+    if (rideData.isRecurringRide) {
+      const numOccurrences = Number(rideData.numOccurrences);
+      if (numOccurrences < 1 || numOccurrences > 52) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   const storeRide = async () => {
     try {
       const id = await SecureStore.getItemAsync("userid");
@@ -359,7 +393,11 @@ export default function CreateRide() {
           </>
         )}
       </ScrollView>
-      <ButtonGreen title="Create New Ride" onPress={storeRide} />
+      <ButtonGreen
+        title="Create New Ride"
+        onPress={storeRide}
+        disabled={!isFormValid()}
+      />
     </View>
   );
 }
