@@ -8,6 +8,7 @@
 import { AllowedGenders } from "@/app/createRide";
 import Footer from "@/components/Footer";
 import { RidesContext } from "@/contexts/RidesContext";
+import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
 import { useRoute } from "@react-navigation/native";
 import { doc, getDoc, Timestamp } from "firebase/firestore";
@@ -53,7 +54,8 @@ const unknownUser: UserData = {
 };
 
 export default function RsvpRidePage() {
-  const { setRides } = useContext(RidesContext);
+  const { setRides, getSingleRide } = useContext(RidesContext);
+  const { userId } = useContext(UserContext);
 
   const [rideData, setRideData] = useState<RideDataType | null>(null);
   const [rsvpedUsers, setRsvpedUsers] = useState<UserData[]>([unknownUser]);
@@ -68,6 +70,12 @@ export default function RsvpRidePage() {
   if (!rideId) {
     rideId = "DHbTvTZQQugk83PjwYup";
   }
+
+  // Get ride data from context (for live updates)
+  const contextRideData = useMemo(
+    () => getSingleRide(rideId),
+    [getSingleRide, rideId],
+  );
 
   useEffect(() => {
     const fetchRideData = async () => {
