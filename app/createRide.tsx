@@ -14,7 +14,7 @@ import { addDoc, collection, doc, getDoc, Timestamp } from "firebase/firestore";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import Title from "../components/Title";
-import { RideDataType } from "./rsvp";
+import { RideDataType, RideWithCreatorName } from "./rsvp";
 
 export type AllowedGenders = "Co-ed" | "Female" | "Male";
 type RecurrenceFrequency = "daily" | "weekly" | "monthly";

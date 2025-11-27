@@ -2,6 +2,7 @@
  Contributors
  Emma Reid: 5 hours
  Jonny Yang: 4 hours
+ Kevin Song: 3 hours
 */
 
 import { Ionicons } from "@expo/vector-icons";
@@ -16,6 +17,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  ScrollView,
   View,
 } from "react-native";
 
@@ -39,6 +41,7 @@ export default function EditProfile() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [gender, setGender] = useState("");
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
 
   // Ensure a test userid exists
   useEffect(() => {
@@ -72,6 +75,7 @@ export default function EditProfile() {
       setEmail(data?.email || "");
       setPhone(data?.phone || "");
       setGender(data?.gender || "");
+      setPaymentMethods(data?.paymentMethods || []);
       setProfilePic(data?.profilePic || null);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -89,7 +93,7 @@ export default function EditProfile() {
 
       await setDoc(
         doc(db, "users", id),
-        { name, email, phone, gender, profilePic },
+        { name, email, phone, gender, profilePic, paymentMethods },
         { merge: true },
       );
 
@@ -163,6 +167,23 @@ export default function EditProfile() {
     );
   }
 
+  const paymentOptions = [
+    "PayPal",
+    "Venmo",
+    "Zelle",
+    "Cash App",
+    "Apple Cash",
+    "Google Pay",
+  ];
+
+  const togglePaymentMethod = (method: string) => {
+    setPaymentMethods((prev) =>
+      prev.includes(method)
+        ? prev.filter((m) => m !== method)
+        : [...prev, method],
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -197,33 +218,62 @@ export default function EditProfile() {
           <Ionicons name="camera" size={28} color="#529053" />
         )}
       </TouchableOpacity>
+      <ScrollView>
+        <View style={styles.formArea}>
+          <Input
+            label="Name"
+            value={name}
+            setValue={setName}
+            testID="input-Name"
+          />
+          <Input
+            label="Email"
+            value={email}
+            setValue={setEmail}
+            testID="input-Email"
+          />
+          <Input
+            label="Phone"
+            value={phone}
+            setValue={setPhone}
+            testID="input-Phone"
+          />
+          <Input
+            label="Gender"
+            value={gender}
+            setValue={setGender}
+            testID="input-Gender"
+          />
+          <Text style={styles.inputLabel}>Payment Methods</Text>
 
-      <View style={styles.formArea}>
-        <Input
-          label="Name"
-          value={name}
-          setValue={setName}
-          testID="input-Name"
-        />
-        <Input
-          label="Email"
-          value={email}
-          setValue={setEmail}
-          testID="input-Email"
-        />
-        <Input
-          label="Phone"
-          value={phone}
-          setValue={setPhone}
-          testID="input-Phone"
-        />
-        <Input
-          label="Gender"
-          value={gender}
-          setValue={setGender}
-          testID="input-Gender"
-        />
-      </View>
+          <View style={styles.inputContainer}>
+            <View style={styles.inputValueContainer}>
+              {paymentOptions.map((method) => {
+                const selected = paymentMethods.includes(method);
+                return (
+                  <TouchableOpacity
+                    key={method}
+                    onPress={() => togglePaymentMethod(method)}
+                    style={[
+                      styles.paymentOption,
+                      selected && styles.paymentOptionSelected,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.paymentOptionText,
+                        selected && styles.paymentOptionTextSelected,
+                      ]}
+                    >
+                      {method}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        </View>
+      </ScrollView>
 
       <View style={styles.buttonContainer}>
         <ButtonGreen
@@ -277,6 +327,8 @@ const styles = StyleSheet.create({
     gap: 10,
     width: "100%",
     paddingVertical: 0,
+    paddingHorizontal: 1,
+    paddingBottom: 10,
   },
   buttonContainer: {
     width: "100%",
@@ -296,5 +348,43 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     flex: 1,
+  },
+  inputContainer: {
+    flexDirection: "column",
+    marginBottom: 10,
+  },
+  inputLabel: {
+    color: "#e7e7e7",
+    fontFamily: "Inter_700Bold",
+    fontSize: 16,
+    marginBottom: 6,
+  },
+  inputValueContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    padding: 12,
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: "#e7e7e7",
+  },
+  paymentOption: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#555",
+    backgroundColor: "transparent",
+  },
+  paymentOptionSelected: {
+    backgroundColor: "#529053",
+    borderColor: "#529053",
+  },
+  paymentOptionText: {
+    color: "#fff",
+    fontSize: 13,
+  },
+  paymentOptionTextSelected: {
+    color: "#000",
   },
 });

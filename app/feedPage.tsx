@@ -15,7 +15,7 @@ import { ActivityIndicator, ScrollView, TextInput, View } from "react-native";
 import FloatingActionButton from "../components/FloatingActionButton";
 import Input from "../components/Input";
 import SingleRidePost from "../components/SingleRidePost";
-import { RideDataType } from "./rsvp";
+import { RideDataType, RideWithCreatorName } from "./rsvp";
 
 export default function FeedPage() {
   const { rides, setRides } = useContext(RidesContext);
@@ -37,8 +37,14 @@ export default function FeedPage() {
   useEffect(() => {
     const fetchRides = async () => {
       try {
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        const usersLookup: { [userId: string]: string } = {};
+        usersSnapshot.forEach((doc) => {
+          usersLookup[doc.id] = doc.data().name || "Unknown";
+        });
+
         const ridesSnapshot = await getDocs(collection(db, "rides"));
-        const ridesData: RideDataType[] = [];
+        const ridesData: RideWithCreatorName[] = [];
 
         for (const rideDoc of ridesSnapshot.docs) {
           const ride = rideDoc.data() as RideDataType;
@@ -50,6 +56,7 @@ export default function FeedPage() {
           ridesData.push({
             id: rideDoc.id,
             creatorId: ride.creatorId,
+            creatorName: usersLookup[ride.creatorId] || "Unknown user",
             destination: ride.destination || "Unknown Destination",
             departs: ride.departs,
             numRsvpedUsers: ride.numRsvpedUsers,
@@ -100,11 +107,13 @@ export default function FeedPage() {
           ?.toDate()
           ?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
           .toLowerCase() || "";
+      const creatorName = ride.creatorName?.toLowerCase() || "";
 
       return (
         destination.includes(word) ||
         formattedDate.includes(word) ||
-        formattedTime.includes(word)
+        formattedTime.includes(word) ||
+        creatorName.includes(word)
       );
     });
   });
@@ -141,7 +150,7 @@ export default function FeedPage() {
           gap: 16,
         }}
       >
-        {rides.map((ride) => {
+        {filteredRides.map((ride) => {
           return <SingleRidePost key={ride.id} rideId={ride.id} />;
         })}
       </ScrollView>
