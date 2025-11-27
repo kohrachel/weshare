@@ -77,6 +77,13 @@ export default function RsvpRidePage() {
     [getSingleRide, rideId],
   );
 
+  // Sync context ride data to local state for live updates
+  useEffect(() => {
+    if (contextRideData) {
+      setRideData(contextRideData);
+    }
+  }, [contextRideData]);
+
   useEffect(() => {
     const fetchRideData = async () => {
       const rideDoc = doc(db, "rides", rideId);
@@ -102,9 +109,20 @@ export default function RsvpRidePage() {
       };
 
       setRideData(newRideData);
-      setRides((prevRides) =>
-        prevRides.map((ride) => (ride.id === rideId ? newRideData : ride)),
-      );
+      setRides((prevRides) => {
+        const existingRideIndex = prevRides.findIndex(
+          (ride) => ride.id === rideId,
+        );
+        if (existingRideIndex >= 0) {
+          // Update existing ride
+          return prevRides.map((ride) =>
+            ride.id === rideId ? newRideData : ride,
+          );
+        } else {
+          // Add new ride if it doesn't exist
+          return [...prevRides, newRideData];
+        }
+      });
     };
     fetchRideData();
   }, [rideId, setRides]);
