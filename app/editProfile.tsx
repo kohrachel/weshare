@@ -17,6 +17,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  ScrollView,
   View,
 } from "react-native";
 
@@ -217,62 +218,62 @@ export default function EditProfile() {
           <Ionicons name="camera" size={28} color="#529053" />
         )}
       </TouchableOpacity>
+      <ScrollView>
+        <View style={styles.formArea}>
+          <Input
+            label="Name"
+            value={name}
+            setValue={setName}
+            testID="input-Name"
+          />
+          <Input
+            label="Email"
+            value={email}
+            setValue={setEmail}
+            testID="input-Email"
+          />
+          <Input
+            label="Phone"
+            value={phone}
+            setValue={setPhone}
+            testID="input-Phone"
+          />
+          <Input
+            label="Gender"
+            value={gender}
+            setValue={setGender}
+            testID="input-Gender"
+          />
+          <Text style={styles.inputLabel}>Payment Methods</Text>
 
-      <View style={styles.formArea}>
-        <Input
-          label="Name"
-          value={name}
-          setValue={setName}
-          testID="input-Name"
-        />
-        <Input
-          label="Email"
-          value={email}
-          setValue={setEmail}
-          testID="input-Email"
-        />
-        <Input
-          label="Phone"
-          value={phone}
-          setValue={setPhone}
-          testID="input-Phone"
-        />
-        <Input
-          label="Gender"
-          value={gender}
-          setValue={setGender}
-          testID="input-Gender"
-        />
-      </View>
-
-      <Text style={styles.inputLabel}>Payment Methods</Text>
-
-      <View style={styles.inputContainer}>
-        <View style={styles.inputValueContainer}>
-          {paymentOptions.map((method) => {
-            const selected = paymentMethods.includes(method);
-            return (
-              <TouchableOpacity
-                key={method}
-                onPress={() => togglePaymentMethod(method)}
-                style={[
-                  styles.paymentOption,
-                  selected && styles.paymentOptionSelected,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.paymentOptionText,
-                    selected && styles.paymentOptionTextSelected,
-                  ]}
-                >
-                  {method}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+          <View style={styles.inputContainer}>
+            <View style={styles.inputValueContainer}>
+              {paymentOptions.map((method) => {
+                const selected = paymentMethods.includes(method);
+                return (
+                  <TouchableOpacity
+                    key={method}
+                    onPress={() => togglePaymentMethod(method)}
+                    style={[
+                      styles.paymentOption,
+                      selected && styles.paymentOptionSelected,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.paymentOptionText,
+                        selected && styles.paymentOptionTextSelected,
+                      ]}
+                    >
+                      {method}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
         </View>
-      </View>
+      </ScrollView>
 
       <View style={styles.buttonContainer}>
         <ButtonGreen
@@ -326,6 +327,8 @@ const styles = StyleSheet.create({
     gap: 10,
     width: "100%",
     paddingVertical: 0,
+    paddingHorizontal: 1,
+    paddingBottom: 10,
   },
   buttonContainer: {
     width: "100%",
