@@ -89,33 +89,37 @@ jest.mock("firebase/firestore", () => {
   return { Timestamp, doc, getDoc };
 });
 
-const renderWithProviders = (component: React.ReactElement) => {
+const renderWithProviders = (
+  component: React.ReactElement,
+  options?: { prePopulateContext?: boolean },
+) => {
+  const prePopulateContext = options?.prePopulateContext !== false; // default to true
+
   const Wrapper = ({ children }: { children: React.ReactNode }) => {
     const { setRides } = React.useContext(RidesContext);
-    const [initialized, setInitialized] = React.useState(false);
 
     React.useEffect(() => {
-      // Pre-populate context with the test ride so SingleRidePost can find it
-      // This simulates the ride being in context before SingleRidePost renders
-      const testRide: RideDataType = {
-        id: "testRideId",
-        creatorId: "creatorUserId",
-        destination: "Test Destination",
-        departs: { toDate: () => new Date("2025-11-03T10:00:00Z") } as any,
-        numRsvpedUsers: 2,
-        maxPpl: 4,
-        rsvpedUserIds: ["user1", "user2"],
-        gender: "Co-ed",
-        departsFrom: "Test Location",
-        hasLuggageSpace: true,
-        isRoundTrip: false,
-        returns: { toDate: () => new Date("2025-11-03T14:00:00Z") } as any,
-      };
-      setRides([testRide]);
-      setInitialized(true);
-    }, [setRides]);
+      if (prePopulateContext) {
+        // Pre-populate context with the test ride so SingleRidePost can find it
+        // This simulates the ride being in context before SingleRidePost renders
+        const testRide: RideDataType = {
+          id: "testRideId",
+          creatorId: "creatorUserId",
+          destination: "Test Destination",
+          departs: { toDate: () => new Date("2025-11-03T10:00:00Z") } as any,
+          numRsvpedUsers: 2,
+          maxPpl: 4,
+          rsvpedUserIds: ["user1", "user2"],
+          gender: "Co-ed",
+          departsFrom: "Test Location",
+          hasLuggageSpace: true,
+          isRoundTrip: false,
+          returns: { toDate: () => new Date("2025-11-03T14:00:00Z") } as any,
+        };
+        setRides([testRide]);
+      }
+    }, [setRides, prePopulateContext]);
 
-    if (!initialized) return null;
     return <>{children}</>;
   };
 
@@ -130,8 +134,11 @@ const renderWithProviders = (component: React.ReactElement) => {
 
 describe("<RSVP />", () => {
   test("displays loading indicator initially", () => {
-    const { UNSAFE_queryAllByType } = renderWithProviders(<RsvpRidePage />);
-    // ActivityIndicator should be present initially
+    // Don't pre-populate context so we can see the initial loading state
+    const { UNSAFE_queryAllByType } = renderWithProviders(<RsvpRidePage />, {
+      prePopulateContext: false,
+    });
+    // ActivityIndicator should be present initially when context is empty
     const activityIndicators = UNSAFE_queryAllByType(
       require("react-native").ActivityIndicator,
     );
@@ -444,9 +451,12 @@ describe("<RSVP /> - Additional Coverage", () => {
         return originalGetDoc(ref);
       });
 
-    const { UNSAFE_queryAllByType } = renderWithProviders(<RsvpRidePage />);
+    // Don't pre-populate context so we can test the non-existent ride case
+    const { UNSAFE_queryAllByType } = renderWithProviders(<RsvpRidePage />, {
+      prePopulateContext: false,
+    });
 
-    // Should show loading indicator when ride doesn't exist
+    // Should show loading indicator when ride doesn't exist and context is empty
     await waitFor(() => {
       const activityIndicators = UNSAFE_queryAllByType(
         require("react-native").ActivityIndicator,
