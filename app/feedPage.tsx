@@ -8,22 +8,44 @@
 import Footer from "@/components/Footer";
 import { RidesContext } from "@/contexts/RidesContext";
 import { db } from "@/firebaseConfig";
+import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { collection, doc, getDoc, getDocs, setDoc, arrayUnion } from "firebase/firestore";
+import * as SecureStore from "expo-secure-store";
+import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, ScrollView, TextInput, View, TouchableOpacity, Text } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import FloatingActionButton from "../components/FloatingActionButton";
 import Input from "../components/Input";
 import SingleRidePost from "../components/SingleRidePost";
-import * as SecureStore from "expo-secure-store";
-import { Ionicons } from "@expo/vector-icons";
 import { RideDataType } from "./rsvp";
+
+const debounce = (callback: (...args: any[]) => void, wait: number) => {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  return (...args: any[]) => {
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+    }
+
+    timeoutId = setTimeout(() => {
+      callback.apply(null, args);
+    }, wait);
+  };
+};
 
 export default function FeedPage() {
   const { rides, setRides } = useContext(RidesContext);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searches, setSearches] = useState([]);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [searches, setSearches] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const searchInputRef = useRef<TextInput>(null);
   const params = useLocalSearchParams();
@@ -50,6 +72,19 @@ export default function FeedPage() {
   useEffect(() => {
     fetchInfo();
   }, []);
+
+  // Debounce search input
+  useEffect(() => {
+    const debouncedSetSearch = debounce((value: string) => {
+      setDebouncedSearchQuery(value);
+    }, 300);
+
+    debouncedSetSearch(searchQuery);
+
+    return () => {
+      // Cleanup will be handled by the debounce function
+    };
+  }, [searchQuery]);
 
   // fetch rides from db and set in context
   useEffect(() => {
@@ -106,12 +141,12 @@ export default function FeedPage() {
   }, [setRides, rides.length]);
 
   const onSave = async () => {
-    let updatedSearches: string[];
+    let updatedSearches: string[] = searches;
 
     if (searches.includes(searchQuery)) {
-      updatedSearches = searches.filter(s => s !== searchQuery);
+      updatedSearches = searches.filter((s) => s !== searchQuery);
     } else {
-      if (searchQuery != "") {
+      if (searchQuery !== "") {
         updatedSearches = [...searches, searchQuery];
       }
     }
@@ -124,11 +159,7 @@ export default function FeedPage() {
       const id = await SecureStore.getItemAsync("userid");
       const docRef = doc(db, "users", id);
 
-      await setDoc(
-        docRef,
-        { searches: updatedSearches },
-        { merge: true }
-      );
+      await setDoc(docRef, { searches: updatedSearches }, { merge: true });
 
       fetchInfo();
     } catch (error) {
@@ -176,10 +207,10 @@ export default function FeedPage() {
         paddingHorizontal: 20,
       }}
     >
-
       {/* Search Row */}
-      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
-
+      <View
+        style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}
+      >
         {/* Search Input */}
         <View style={{ flex: 1 }}>
           <Input
@@ -226,12 +257,20 @@ export default function FeedPage() {
           )}
         </View>
 
-        {/* Heart button */}
+        {/* Bookmark button */}
         <TouchableOpacity
           onPress={onSave}
-          style={{ marginLeft: 10, padding: 10, alignSelf: "flex-start" }}
+          style={{ position: "absolute", right: 10 }}
         >
-          <Ionicons name="heart" size={28} color="white" color="#529053" />
+          <Ionicons
+            name={
+              debouncedSearchQuery && searches.includes(debouncedSearchQuery)
+                ? "bookmark"
+                : "bookmark-outline"
+            }
+            size={24}
+            color="#529053"
+          />
         </TouchableOpacity>
       </View>
 
