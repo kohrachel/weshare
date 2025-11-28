@@ -6,10 +6,12 @@
 import React from "react";
 import { render, act, fireEvent, waitFor } from "@testing-library/react-native";
 import FeedPage from "../app/feedPage";
-import { getDocs } from "firebase/firestore";
+import { getDocs, getDoc, setDoc } from "firebase/firestore";
 import { RidesContext } from "@/contexts/RidesContext";
 import { useLocalSearchParams } from "expo-router";
 import { View, TextInput, Text } from "react-native";
+import * as SecureStore from "expo-secure-store";
+import * as firestoreModule from "firebase/firestore";
 
 // --- Mocks ---
 
@@ -20,6 +22,9 @@ jest.mock("@/firebaseConfig", () => ({ db: {} }));
 jest.mock("firebase/firestore", () => ({
   collection: jest.fn((db, name) => name),
   getDocs: jest.fn(),
+  getDoc: jest.fn(),        // <-- add this
+  doc: jest.fn(),
+  setDoc: jest.fn(),
 }));
 
 // Mock Expo Router
@@ -34,18 +39,24 @@ jest.mock("@/components/FloatingActionButton", () => "FloatingActionButton");
 // Mock Input safely
 jest.mock("../components/Input", () => {
   const React = require("react");
-  const { TextInput, View } = require("react-native");
+  const { TextInput, View, TouchableOpacity } = require("react-native");
 
   return React.forwardRef((props: any, ref: any) => {
     return (
       <View>
-        <TextInput
-          ref={ref}
-          testID="searchInput"
-          value={props.value}
-          onChangeText={props.setValue}
-          placeholder={props.defaultValue}
-        />
+        <TouchableOpacity
+          testID="input-wrapper"
+          onPress={props.onPress}
+          onBlur={props.onBlur}
+        >
+          <TextInput
+            ref={ref}
+            testID="searchInput"
+            value={props.value}
+            onChangeText={props.setValue}
+            placeholder={props.defaultValue}
+          />
+        </TouchableOpacity>
       </View>
     );
   });
@@ -412,6 +423,68 @@ describe("FeedPage", () => {
 
       fireEvent.changeText(getByTestId("searchInput"), "search");
       expect(queryByTestId("ride-post-3")).toBeNull();
+    });
+  });
+
+  describe("FeedPage Saved Searches Dropdown", () => {
+    beforeEach(() => {
+      // Prepopulate saved searches
+      jest.spyOn(SecureStore, "getItemAsync").mockResolvedValue("user1");
+
+      // Mock getDoc directly
+      (getDoc as jest.Mock).mockResolvedValue({
+        data: () => ({ searches: ["Airport", "Mall", "Downtown"] }),
+      });
+    });
+
+    test("shows saved searches dropdown when input is focused", async () => {
+      const { getByTestId, queryByText } = renderWithContext();
+
+      // Wait for input to render
+      const input = await waitFor(() => getByTestId("searchInput"));
+      const wrapper = getByTestId("input-wrapper");
+
+      // Focus input
+      act(() => {
+        fireEvent.press(wrapper); // triggers onPress -> sets isFocused = true
+      });
+
+      // Ensure dropdown is visible
+      await waitFor(() => {
+        expect(queryByText("Airport")).toBeTruthy();
+        expect(queryByText("Mall")).toBeTruthy();
+        expect(queryByText("Downtown")).toBeTruthy();
+      });
+
+      // Select a saved search
+      act(() => {
+        fireEvent.press(queryByText("Mall")!);
+      });
+
+      // Input value should update and dropdown should hide
+      expect(input.props.value).toBe("Mall");
+      expect(queryByText("Mall")).toBeNull();
+    });
+
+    test("hides dropdown when input is blurred", async () => {
+      const { getByTestId, queryByText } = renderWithContext();
+
+      const wrapper = await waitFor(() => getByTestId("input-wrapper"));
+
+      // Focus input first
+      act(() => {
+        fireEvent.press(wrapper);
+      });
+
+      expect(queryByText("Airport")).toBeTruthy();
+
+      // Blur input
+      act(() => {
+        fireEvent(wrapper, "onBlur");
+      });
+
+      // Dropdown should disappear
+      expect(queryByText("Airport")).toBeNull();
     });
   });
 });
