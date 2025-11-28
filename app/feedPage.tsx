@@ -11,7 +11,14 @@ import { db } from "@/firebaseConfig";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  deleteDoc,
+} from "firebase/firestore";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -99,12 +106,33 @@ export default function FeedPage() {
         const ridesSnapshot = await getDocs(collection(db, "rides"));
         const ridesData: RideWithCreatorName[] = [];
 
+        const now = new Date();
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(now.getDate() - 7);
+
         for (const rideDoc of ridesSnapshot.docs) {
           const ride = rideDoc.data() as RideDataType;
+
+          const rideDate = ride.departs.toDate();
+
+          // 2. Check if the ride is older than 7 days
+          if (rideDate < sevenDaysAgo) {
+            try {
+              // 3. Delete the document from Firestore
+              await deleteDoc(doc(db, "rides", rideDoc.id));
+              console.log(`Deleted expired ride: ${rideDoc.id}`);
+            } catch (err) {
+              console.error("Error deleting expired ride:", err);
+            }
+            // 4. Skip adding this ride to the local 'ridesData' array
+            continue;
+          }
 
           if (rideDoc.id === undefined) {
             return;
           }
+
+          if (!ride.departs) continue;
 
           ridesData.push({
             id: rideDoc.id,
@@ -124,7 +152,7 @@ export default function FeedPage() {
         }
 
         // Exclude past rides and sort chronologically
-        const now = new Date();
+        //const now = new Date();
 
         // Keep only rides whose departure date/time is in the future
         const upcomingRides = ridesData.filter((ride) => {
