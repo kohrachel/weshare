@@ -6,12 +6,10 @@
 import React from "react";
 import { render, act, fireEvent, waitFor } from "@testing-library/react-native";
 import FeedPage from "../app/feedPage";
-import { getDocs, getDoc, setDoc } from "firebase/firestore";
+import { getDocs, doc, getDoc, setDoc } from "firebase/firestore";
 import { RidesContext } from "@/contexts/RidesContext";
 import { useLocalSearchParams } from "expo-router";
-import { View, TextInput, Text } from "react-native";
-import * as SecureStore from "expo-secure-store";
-import * as firestoreModule from "firebase/firestore";
+import { View, TextInput, Text, TouchableOpacity } from "react-native";
 
 // --- Mocks ---
 
@@ -19,17 +17,39 @@ import * as firestoreModule from "firebase/firestore";
 jest.mock("@/firebaseConfig", () => ({ db: {} }));
 
 // Mock Firestore
+const mockGetDoc = jest.fn();
+const mockSetDoc = jest.fn();
+const mockDoc = jest.fn((db, collection, id) => ({ collection, id }));
+
 jest.mock("firebase/firestore", () => ({
   collection: jest.fn((db, name) => name),
   getDocs: jest.fn(),
-  getDoc: jest.fn(),        // <-- add this
-  doc: jest.fn(),
+  doc: jest.fn((db, collection, id) => ({ collection, id })),
+  getDoc: jest.fn(),
   setDoc: jest.fn(),
 }));
 
 // Mock Expo Router
 jest.mock("expo-router", () => ({
   useLocalSearchParams: jest.fn(),
+}));
+
+// Mock SecureStore
+const mockGetItemAsync = jest.fn();
+jest.mock("expo-secure-store", () => ({
+  getItemAsync: jest.fn(),
+}));
+
+// Mock Ionicons
+jest.mock("@expo/vector-icons", () => ({
+  Ionicons: ({ name, testID }: { name: string; testID?: string }) => {
+    const { View, Text } = require("react-native");
+    return (
+      <View testID={testID || `icon-${name}`}>
+        <Text>{name}</Text>
+      </View>
+    );
+  },
 }));
 
 // Mock Child Components
@@ -45,9 +65,9 @@ jest.mock("../components/Input", () => {
     return (
       <View>
         <TouchableOpacity
-          testID="input-wrapper"
+          testID="inputPressArea"
           onPress={props.onPress}
-          onBlur={props.onBlur}
+          activeOpacity={1}
         >
           <TextInput
             ref={ref}
@@ -55,6 +75,7 @@ jest.mock("../components/Input", () => {
             value={props.value}
             onChangeText={props.setValue}
             placeholder={props.defaultValue}
+            onBlur={props.onBlur}
           />
         </TouchableOpacity>
       </View>
@@ -137,6 +158,9 @@ const mockRides = [
   },
 ];
 
+// Mock global alert
+global.alert = jest.fn();
+
 describe("FeedPage", () => {
   let mockSetRides: jest.Mock;
   let mockRidesContextValue: any;
@@ -145,6 +169,7 @@ describe("FeedPage", () => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     jest.setSystemTime(mockNow);
+    (global.alert as jest.Mock).mockClear();
 
     // Default Router Params
     (useLocalSearchParams as jest.Mock).mockReturnValue({});
@@ -155,6 +180,10 @@ describe("FeedPage", () => {
       rides: [],
       setRides: mockSetRides,
     };
+
+    // Default SecureStore behavior
+    const SecureStore = require("expo-secure-store");
+    SecureStore.getItemAsync.mockResolvedValue("test-user-id");
 
     // Default Firestore Behavior
     (getDocs as jest.Mock).mockImplementation((collectionName) => {
@@ -171,6 +200,14 @@ describe("FeedPage", () => {
       }
       return Promise.resolve({ docs: [] });
     });
+
+    // Default getDoc behavior (for fetchInfo)
+    (getDoc as jest.Mock).mockResolvedValue({
+      data: () => ({ searches: [] }),
+    });
+
+    // Default setDoc behavior (for onSave)
+    (setDoc as jest.Mock).mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -327,6 +364,432 @@ describe("FeedPage", () => {
     expect(input).toBeTruthy();
   });
 
+  test("fetches saved searches on mount", async () => {
+    const mockSearches = ["Airport", "Downtown"];
+    (getDoc as jest.Mock).mockResolvedValue({
+      data: () => ({ searches: mockSearches }),
+    });
+
+    renderWithContext();
+
+    await waitFor(() => {
+      expect(getDoc).toHaveBeenCalled();
+    });
+
+    const SecureStore = require("expo-secure-store");
+    expect(SecureStore.getItemAsync).toHaveBeenCalledWith("userid");
+  });
+
+  test("handles error when fetching saved searches", async () => {
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    (getDoc as jest.Mock).mockRejectedValue(new Error("Fetch error"));
+
+    renderWithContext();
+
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Error fetching saved searches:",
+        expect.any(Error),
+      );
+    });
+
+    consoleSpy.mockRestore();
+  });
+
+  test("handles missing searches data gracefully", async () => {
+    (getDoc as jest.Mock).mockResolvedValue({
+      data: () => undefined,
+    });
+
+    renderWithContext();
+
+    await waitFor(() => {
+      expect(getDoc).toHaveBeenCalled();
+    });
+  });
+
+  describe("Saved Searches Dropdown", () => {
+    const populatedRides = [
+      {
+        id: "1",
+        creatorName: "Alice",
+        destination: "San Francisco",
+        departs: createTimestamp("2024-01-02T10:00:00"),
+      },
+    ];
+
+    const renderAndReady = async (searches: string[] = []) => {
+      (getDoc as jest.Mock).mockResolvedValue({
+        data: () => ({ searches }),
+      });
+
+      const result = renderWithContext({ rides: populatedRides });
+      await waitFor(() => result.getByTestId("searchInput"));
+      return result;
+    };
+
+    test("shows dropdown when input is focused and searches exist", async () => {
+      const { getByTestId, queryByText } = await renderAndReady([
+        "Airport",
+        "Downtown",
+      ]);
+
+      const inputPressArea = getByTestId("inputPressArea");
+      fireEvent.press(inputPressArea);
+
+      await waitFor(() => {
+        expect(queryByText("Airport")).toBeTruthy();
+        expect(queryByText("Downtown")).toBeTruthy();
+      });
+    });
+
+    test("does not show dropdown when input is not focused", async () => {
+      const { queryByText } = await renderAndReady(["Airport"]);
+
+      expect(queryByText("Airport")).toBeNull();
+    });
+
+    test("does not show dropdown when searches are empty", async () => {
+      const { getByTestId, queryByText } = await renderAndReady([]);
+
+      const inputPressArea = getByTestId("inputPressArea");
+      fireEvent.press(inputPressArea);
+
+      expect(queryByText("Airport")).toBeNull();
+    });
+
+    test("selects search from dropdown and closes it", async () => {
+      const { getByTestId, queryByText, getByText } = await renderAndReady([
+        "Airport",
+      ]);
+
+      const inputPressArea = getByTestId("inputPressArea");
+      fireEvent.press(inputPressArea);
+
+      await waitFor(() => {
+        expect(getByText("Airport")).toBeTruthy();
+      });
+
+      const searchItem = getByText("Airport");
+      fireEvent.press(searchItem);
+
+      await waitFor(() => {
+        expect(queryByText("Airport")).toBeNull();
+      });
+
+      const input = getByTestId("searchInput");
+      expect(input.props.value).toBe("Airport");
+    });
+
+    test("hides dropdown when input loses focus", async () => {
+      const { getByTestId, queryByText, getByText } = await renderAndReady([
+        "Airport",
+      ]);
+
+      const inputPressArea = getByTestId("inputPressArea");
+      fireEvent.press(inputPressArea);
+
+      await waitFor(() => {
+        expect(getByText("Airport")).toBeTruthy();
+      });
+
+      const input = getByTestId("searchInput");
+      fireEvent(input, "blur");
+
+      await waitFor(() => {
+        expect(queryByText("Airport")).toBeNull();
+      });
+    });
+  });
+
+  describe("Bookmark Functionality", () => {
+    const populatedRides = [
+      {
+        id: "1",
+        creatorName: "Alice",
+        destination: "San Francisco",
+        departs: createTimestamp("2024-01-02T10:00:00"),
+      },
+    ];
+
+    const renderAndReady = async (searches: string[] = []) => {
+      (getDoc as jest.Mock).mockResolvedValue({
+        data: () => ({ searches }),
+      });
+
+      const result = renderWithContext({ rides: populatedRides });
+      await waitFor(() => result.getByTestId("searchInput"));
+      return result;
+    };
+
+    test("shows bookmark-outline icon when search is not saved", async () => {
+      const { getByTestId } = await renderAndReady([]);
+
+      const input = getByTestId("searchInput");
+      fireEvent.changeText(input, "Airport");
+
+      // Wait for debounce
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
+
+      await waitFor(() => {
+        const icon = getByTestId("icon-bookmark-outline");
+        expect(icon).toBeTruthy();
+      });
+    });
+
+    test("shows bookmark icon when search is saved", async () => {
+      const { getByTestId } = await renderAndReady(["Airport"]);
+
+      const input = getByTestId("searchInput");
+      fireEvent.changeText(input, "Airport");
+
+      // Wait for debounce
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
+
+      await waitFor(() => {
+        const icon = getByTestId("icon-bookmark");
+        expect(icon).toBeTruthy();
+      });
+    });
+
+    test("saves a new search when bookmark is pressed", async () => {
+      const { getByTestId, queryByTestId, UNSAFE_getAllByType } =
+        await renderAndReady([]);
+
+      const input = getByTestId("searchInput");
+      fireEvent.changeText(input, "Airport");
+
+      // Wait for debounce
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
+
+      await waitFor(() => {
+        expect(queryByTestId("icon-bookmark-outline")).toBeTruthy();
+      });
+
+      // Find the bookmark button - it's a TouchableOpacity with onPress
+      const TouchableOpacity = require("react-native").TouchableOpacity;
+      const buttons = UNSAFE_getAllByType(TouchableOpacity);
+      const bookmarkBtn = buttons.find(
+        (btn: any) =>
+          btn.props.onPress && btn.props.style?.position === "absolute",
+      );
+      expect(bookmarkBtn).toBeTruthy();
+      fireEvent.press(bookmarkBtn);
+
+      await waitFor(() => {
+        expect(setDoc).toHaveBeenCalled();
+      });
+
+      const SecureStore = require("expo-secure-store");
+      expect(SecureStore.getItemAsync).toHaveBeenCalled();
+    });
+
+    test("removes a saved search when bookmark is pressed", async () => {
+      const { getByTestId, UNSAFE_getAllByType } = await renderAndReady([
+        "Airport",
+      ]);
+
+      const input = getByTestId("searchInput");
+      fireEvent.changeText(input, "Airport");
+
+      // Wait for debounce
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
+
+      await waitFor(() => {
+        expect(getByTestId("icon-bookmark")).toBeTruthy();
+      });
+
+      // Find and press bookmark button
+      const TouchableOpacity = require("react-native").TouchableOpacity;
+      const buttons = UNSAFE_getAllByType(TouchableOpacity);
+      const bookmarkBtn = buttons.find(
+        (btn: any) =>
+          btn.props.onPress && btn.props.style?.position === "absolute",
+      );
+      expect(bookmarkBtn).toBeTruthy();
+      fireEvent.press(bookmarkBtn);
+
+      await waitFor(() => {
+        expect(setDoc).toHaveBeenCalled();
+      });
+    });
+
+    test("does not save empty search query", async () => {
+      const { getByTestId, UNSAFE_getAllByType } = await renderAndReady([]);
+
+      const input = getByTestId("searchInput");
+      fireEvent.changeText(input, "");
+
+      // Wait for debounce
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
+
+      // Find and press bookmark button
+      const TouchableOpacity = require("react-native").TouchableOpacity;
+      const buttons = UNSAFE_getAllByType(TouchableOpacity);
+      const bookmarkBtn = buttons.find(
+        (btn: any) =>
+          btn.props.onPress && btn.props.style?.position === "absolute",
+      );
+      if (bookmarkBtn) {
+        fireEvent.press(bookmarkBtn);
+      }
+
+      await waitFor(() => {
+        // setDoc should not be called for empty search
+        expect(setDoc).not.toHaveBeenCalled();
+      });
+    });
+
+    test("handles error when saving search", async () => {
+      const consoleSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
+      (setDoc as jest.Mock).mockRejectedValue(new Error("Save error"));
+
+      const { getByTestId, UNSAFE_getAllByType } = await renderAndReady([]);
+
+      const input = getByTestId("searchInput");
+      fireEvent.changeText(input, "Airport");
+
+      // Wait for debounce
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
+
+      // Find and press bookmark button
+      const TouchableOpacity = require("react-native").TouchableOpacity;
+      const buttons = UNSAFE_getAllByType(TouchableOpacity);
+      const bookmarkBtn = buttons.find(
+        (btn: any) =>
+          btn.props.onPress && btn.props.style?.position === "absolute",
+      );
+      if (bookmarkBtn) {
+        fireEvent.press(bookmarkBtn);
+      }
+
+      await waitFor(() => {
+        expect(consoleSpy).toHaveBeenCalledWith(
+          "Error saving search: ",
+          expect.any(Error),
+        );
+        expect(global.alert).toHaveBeenCalledWith(
+          expect.stringContaining("Search not saved, please try again."),
+        );
+      });
+
+      consoleSpy.mockRestore();
+    });
+
+    test("refetches searches after saving", async () => {
+      const { getByTestId, UNSAFE_getAllByType } = await renderAndReady([]);
+
+      const input = getByTestId("searchInput");
+      fireEvent.changeText(input, "Airport");
+
+      // Wait for debounce
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
+
+      // Find and press bookmark button
+      const TouchableOpacity = require("react-native").TouchableOpacity;
+      const buttons = UNSAFE_getAllByType(TouchableOpacity);
+      const bookmarkBtn = buttons.find(
+        (btn: any) =>
+          btn.props.onPress && btn.props.style?.position === "absolute",
+      );
+      if (bookmarkBtn) {
+        fireEvent.press(bookmarkBtn);
+      }
+
+      await waitFor(() => {
+        expect(setDoc).toHaveBeenCalled();
+      });
+
+      // After setDoc, fetchInfo should be called
+      await waitFor(() => {
+        expect(getDoc).toHaveBeenCalledTimes(2); // Once on mount, once after save
+      });
+    });
+  });
+
+  describe("Debounced Search Query", () => {
+    const populatedRides = [
+      {
+        id: "1",
+        creatorName: "Alice",
+        destination: "San Francisco",
+        departs: createTimestamp("2024-01-02T10:00:00"),
+      },
+    ];
+
+    test("debounces search query updates", async () => {
+      const { getByTestId } = renderWithContext({ rides: populatedRides });
+      await waitFor(() => getByTestId("searchInput"));
+
+      const input = getByTestId("searchInput");
+
+      // Type multiple characters quickly
+      fireEvent.changeText(input, "A");
+      fireEvent.changeText(input, "Ai");
+      fireEvent.changeText(input, "Air");
+
+      // Before debounce time, icon should still be bookmark-outline
+      expect(getByTestId("icon-bookmark-outline")).toBeTruthy();
+
+      // Advance timers past debounce delay
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
+
+      // After debounce, the debouncedSearchQuery should update
+      // This affects the bookmark icon state
+      await waitFor(() => {
+        // The component should have processed the debounced value
+        expect(input.props.value).toBe("Air");
+      });
+    });
+
+    test("clears timeout on rapid input changes", async () => {
+      const { getByTestId } = renderWithContext({ rides: populatedRides });
+      await waitFor(() => getByTestId("searchInput"));
+
+      const input = getByTestId("searchInput");
+
+      fireEvent.changeText(input, "A");
+      act(() => {
+        jest.advanceTimersByTime(200); // Not enough time
+      });
+
+      fireEvent.changeText(input, "Ai");
+      act(() => {
+        jest.advanceTimersByTime(200); // Still not enough
+      });
+
+      fireEvent.changeText(input, "Air");
+      act(() => {
+        jest.advanceTimersByTime(300); // Now it should debounce
+      });
+
+      await waitFor(() => {
+        expect(input.props.value).toBe("Air");
+      });
+    });
+  });
+
   describe("Client-side Filtering", () => {
     const populatedRides = [
       {
@@ -423,68 +886,6 @@ describe("FeedPage", () => {
 
       fireEvent.changeText(getByTestId("searchInput"), "search");
       expect(queryByTestId("ride-post-3")).toBeNull();
-    });
-  });
-
-  describe("FeedPage Saved Searches Dropdown", () => {
-    beforeEach(() => {
-      // Prepopulate saved searches
-      jest.spyOn(SecureStore, "getItemAsync").mockResolvedValue("user1");
-
-      // Mock getDoc directly
-      (getDoc as jest.Mock).mockResolvedValue({
-        data: () => ({ searches: ["Airport", "Mall", "Downtown"] }),
-      });
-    });
-
-    test("shows saved searches dropdown when input is focused", async () => {
-      const { getByTestId, queryByText } = renderWithContext();
-
-      // Wait for input to render
-      const input = await waitFor(() => getByTestId("searchInput"));
-      const wrapper = getByTestId("input-wrapper");
-
-      // Focus input
-      act(() => {
-        fireEvent.press(wrapper); // triggers onPress -> sets isFocused = true
-      });
-
-      // Ensure dropdown is visible
-      await waitFor(() => {
-        expect(queryByText("Airport")).toBeTruthy();
-        expect(queryByText("Mall")).toBeTruthy();
-        expect(queryByText("Downtown")).toBeTruthy();
-      });
-
-      // Select a saved search
-      act(() => {
-        fireEvent.press(queryByText("Mall")!);
-      });
-
-      // Input value should update and dropdown should hide
-      expect(input.props.value).toBe("Mall");
-      expect(queryByText("Mall")).toBeNull();
-    });
-
-    test("hides dropdown when input is blurred", async () => {
-      const { getByTestId, queryByText } = renderWithContext();
-
-      const wrapper = await waitFor(() => getByTestId("input-wrapper"));
-
-      // Focus input first
-      act(() => {
-        fireEvent.press(wrapper);
-      });
-
-      expect(queryByText("Airport")).toBeTruthy();
-
-      // Blur input
-      act(() => {
-        fireEvent(wrapper, "onBlur");
-      });
-
-      // Dropdown should disappear
-      expect(queryByText("Airport")).toBeNull();
     });
   });
 });
