@@ -19,13 +19,28 @@ type InputProps = {
   value?: string;
   setValue?: (text: string) => void;
   defaultValue?: string;
-  testID?: string; // <-- add testID prop
+  testID?: string;
   style?: StyleProp<ViewStyle>;
   required?: boolean;
+  onPress?: () => void;
+  onBlur?: () => void;
 };
 
 const Input = forwardRef<TextInput, InputProps>(
-  ({ label, value, setValue, defaultValue, testID, style, required }, ref) => {
+  (
+    {
+      label,
+      value,
+      setValue,
+      defaultValue,
+      testID,
+      style,
+      required,
+      onPress,
+      onBlur,
+    },
+    ref,
+  ) => {
     return (
       <View style={[styles.inputWrapper, style]}>
         {label && (
@@ -41,7 +56,9 @@ const Input = forwardRef<TextInput, InputProps>(
           placeholder={defaultValue ?? ""}
           placeholderTextColor="#999"
           onChangeText={setValue}
-          testID={testID} // <-- forward testID
+          testID={testID}
+          onPress={onPress}
+          onBlur={onBlur}
         />
       </View>
     );

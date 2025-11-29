@@ -8,6 +8,7 @@
 import { AllowedGenders } from "@/app/createRide";
 import Footer from "@/components/Footer";
 import { RidesContext } from "@/contexts/RidesContext";
+import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
 import { useRoute } from "@react-navigation/native";
 import { doc, getDoc, Timestamp } from "firebase/firestore";
@@ -65,7 +66,8 @@ const unknownUser: UserData = {
 };
 
 export default function RsvpRidePage() {
-  const { setRides } = useContext(RidesContext);
+  const { setRides, getSingleRide } = useContext(RidesContext);
+  const { userId } = useContext(UserContext);
 
   const [rideData, setRideData] = useState<RideDataType | null>(null);
   const [rsvpedUsers, setRsvpedUsers] = useState<UserData[]>([unknownUser]);
@@ -80,6 +82,19 @@ export default function RsvpRidePage() {
   if (!rideId) {
     rideId = "DHbTvTZQQugk83PjwYup";
   }
+
+  // Get ride data from context (for live updates)
+  const contextRideData = useMemo(
+    () => getSingleRide(rideId),
+    [getSingleRide, rideId],
+  );
+
+  // Sync context ride data to local state for live updates
+  useEffect(() => {
+    if (contextRideData) {
+      setRideData(contextRideData);
+    }
+  }, [contextRideData]);
 
   useEffect(() => {
     const fetchRideData = async () => {
@@ -106,9 +121,20 @@ export default function RsvpRidePage() {
       };
 
       setRideData(newRideData);
-      setRides((prevRides) =>
-        prevRides.map((ride) => (ride.id === rideId ? newRideData : ride)),
-      );
+      setRides((prevRides) => {
+        const existingRideIndex = prevRides.findIndex(
+          (ride) => ride.id === rideId,
+        );
+        if (existingRideIndex >= 0) {
+          // Update existing ride
+          return prevRides.map((ride) =>
+            ride.id === rideId ? newRideData : ride,
+          );
+        } else {
+          // Add new ride if it doesn't exist
+          return [...prevRides, newRideData];
+        }
+      });
     };
     fetchRideData();
   }, [rideId, setRides]);
