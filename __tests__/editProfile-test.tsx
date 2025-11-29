@@ -888,3 +888,298 @@ it("profilePic button shows when profilePic length is exactly 10", async () => {
   }, { timeout: 3000 });
 });
 
+// -----------------------
+// isValidPic() Tests
+// -----------------------
+it("isValidPic returns false for null", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: null,
+    }),
+  });
+
+  const { queryByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(queryByTestId("profilePicImage")).toBeNull();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns false for undefined", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: undefined,
+    }),
+  });
+
+  const { queryByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(queryByTestId("profilePicImage")).toBeNull();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns false for non-string (number)", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: 123,
+    }),
+  });
+
+  const { queryByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(queryByTestId("profilePicImage")).toBeNull();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns false for non-string (object)", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: { url: "test" },
+    }),
+  });
+
+  const { queryByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(queryByTestId("profilePicImage")).toBeNull();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns false for non-string (array)", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: [],
+    }),
+  });
+
+  const { queryByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(queryByTestId("profilePicImage")).toBeNull();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns false for string shorter than 10 characters", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "short",
+    }),
+  });
+
+  const { queryByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(queryByTestId("profilePicImage")).toBeNull();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns false for string with exactly 10 characters not starting with valid prefix", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "1234567890",
+    }),
+  });
+
+  const { queryByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(queryByTestId("profilePicImage")).toBeNull();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns true for valid http URL", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "http://example.com/photo.jpg",
+    }),
+  });
+
+  const { getByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(getByTestId("profilePicImage")).toBeTruthy();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns true for valid https URL", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "https://example.com/photo.jpg",
+    }),
+  });
+
+  const { getByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(getByTestId("profilePicImage")).toBeTruthy();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns true for valid file URL", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "file:///storage/photo.jpg",
+    }),
+  });
+
+  const { getByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(getByTestId("profilePicImage")).toBeTruthy();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns true for valid content URL", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "content://media/photo.jpg",
+    }),
+  });
+
+  const { getByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(getByTestId("profilePicImage")).toBeTruthy();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns false for string not starting with http, file, or content", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "data:image/png;base64",
+    }),
+  });
+
+  const { queryByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(queryByTestId("profilePicImage")).toBeNull();
+  }, { timeout: 3000 });
+});
+
+it("isValidPic returns false for empty string", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "",
+    }),
+  });
+
+  const { queryByTestId } = render(<EditProfile />);
+  await waitFor(() => {
+    expect(queryByTestId("profilePicImage")).toBeNull();
+  }, { timeout: 3000 });
+});
+
+it("fetchInfo branch: pic startsWith http returns true, file and content not evaluated", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "httpsomething.com/photo.jpg", // Starts with "http" (not "file" or "content")
+    }),
+  });
+
+  const { getByTestId } = render(<EditProfile />);
+
+  await waitFor(() => {
+    expect(getByTestId("profilePicImage")).toBeTruthy();
+  }, { timeout: 3000 });
+});
+
+it("fetchInfo branch: pic does NOT start with http, checks file and returns true", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "filesomething/photo.jpg", // Starts with "file" but NOT "http"
+    }),
+  });
+
+  const { getByTestId } = render(<EditProfile />);
+
+  await waitFor(() => {
+    expect(getByTestId("profilePicImage")).toBeTruthy();
+  }, { timeout: 3000 });
+});
+
+it("fetchInfo branch: pic does NOT start with http or file, checks content and returns true", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "contentsomething/photo.jpg", // Starts with "content" but NOT "http" or "file"
+    }),
+  });
+
+  const { getByTestId } = render(<EditProfile />);
+
+  await waitFor(() => {
+    expect(getByTestId("profilePicImage")).toBeTruthy();
+  }, { timeout: 3000 });
+});
+
+it("fetchInfo branch: pic does NOT start with http, file, or content - all startsWith return false", async () => {
+  (getDoc as jest.Mock).mockResolvedValueOnce({
+    data: () => ({
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      gender: "Male",
+      profilePic: "xyz://something/photo.jpg", // Does NOT start with any valid prefix
+    }),
+  });
+
+  const { queryByTestId } = render(<EditProfile />);
+
+  await waitFor(() => {
+    expect(queryByTestId("profilePicImage")).toBeNull();
+  }, { timeout: 3000 });
+});

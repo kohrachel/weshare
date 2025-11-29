@@ -56,16 +56,6 @@
         fetchInfo();
       }, []);
 
-      const isValidPic = (pic: any): boolean => {
-        if (!pic) return false;
-        if (typeof pic !== "string") return false;
-        if (pic.length < 10) return false;
-        if (pic.startsWith("http") || pic.startsWith("file") || pic.startsWith("content")) {
-          return true;
-        }
-        return false;
-      };
-
       const fetchInfo = async () => {
         setLoading(true);
         try {
