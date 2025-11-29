@@ -120,9 +120,9 @@ export default function FeedPage() {
             try {
               // Delete the document from Firestore
               await deleteDoc(doc(db, "rides", rideDoc.id));
-              console.log(`Deleted expired ride: ${rideDoc.id}`);
+              // console.log(`Deleted expired ride: ${rideDoc.id}`); - uncomment if needed
             } catch (err) {
-              console.error("Error deleting expired ride:", err);
+              // console.error("Error deleting expired ride:", err); - uncomment if needed
             }
             // Skip adding this ride to the local 'ridesData' array
             continue;
