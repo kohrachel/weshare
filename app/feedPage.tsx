@@ -115,16 +115,16 @@ export default function FeedPage() {
 
           const rideDate = ride.departs.toDate();
 
-          // 2. Check if the ride is older than 7 days
+          // Check if the ride is older than 7 days
           if (rideDate < sevenDaysAgo) {
             try {
-              // 3. Delete the document from Firestore
+              // Delete the document from Firestore
               await deleteDoc(doc(db, "rides", rideDoc.id));
               console.log(`Deleted expired ride: ${rideDoc.id}`);
             } catch (err) {
               console.error("Error deleting expired ride:", err);
             }
-            // 4. Skip adding this ride to the local 'ridesData' array
+            // Skip adding this ride to the local 'ridesData' array
             continue;
           }
 
@@ -150,9 +150,6 @@ export default function FeedPage() {
             returns: ride.returns,
           });
         }
-
-        // Exclude past rides and sort chronologically
-        //const now = new Date();
 
         // Keep only rides whose departure date/time is in the future
         const upcomingRides = ridesData.filter((ride) => {
