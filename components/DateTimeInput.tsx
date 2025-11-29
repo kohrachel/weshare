@@ -16,6 +16,7 @@ type DateTimeInputProps = {
   timeValue: Date;
   setDateValue: React.Dispatch<React.SetStateAction<Date>>;
   setTimeValue: React.Dispatch<React.SetStateAction<Date>>;
+  required?: boolean;
 };
 
 export default function DateTimeInput({
@@ -24,12 +25,18 @@ export default function DateTimeInput({
   timeValue,
   setDateValue,
   setTimeValue,
+  required,
 }: DateTimeInputProps) {
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [timePickerVisible, setTimePickerVisible] = useState(false);
   return (
     <View style={inputStyles.inputWrapper}>
-      {label && <Text style={inputStyles.inputLabel}>{label}</Text>}
+      {label && (
+        <Text style={inputStyles.inputLabel}>
+          {label}
+          {required && <Text style={styles.requiredAsterisk}> *</Text>}
+        </Text>
+      )}
 
       <View style={styles.dateTimeWrapper}>
         <Picker
@@ -97,5 +104,8 @@ const styles = StyleSheet.create({
     ...inputStyles.inputBox,
     textAlign: "center",
     width: 100,
+  },
+  requiredAsterisk: {
+    color: "#ff0000",
   },
 });
