@@ -20,22 +20,23 @@ import {
   ScrollView,
   View,
 } from "react-native";
+import { deleteField } from "firebase/firestore";
 
 // Components
-import ButtonGreen from "@/components/buttonGreen";
-import Footer from "@/components/Footer";
-import Input from "@/components/Input";
-import Title from "@/components/Title";
+import ButtonGreen from "../components/buttonGreen";
+import Footer from "../components/Footer";
+import Input from "../components/Input";
+import Title from "../components/Title";
 
 // Firebase
-import { db, storage } from "@/firebaseConfig";
+import { db, storage } from "../firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export default function EditProfile() {
   const router = useRouter();
 
-  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [profilePic, setProfilePic] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,9 +50,6 @@ export default function EditProfile() {
       const id = await SecureStore.getItemAsync("userid");
       if (!id) {
         await SecureStore.setItemAsync("userid", "testUser123");
-        console.log("Test userid set to 'testUser123'");
-      } else {
-        console.log("Existing userid found:", id);
       }
     })();
   }, []);
@@ -65,7 +63,6 @@ export default function EditProfile() {
     setLoading(true);
     try {
       const id = await SecureStore.getItemAsync("userid");
-      console.log("Fetching info for userid:", id);
       if (!id) throw new Error("No user ID found");
 
       const userDoc = await getDoc(doc(db, "users", id));
@@ -78,8 +75,8 @@ export default function EditProfile() {
       setPaymentMethods(data?.paymentMethods || []);
       setProfilePic(data?.profilePic || null);
     } catch (error) {
-      console.error("Error fetching user:", error);
       Alert.alert("Error", "Failed to fetch user info.");
+      setProfilePic("");
     } finally {
       setLoading(false);
     }
@@ -88,7 +85,6 @@ export default function EditProfile() {
   const storeInfo = async () => {
     try {
       const id = await SecureStore.getItemAsync("userid");
-      console.log("Saving info for userid:", id);
       if (!id) throw new Error("No user ID found");
 
       await setDoc(
@@ -100,7 +96,6 @@ export default function EditProfile() {
       Alert.alert("Success", "Info saved!");
       fetchInfo();
     } catch (error) {
-      console.error("Error saving info:", error);
       Alert.alert("Error", "Info not saved, please try again.");
     }
   };
@@ -120,7 +115,6 @@ export default function EditProfile() {
         await uploadImage(uri);
       }
     } catch (error) {
-      console.error("Error picking image:", error);
       Alert.alert("Error", "Could not select image.");
     }
   };
@@ -130,32 +124,25 @@ export default function EditProfile() {
       const id = await SecureStore.getItemAsync("userid");
       if (!id) throw new Error("No user ID found");
 
-      const response = await fetch(uri);
-      const blob = await response.blob();
-
-      const storageRef = ref(storage, `profilePictures/${id}.jpg`);
-      await uploadBytes(storageRef, blob);
-
-      const downloadURL = await getDownloadURL(storageRef);
-      setProfilePic(downloadURL);
-
       await setDoc(
         doc(db, "users", id),
-        { profilePic: downloadURL },
+        { profilePic: uri },
         { merge: true },
       );
-      console.log("Image uploaded:", downloadURL);
+
+      setProfilePic(uri);
+      Alert.alert("Success", "Profile picture saved!");
     } catch (error) {
-      console.error("Error uploading image:", error);
+      Alert.alert("Error", "Failed to save profile picture.");
     }
   };
 
   const handleLogout = async () => {
     try {
-      await SecureStore.setItemAsync("userid", ""); // logout (for user testing)
+      await SecureStore.setItemAsync("userid", "");
       router.push("/login");
     } catch (error) {
-      console.error("Can't logout user: " + error);
+       console.error("Can't logout user: " + error);
     }
   };
 
@@ -201,21 +188,39 @@ export default function EditProfile() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        style={styles.profilePicContainer}
-        onPress={pickImage}
-        testID="profilePicButton"
-        accessibilityLabel="Profile Picture Button"
-      >
-        {profilePic ? (
-          <Image
-            source={{ uri: profilePic }}
-            style={styles.profilePic}
-            testID="profilePicImage"
-            accessibilityRole="image"
-          />
-        ) : (
-          <Ionicons name="camera" size={28} color="#529053" />
+      {/* Profile Picture */}
+      <View style={styles.profilePicWrapper}>
+        <TouchableOpacity
+          style={styles.profilePicContainer}
+          onPress={pickImage}
+          testID="profilePicButton"
+          accessibilityLabel="Profile Picture Button"
+        >
+          <Text style={styles.placeholderText}>+</Text>
+          {profilePic.length > 10 && (
+            <Image
+              source={{ uri: profilePic }}
+              style={[styles.profilePic, { position: "absolute" }]}
+              testID="profilePicImage"
+              accessibilityRole="image"
+            />
+          )}
+        </TouchableOpacity>
+        {profilePic.length > 10 && (
+          <TouchableOpacity
+            style={styles.trashIconButton}
+            onPress={async () => {
+              setProfilePic("");
+              const id = await SecureStore.getItemAsync("userid");
+              if (id) {
+                await setDoc(doc(db, "users", id), { profilePic: "" }, { merge: true });
+              }
+            }}
+            testID="remove-photo-button"
+            accessibilityLabel="Remove Photo Button"
+          >
+            <Ionicons name="trash-outline" size={20} color="#3CB371" />
+          </TouchableOpacity>
         )}
       </TouchableOpacity>
       <ScrollView>
@@ -300,9 +305,10 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     width: "100%",
     marginBottom: 20,
+    position: "relative",
   },
   headerText: {
     fontFamily: "Inter_700Bold",
@@ -318,9 +324,60 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
-    marginBottom: 20,
+    overflow: "hidden",
   },
-  profilePic: { width: 80, height: 80, borderRadius: 40 },
+  profilePicWrapper: {
+    alignSelf: "center",
+    marginBottom: 20,
+    position: "relative",
+    width: 80,
+    height: 80,
+  },
+  trashIconButton: {
+    position: "absolute",
+    bottom: -4,
+    right: -4,
+    backgroundColor: "#2a2a2a",
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  removeButton: {
+    position: "absolute",
+    top: 0,
+    right: -5,
+    backgroundColor: "red",
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  removeButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  profilePic: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  placeholderPic: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#2a2a2a",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  placeholderText: {
+    fontSize: 36,
+    color: "#3CB371",
+    fontWeight: "bold",
+  },
   formArea: {
     flex: 1,
     flexDirection: "column",
@@ -340,6 +397,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
+    position: "absolute",
+    right: 0,
   },
   logoutButtonText: {
     color: "white",
@@ -347,7 +406,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   titleWrapper: {
-    flex: 1,
+    alignItems: "center",
   },
   inputContainer: {
     flexDirection: "column",
