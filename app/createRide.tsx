@@ -93,6 +93,40 @@ export default function CreateRide() {
     return nextDate;
   }
 
+  function isFormValid(): boolean {
+    // Check mandatory fields
+    if (rideData.destination === "") {
+      return false;
+    }
+
+    if (rideData.departsFrom === "") {
+      return false;
+    }
+
+    if (rideData.maxPpl < 2) {
+      return false;
+    }
+
+    // If round trip, validate return is after departure
+    if (rideData.isRoundTrip) {
+      const returnDateTime = mergeDateAndTime(returnDate, returnTime);
+      const departDateTime = mergeDateAndTime(departDate, departTime);
+      if (returnDateTime <= departDateTime) {
+        return false;
+      }
+    }
+
+    // If recurring ride, validate number of occurrences
+    if (rideData.isRecurringRide) {
+      const numOccurrences = Number(rideData.numOccurrences);
+      if (numOccurrences < 1 || numOccurrences > 52) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   // Validates and pushes a new ride to the Firebase,
   // or multiple rides if a recurring schedule is set
   const storeRide = async () => {
@@ -265,6 +299,7 @@ export default function CreateRide() {
           setValue={(value) =>
             setRideData((prev) => ({ ...prev, destination: value }))
           }
+          required
         ></Input>
         <DateTimeInput
           label={"When are we leaving?"}
@@ -272,6 +307,7 @@ export default function CreateRide() {
           timeValue={departTime}
           setDateValue={setDepartDate}
           setTimeValue={setDepartTime}
+          required
         />
         <Input
           label={"Where to meet?"}
@@ -280,6 +316,7 @@ export default function CreateRide() {
           setValue={(value) =>
             setRideData((prev) => ({ ...prev, departsFrom: value }))
           }
+          required
         ></Input>
         <Input
           label={"How many people (including you)?"}
@@ -288,9 +325,13 @@ export default function CreateRide() {
           setValue={(value) =>
             setRideData((prev) => ({ ...prev, maxPpl: Number(value) || 0 }))
           }
+          required
         ></Input>
         <View>
-          <Text style={styles.label}>What genders allowed?</Text>
+          <Text style={styles.label}>
+            What genders allowed?
+            <Text style={styles.requiredAsterisk}> *</Text>
+          </Text>
           <Picker
             selectedValue={rideData.gender}
             dropdownIconColor="#e7e7e7"
@@ -335,6 +376,7 @@ export default function CreateRide() {
             timeValue={returnTime}
             setDateValue={setReturnDate}
             setTimeValue={setReturnTime}
+            required
           />
         )}
         <View style={styles.switchContainer}>
@@ -375,11 +417,16 @@ export default function CreateRide() {
               setValue={(value) =>
                 setRideData((prev) => ({ ...prev, numOccurrences: value }))
               }
+              required
             />
           </>
         )}
       </ScrollView>
-      <ButtonGreen title="Create New Ride" onPress={storeRide} />
+      <ButtonGreen
+        title="Create New Ride"
+        onPress={storeRide}
+        disabled={!isFormValid()}
+      />
     </View>
   );
 }
@@ -411,5 +458,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  requiredAsterisk: {
+    color: "#ff0000",
   },
 });

@@ -1,6 +1,6 @@
 /**
  Contributors
- Kevin Song: 2 hours
+ Kevin Song: 4 hours
  Emma Reid: 2 hours
  Rachel Huiqi: 5 hours
  */
@@ -8,6 +8,7 @@
 import { AllowedGenders } from "@/app/createRide";
 import Footer from "@/components/Footer";
 import { RidesContext } from "@/contexts/RidesContext";
+import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
 import { useRoute } from "@react-navigation/native";
 import { doc, getDoc, Timestamp } from "firebase/firestore";
@@ -22,6 +23,13 @@ import {
 import SingleRidePost from "../components/SingleRidePost";
 import ContactCard from "../components/contactCard";
 export type UserGenderType = "Male" | "Female" | "Other" | "Not set";
+export type AllowedPaymentMethodsType =
+  | "PayPal"
+  | "Apple Cash"
+  | "Venmo"
+  | "Zelle"
+  | "Google Pay"
+  | "Cash App";
 
 export type RideDataType = {
   id: string;
@@ -38,11 +46,16 @@ export type RideDataType = {
   returns: Timestamp;
 };
 
+export type RideWithCreatorName = RideDataType & {
+  creatorName: string;
+};
+
 export type UserData = {
   name: string;
   phone: string;
   email: string;
   gender: UserGenderType;
+  paymentMethods?: AllowedPaymentMethodsType[];
 };
 
 const unknownUser: UserData = {
@@ -53,7 +66,8 @@ const unknownUser: UserData = {
 };
 
 export default function RsvpRidePage() {
-  const { setRides } = useContext(RidesContext);
+  const { setRides, getSingleRide } = useContext(RidesContext);
+  const { userId } = useContext(UserContext);
 
   const [rideData, setRideData] = useState<RideDataType | null>(null);
   const [rsvpedUsers, setRsvpedUsers] = useState<UserData[]>([unknownUser]);
@@ -68,6 +82,19 @@ export default function RsvpRidePage() {
   if (!rideId) {
     rideId = "DHbTvTZQQugk83PjwYup";
   }
+
+  // Get ride data from context (for live updates)
+  const contextRideData = useMemo(
+    () => getSingleRide(rideId),
+    [getSingleRide, rideId],
+  );
+
+  // Sync context ride data to local state for live updates
+  useEffect(() => {
+    if (contextRideData) {
+      setRideData(contextRideData);
+    }
+  }, [contextRideData]);
 
   useEffect(() => {
     const fetchRideData = async () => {
@@ -94,9 +121,20 @@ export default function RsvpRidePage() {
       };
 
       setRideData(newRideData);
-      setRides((prevRides) =>
-        prevRides.map((ride) => (ride.id === rideId ? newRideData : ride)),
-      );
+      setRides((prevRides) => {
+        const existingRideIndex = prevRides.findIndex(
+          (ride) => ride.id === rideId,
+        );
+        if (existingRideIndex >= 0) {
+          // Update existing ride
+          return prevRides.map((ride) =>
+            ride.id === rideId ? newRideData : ride,
+          );
+        } else {
+          // Add new ride if it doesn't exist
+          return [...prevRides, newRideData];
+        }
+      });
     };
     fetchRideData();
   }, [rideId, setRides]);
@@ -110,15 +148,21 @@ export default function RsvpRidePage() {
           if (!userId || userId === "") return unknownUser;
           const userData = await getDoc(doc(db, "users", userId));
           if (!userData.exists()) return unknownUser;
-
-          const user = userData.data();
-          const { name, gender = "Not set", phone = "Not set", email } = user;
+          const user = userData.data() as UserData;
+          const {
+            name,
+            gender = "Not set",
+            phone = "Not set",
+            email,
+            paymentMethods,
+          } = user;
 
           return {
             name,
             gender,
             phone,
             email,
+            paymentMethods: paymentMethods || [],
           };
         }),
       );
@@ -157,6 +201,7 @@ export default function RsvpRidePage() {
             phoneNum={user.phone}
             email={user.email}
             gender={user.gender}
+            paymentMethods={user.paymentMethods || []}
           />
         ))}
       </ScrollView>
