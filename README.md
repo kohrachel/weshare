@@ -10,17 +10,18 @@ This is an Android app. We have submitted the latest APK build of the app with t
 
 To access it:
 
-1. Download the APK file
+1. Download the APK file on your mobile device
 2. Install it on your Android mobile device
    - You may have to grant permissions to install unknown apps
    - For a more in-depth explanation, see [this blog post from Android Authority](https://www.androidauthority.com/how-to-install-apks-31494/)
+3. Sign-in with your _Vanderbilt_ Microsoft account
 
 > [!IMPORTANT]
 > You cannot run the app on an iOS device.
 
 If you would prefer to recreate the APK file:
 
-1. Clone this repository and ensure you have all prerequisites (see instructions below)
+1. Clone this repository and ensure you have all prerequisites (see instructions below in APK Generation)
 2. Run `bun run android`
    - NOTE: You may have to install Expo Go, Expo Orbit, and Android Studio
 3. In the terminal output, look for lines with something like:
@@ -32,6 +33,51 @@ If you would prefer to recreate the APK file:
    ```
 4. Access the `.apk` file at the specified path
 5. Send the file to an Android mobile device where you can download and install it (see instructions above). You may also be able to run the APK on your Android simulator on a laptop, but certain functionality may not match the experience on a physical device exactly (e.g. input bars do not open the keyboard)
+
+## Firebase
+
+- Firebase project is named WeShare. [Firestore](https://console.firebase.google.com/u/0/project/weshare-c1834/firestore/databases/-default-/data) is built within that Firebase project.
+- [Official Firebase docs](https://firebase.google.com/docs/firestore/quickstart#node.js) - code examples
+  React Native Projects are considered Web modular API projects.
+- [ReactNative + Expo specific docs](https://rnfirebase.io/]) - helpful for setup
+- [Expo Specific Docs](https://docs.expo.dev/guides/using-firebase/) - explain more about firebaseConfig.js
+
+On the free plan, we are currently [limited](https://firebase.google.com/pricing?authuser=0&_gl=1*snijf2*_ga*MjA2NDUwMjc0Ny4xNzU5MjUyMjE5*_ga_CW55HF8NVT*czE3NTkyNzExNTYkbzIkZzEkdDE3NTkyNzE0MTckajExJGwwJGgw) but should have enough free access for starting out.
+
+We are currently in test mode (The default security rules for test mode allow anyone with your database reference to view, edit and delete all data in your database for the next 30 days)
+
+## Security/Authentication
+
+- We are using Expo [SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/) to store authentication data.
+- It will primarily just store the user id which will identify the user in the database.
+- [More info](https://reactnative.dev/docs/security) on handling sensitive data in ReactNative.
+- Using Microsoft login to require Vanderbilt login following [this document](https://medium.com/@shaikabbas101/microsoft-authentication-in-react-native-using-react-native-app-auth-3041565e914c)
+- Using expo-auth-session instead of react-native-app-auth due to compatibility issues with Expo
+- Redirect URI: com.wesharenative://oauth/auth/
+- Expo Go always has a changing redirect uri which must be updated in Azure each time the project is run. This issue is specific to Expo Go and would not affect production as production would have a stable uri.
+- Weshare login secret will be valid for 6 months (until 11 April 2026)
+
+## Testing
+
+- Unit tests: [Jest](https://docs.expo.dev/develop/unit-testing/)
+
+  ```bash
+  bun run test
+  ```
+Coverage report will be generated in the terminal when finished.
+
+## APK Generation
+
+- Run `bunx expo prebuild --platform android --clean`
+- Create `local.properties` file in android folder and add this line (assuming this is where your SDK is, can check in file explorer): sdk.dir=C:/Users/username/AppData/Local/Android/Sdk
+- Run `cd android`
+- Run `./gradlew clean`
+   - If get "Failed to delete some children. This might happen because a process has files open or has its working directory set in the target directory." just run the command again.
+- In `/weshare/android/app/build.gradle` add `manifestPlaceholders = [appAuthRedirectScheme: "weshare"]` in the defaultConfige (right below `buildConfigField...`)
+- Check `/weshare/android/app/src/main/AndroidManifest.xml` and replace `android:scheme="weshare"` with `android:scheme="${appAuthRedirectScheme}"` (there may be multiple occurences)
+- Run `./gradlew assembleRelease`
+- APK can be found in `/weshare/android/app/build/outputs/apk/release/`
+- Link to debugging conversation with chat https://chatgpt.com/share/691697f0-1d20-8012-97d8-f42bdbc33191
 
 # Using Bun
 
@@ -184,50 +230,3 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-
-## Firebase
-
-- Firebase project is named WeShare. [Firestore](https://console.firebase.google.com/u/0/project/weshare-c1834/firestore/databases/-default-/data) is built within that Firebase project.
-- [Official Firebase docs](https://firebase.google.com/docs/firestore/quickstart#node.js) - code examples
-  React Native Projects are considered Web modular API projects.
-- [ReactNative + Expo specific docs](https://rnfirebase.io/]) - helpful for setup
-- [Expo Specific Docs](https://docs.expo.dev/guides/using-firebase/) - explain more about firebaseConfig.js
-
-On the free plan, we are currently [limited](https://firebase.google.com/pricing?authuser=0&_gl=1*snijf2*_ga*MjA2NDUwMjc0Ny4xNzU5MjUyMjE5*_ga_CW55HF8NVT*czE3NTkyNzExNTYkbzIkZzEkdDE3NTkyNzE0MTckajExJGwwJGgw) but should have enough free access for starting out.
-
-We are currently in test mode (The default security rules for test mode allow anyone with your database reference to view, edit and delete all data in your database for the next 30 days)
-
-## Security/Authentication
-
-- We are using Expo [SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/) to store authentication data.
-- It will primarily just store the user id which will identify the user in the database.
-- [More info](https://reactnative.dev/docs/security) on handling sensitive data in ReactNative.
-- Using Microsoft login to require Vanderbilt login following [this document](https://medium.com/@shaikabbas101/microsoft-authentication-in-react-native-using-react-native-app-auth-3041565e914c)
-- Using expo-auth-session instead of react-native-app-auth due to compatibility issues with Expo
-- Redirect URI: com.wesharenative://oauth/auth/
-- Expo Go always has a changing redirect uri which must be updated in Azure each time the project is run. This issue is specific to Expo Go and would not affect production as production would have a stable uri.
-- Weshare login secret will be valid for 6 months (until 11 April 2026)
-
-## Testing
-
-- Unit tests: (Jest)[https://docs.expo.dev/develop/unit-testing/]
-
-  ```bash
-  bun run test
-  ```
-
-  - Check coverage in weshare/coverage/lcov-report/index.html (open in browser)
-
-## APK Generation
-
-- Optional: Change first screen to Login, not Index.
-- Run `bunx expo prebuild --platform android --clean`
-- Create `local.properties` file in android folder and add this line (assuming this is where your SDK is, can check in file explorer): sdk.dir=C:/Users/username/AppData/Local/Android/Sdk
-- Run `cd android`
-- Run `./gradlew clean`
-  - If get "Failed to delete some children. This might happen because a process has files open or has its working directory set in the target directory." just run the command again.
-- In `/weshare/android/app/build.gradle` add `manifestPlaceholders = [appAuthRedirectScheme: "weshare"]` in the defaultConfige (right below `buildConfigField...`)
-- Check `/weshare/android/app/src/main/AndroidManifest.xml` and replace `android:scheme="weshare"` with `android:scheme="${appAuthRedirectScheme}"` (there may be multiple occurences)
-- Run `./gradlew assembleRelease`
-- APK can be found in `/weshare/android/app/build/outputs/apk/release/`
-- Link to debugging conversation with chat https://chatgpt.com/share/691697f0-1d20-8012-97d8-f42bdbc33191
