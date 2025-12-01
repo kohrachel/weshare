@@ -34,6 +34,17 @@ If you would prefer to recreate the APK file:
 4. Access the `.apk` file at the specified path
 5. Send the file to an Android mobile device where you can download and install it (see instructions above). You may also be able to run the APK on your Android simulator on a laptop, but certain functionality may not match the experience on a physical device exactly (e.g. input bars do not open the keyboard)
 
+## Project Description
+The current Vanderbilt student solution to sharing Ubers or Lyfts is an unwieldy group chat on 
+GroupMe. During school breaks, it requires users to scroll through a random assortment of messages, 
+trying to determine if someone is leaving at the same time as them. This is both tedious, 
+time-consuming, and prone to issues such as asking someone to carpool and being told that they 
+already have a full group. This app will organize and sort all postings asking for carpool members 
+and have a feature which will indicate if a carpool group is full already. The scope of the project 
+will be a full Android app that works for Vanderbilt students looking for carpools to and 
+from the airport or anywhere else. The scope will not extend to non-Vanderbilt students at this 
+time, as it will require Vanderbilt credentials on sign in.
+
 ## Firebase
 
 - Firebase project is named WeShare. [Firestore](https://console.firebase.google.com/u/0/project/weshare-c1834/firestore/databases/-default-/data) is built within that Firebase project.
