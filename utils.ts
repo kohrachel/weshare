@@ -1,6 +1,6 @@
 /**
  Contributors
- Rachel Huiqi: 1 hour
+ Rachel Huiqi: 2 hours
  */
 
 export const formatDate = (date: Date) => {
