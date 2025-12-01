@@ -233,8 +233,10 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         <Text style={styles.tag}>
           {rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender + " only"}
         </Text>
-        {rideData.isRoundTrip !== undefined && !rideData.isRoundTrip && (
-          <Text style={styles.tag}>One Way</Text>
+        {rideData.isRoundTrip !== undefined && (
+          <Text style={styles.tag}>
+            {rideData.isRoundTrip ? "Round Trip" : "One Way"}
+          </Text>
         )}
       </View>
 
