@@ -19,21 +19,6 @@ To access it:
 > [!IMPORTANT]
 > You cannot run the app on an iOS device.
 
-If you would prefer to recreate the APK file:
-
-1. Clone this repository and ensure you have all prerequisites (see instructions below in APK Generation)
-2. Run `bun run android`
-   - NOTE: You may have to install Expo Go, Expo Orbit, and Android Studio
-3. In the terminal output, look for lines with something like:
-   ```bash
-   # QR code and Expo CLI options...
-   › Installing /path-to-cloned-folder/weshare/android/app/build/outputs/apk/debug/app-debug.apk
-   › Opening weshare://expo-development-client on Medium_Phone_API_36.0
-   # ... More info lines
-   ```
-4. Access the `.apk` file at the specified path
-5. Send the file to an Android mobile device where you can download and install it (see instructions above). You may also be able to run the APK on your Android simulator on a laptop, but certain functionality may not match the experience on a physical device exactly (e.g. input bars do not open the keyboard)
-
 ## Project Description
 The current Vanderbilt student solution to sharing Ubers or Lyfts is an unwieldy group chat on 
 GroupMe. During school breaks, it requires users to scroll through a random assortment of messages, 
