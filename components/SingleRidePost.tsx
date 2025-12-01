@@ -8,7 +8,7 @@ import { RideDataType, UserData } from "@/app/rsvp";
 import { RidesContext } from "@/contexts/RidesContext";
 import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
-import { formatDate, formatTime } from "@/utils";
+import { formatDateShort, formatTime } from "@/utils";
 import { useRouter } from "expo-router";
 import {
   arrayRemove,
@@ -149,7 +149,15 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         <View style={styles.headerText}>
           <Text style={styles.title}>{rideData.destination}</Text>
           <Text style={styles.createdBy}>
-            Created by: {rideCreator || "Loading..."}
+            {formatDateShort(rideData.departs.toDate()) +
+              ", " +
+              formatTime(rideData.departs.toDate())}
+            {rideData.isRoundTrip &&
+              rideData.returns &&
+              " — " +
+                formatDateShort(rideData.returns.toDate()) +
+                ", " +
+                formatTime(rideData.returns.toDate())}
           </Text>
         </View>
       </View>
@@ -191,10 +199,10 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
       {/* Time & Location Section */}
       <View style={styles.timeLocationSection}>
-        <View style={styles.detailRow}>
+        {/* <View style={styles.detailRow}>
           <Text style={styles.label}>📅 Leaves </Text>
           <Text style={styles.value}>
-            {formatDate(rideData.departs.toDate()) +
+            {formatDateShort(rideData.departs.toDate()) +
               " @ " +
               formatTime(rideData.departs.toDate())}
           </Text>
@@ -204,12 +212,12 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
           <View style={styles.detailRow}>
             <Text style={styles.label}>🏠 Returns </Text>
             <Text style={styles.value}>
-              {formatDate(rideData.returns.toDate()) +
+              {formatDateShort(rideData.returns.toDate()) +
                 " @ " +
                 formatTime(rideData.returns.toDate())}
             </Text>
           </View>
-        )}
+        )} */}
 
         <View style={styles.detailRow}>
           <Text style={styles.label}>🤝🏻 Departs from </Text>
