@@ -29,6 +29,14 @@ jest.mock("firebase/firestore", () => ({
 
 jest.mock("@/firebaseConfig", () => ({ db: {} }));
 
+jest.mock("@/utils/notifications", () => ({
+  registerForPushNotificationsAsync: jest
+    .fn()
+    .mockResolvedValue("mock-push-token"),
+  scheduleRideNotification: jest.fn().mockResolvedValue(undefined),
+  cancelRideNotification: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock("../components/buttonGreen", () => {
   return ({ title, onPress }: any) => (
     <button onClick={onPress} testID="create-ride-button">

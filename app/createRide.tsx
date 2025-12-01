@@ -8,17 +8,25 @@ import ButtonGreen from "@/components/buttonGreen";
 import DateTimeInput from "@/components/DateTimeInput";
 import Input from "@/components/Input";
 import { db } from "@/firebaseConfig";
+import {
+  registerForPushNotificationsAsync,
+  scheduleRideNotification,
+} from "@/utils/notifications";
 import { Picker } from "@react-native-picker/picker";
 import * as SecureStore from "expo-secure-store";
 import { addDoc, collection, doc, getDoc, Timestamp } from "firebase/firestore";
-import React, { useState, useEffect, useRef } from "react";
-import { ScrollView, StyleSheet, Switch, Text, View, Button, Platform, ToastAndroid } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  ToastAndroid,
+  View,
+} from "react-native";
 import Title from "../components/Title";
 import { RideDataType } from "./rsvp";
-import {
-  registerForPushNotificationsAsync,
-  scheduleRideNotification
-} from "@/utils/notifications";
 
 export type AllowedGenders = "Co-ed" | "Female" | "Male";
 type RecurrenceFrequency = "daily" | "weekly" | "monthly";
@@ -39,12 +47,12 @@ export default function CreateRide() {
   const [departTime, setDepartTime] = useState(new Date());
   const [returnDate, setReturnDate] = useState(new Date());
   const [returnTime, setReturnTime] = useState(new Date());
-  const [expoPushToken, setExpoPushToken] = useState('');
+  const [expoPushToken, setExpoPushToken] = useState("");
 
   // Setup notifications
   useEffect(() => {
     registerForPushNotificationsAsync()
-      .then(token => setExpoPushToken(token ?? ''))
+      .then((token) => setExpoPushToken(token ?? ""))
       .catch((error: any) => setExpoPushToken(`${error}`));
   }, []);
 
@@ -242,12 +250,14 @@ export default function CreateRide() {
           await scheduleRideNotification(departsDate);
         }
 
-        ToastAndroid.show(
-          (rideData.isRecurringRide
-            ? `${ridesToCreate} rides saved!\n`
-            : "Ride saved!\n"),
-          ToastAndroid.SHORT
-        );
+        const successMessage = rideData.isRecurringRide
+          ? `${ridesToCreate} rides saved!`
+          : "Ride saved!";
+
+        if (Platform.OS === "android") {
+          ToastAndroid.show(successMessage, ToastAndroid.SHORT);
+        }
+        alert(successMessage);
 
         // Reset form fields
         setDepartDate(new Date());
