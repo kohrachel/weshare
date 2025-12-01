@@ -200,6 +200,17 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
           </Text>
         </View>
 
+        {rideData.isRoundTrip && rideData.returns && (
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>🏠 Returns </Text>
+            <Text style={styles.value}>
+              {formatDate(rideData.returns.toDate()) +
+                " @ " +
+                formatTime(rideData.returns.toDate())}
+            </Text>
+          </View>
+        )}
+
         <View style={styles.detailRow}>
           <Text style={styles.label}>🤝🏻 Departs from </Text>
           <Text style={styles.value}>{rideData.departsFrom}</Text>
@@ -214,10 +225,8 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         <Text style={styles.tag}>
           {rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender + " only"}
         </Text>
-        {rideData.isRoundTrip !== undefined && (
-          <Text style={styles.tag}>
-            {rideData.isRoundTrip ? "Round Trip" : "One Way"}
-          </Text>
+        {rideData.isRoundTrip !== undefined && !rideData.isRoundTrip && (
+          <Text style={styles.tag}>One Way</Text>
         )}
       </View>
 
