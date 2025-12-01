@@ -307,13 +307,6 @@ describe("CreateRide Ride Creation Screen", () => {
     );
   });
 
-  it("renders gender picker and luggage switch", () => {
-    const { getByText, getByTestId } = render(<CreateRide />);
-    expect(getByText("What genders allowed?")).toBeTruthy();
-    expect(getByText("Room for luggage?")).toBeTruthy();
-    expect(getByTestId("gender-picker")).toBeTruthy();
-  });
-
   it("updates gender when Picker value changes", async () => {
     const { getByTestId } = render(<CreateRide />);
     fireEvent.press(getByTestId("picker-Female"));

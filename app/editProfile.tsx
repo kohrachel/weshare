@@ -142,7 +142,7 @@ export default function EditProfile() {
       await SecureStore.setItemAsync("userid", "");
       router.push("/login");
     } catch (error) {
-       console.error("Can't logout user: " + error);
+      console.error("Can't logout user: " + error);
     }
   };
 
@@ -197,7 +197,7 @@ export default function EditProfile() {
           accessibilityLabel="Profile Picture Button"
         >
           <Text style={styles.placeholderText}>+</Text>
-          {profilePic.length > 10 && (
+          {profilePic && profilePic.length > 10 && (
             <Image
               source={{ uri: profilePic }}
               style={[styles.profilePic, { position: "absolute" }]}
@@ -206,7 +206,7 @@ export default function EditProfile() {
             />
           )}
         </TouchableOpacity>
-        {profilePic.length > 10 && (
+        {profilePic && profilePic.length > 10 && (
           <TouchableOpacity
             style={styles.trashIconButton}
             onPress={async () => {
@@ -222,7 +222,8 @@ export default function EditProfile() {
             <Ionicons name="trash-outline" size={20} color="#3CB371" />
           </TouchableOpacity>
         )}
-      </TouchableOpacity>
+      </View>
+
       <ScrollView>
         <View style={styles.formArea}>
           <Input
