@@ -27,8 +27,6 @@ type SingleRidePostProps = {
   rideId: string;
 };
 
-const CAPACITY_BAR_WIDTH = 330;
-
 export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   const router = useRouter();
 
@@ -46,6 +44,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
   const [rideCreator, setRideCreator] = useState<string>("Loading...");
   const [userData, setUserData] = useState<UserData | undefined>(undefined);
+  const [capacityBarWidth, setCapacityBarWidth] = useState<number>(330);
 
   useEffect(() => {
     if (!userId) return;
@@ -156,16 +155,22 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
       </View>
 
       {/* Capacity Section */}
-      <View style={styles.capacityContainer}>
+      <View
+        style={styles.capacityContainer}
+        onLayout={(event) => {
+          const { width } = event.nativeEvent.layout;
+          setCapacityBarWidth(width);
+        }}
+      >
         <Text style={styles.capacityText}>
           {rideData.numRsvpedUsers} / {rideData.maxPpl} seats taken
         </Text>
-        <Svg width={CAPACITY_BAR_WIDTH} height="10" style={styles.capacityBar}>
+        <Svg width={capacityBarWidth} height="10" style={styles.capacityBar}>
           {/* Background bar (gray for full capacity) */}
           <Rect
             x="0"
             y="0"
-            width={CAPACITY_BAR_WIDTH}
+            width={capacityBarWidth}
             height="10"
             fill="#5f5f5f"
             rx="5"
@@ -175,7 +180,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
           <Rect
             x="0"
             y="0"
-            width={`${(rideData.numRsvpedUsers / (rideData.maxPpl || 1)) * CAPACITY_BAR_WIDTH}`}
+            width={`${(rideData.numRsvpedUsers / (rideData.maxPpl || 1)) * capacityBarWidth}`}
             height="10"
             fill="#a0fca1"
             rx="5"
@@ -313,7 +318,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   capacityBar: {
-    alignSelf: "center",
     borderRadius: 5,
   },
 });
