@@ -33,12 +33,8 @@ yarn-error.*
 # local env files
 .env*.local
 
-# xml
-studiobot.xml
-SweepConfig.xml
-GhostTextManager_v2.xml
-misc.xml
-deviceStreaming.xml
+# IDE
+.idea/
 
 # typescript
 *.tsbuildinfo
