@@ -59,8 +59,12 @@ export default function CreateRide() {
     numOccurrences: "4",
   });
 
-  // Merges the date part of one timestamp with the time part of another timestamp
-  // Date and time are two separate fields and are picked separately so need to be put together
+  /**
+   * Merges the date part of one Date object with the time part of another.
+   * @param datePart The Date object to take the date from.
+   * @param timePart The Date object to take the time from.
+   * @returns A new Date object with the merged date and time.
+   */
   function mergeDateAndTime(datePart: Date, timePart: Date): Date {
     return new Date(
       datePart.getFullYear(),
@@ -73,7 +77,12 @@ export default function CreateRide() {
     );
   }
 
-  // Produces a date a specified time (daily/weekly/monthly) after the input date
+  /**
+   * Calculates the next date in a recurring sequence.
+   * @param currentDate The current date.
+   * @param frequency The recurrence frequency ("daily", "weekly", or "monthly").
+   * @returns The next date in the sequence.
+   */
   function getNextDate(
     currentDate: Date,
     frequency: RecurrenceFrequency,
@@ -93,6 +102,10 @@ export default function CreateRide() {
     return nextDate;
   }
 
+  /**
+   * Validates the ride form data.
+   * @returns True if the form is valid, false otherwise.
+   */
   function isFormValid(): boolean {
     // Check mandatory fields
     if (rideData.destination === "") {
@@ -127,8 +140,10 @@ export default function CreateRide() {
     return true;
   }
 
-  // Validates and pushes a new ride to the Firebase,
-  // or multiple rides if a recurring schedule is set
+  /**
+   * Validates and pushes a new ride to the Firebase,
+   * or multiple rides if a recurring schedule is set.
+   */
   const storeRide = async () => {
     try {
       const id = await SecureStore.getItemAsync("userid");
