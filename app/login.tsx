@@ -13,7 +13,11 @@ import { db } from "@/firebaseConfig";
 import * as AuthSession from "expo-auth-session";
 import * as SecureStore from "expo-secure-store";
 
-// Main screen
+/**
+ * Renders the login screen and handles the Microsoft single sign-on (SSO) authentication flow.
+ * It verifies that the user has a Vanderbilt email address before granting access to the app.
+ * @returns {JSX.Element} The Login component.
+ */
 export default function Login() {
   const router = useRouter();
 
@@ -36,6 +40,10 @@ export default function Login() {
     discovery,
   );
 
+  /**
+   * Checks if a user is already logged in by looking for a stored user ID.
+   * If a valid user session is found, it navigates the user to the main feed page.
+   */
   const checkUser = async () => {
     try {
       const id = await SecureStore.getItemAsync("userid");
@@ -58,6 +66,11 @@ export default function Login() {
     if (response?.type === "success") {
       const { code } = response.params;
 
+      /**
+       * Fetches user information from the Microsoft identity platform after a successful authentication.
+       * It exchanges the authorization code for an access token, retrieves user details, validates the
+       * email domain, and stores the user's information before navigating to the feed page.
+       */
       const getUserInfo = async () => {
         // Exchange authorization code for tokens
         const tokenResponse = await AuthSession.exchangeCodeAsync(
@@ -103,6 +116,12 @@ export default function Login() {
     }
   }, [response]);
 
+  /**
+   * Stores or updates a user's profile information in the Firestore database.
+   * @param {string} userId - The unique ID of the user.
+   * @param {string} email - The user's email address.
+   * @param {string} name - The user's full name.
+   */
   const storeUser = async (userId, email, name) => {
     try {
       const docRef = await setDoc(doc(db, "users", userId), {
