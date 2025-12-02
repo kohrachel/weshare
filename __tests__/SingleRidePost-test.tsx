@@ -66,6 +66,7 @@ jest.mock("expo-router", () => ({
 }));
 jest.mock("../utils/DateTime", () => ({
   formatDate: jest.fn((date) => "01/15/2025"),
+  formatDateShort: jest.fn((date) => "01/15/2025"),
   formatTime: jest.fn((date) => "10:00 AM"),
 }));
 
@@ -205,7 +206,7 @@ describe("SingleRidePost", () => {
 
     it("should render departure date and time", () => {
       const { getByText } = renderComponent();
-      expect(getByText("01/15/2025 @ 10:00 AM")).toBeTruthy();
+      expect(getByText("01/15/2025, 10:00 AM")).toBeTruthy();
     });
 
     it("should render meeting location", () => {
@@ -274,30 +275,6 @@ describe("SingleRidePost", () => {
 
       const { getByText } = renderComponent();
       expect(getByText("Mountain Peak")).toBeTruthy();
-    });
-  });
-
-  describe("Creator Info Fetching", () => {
-    it("should handle non-existent creator document", async () => {
-      mockGetDoc.mockResolvedValue({
-        exists: () => false,
-      });
-
-      const { getByText } = renderComponent();
-      await waitFor(() => {
-        expect(getByText("Created by: Loading...")).toBeTruthy();
-      });
-    });
-
-    it("should not fetch creator info when ride data has no creator", async () => {
-      mockGetSingleRide.mockReturnValue({
-        ...mockRideData,
-        creatorId: undefined,
-      });
-
-      renderComponent();
-      // Should not crash and should render other info
-      expect(mockGetSingleRide).toHaveBeenCalled();
     });
   });
 

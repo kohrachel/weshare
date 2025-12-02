@@ -279,7 +279,7 @@ export default function FeedPage() {
         <View style={{ flex: 1 }}>
           <Input
             ref={searchInputRef}
-            defaultValue="Search destination, date/time, or creator"
+            defaultValue="🔍 Destination, Date/Time, or Creator"
             value={searchQuery}
             setValue={setSearchQuery}
             onPress={() => setIsFocused(true)}
