@@ -3,7 +3,7 @@
  Rachel Huiqi: 6 hours
  */
 
-import { formatDate, formatTime } from "@/utils";
+import { formatDate, formatTime } from "../utils/DateTime";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -19,6 +19,19 @@ type DateTimeInputProps = {
   required?: boolean;
 };
 
+/**
+ * Renders a component for date and time selection.
+ * It displays the provided label and two separate, pressable inputs for date and time.
+ * Tapping on either input opens the respective native date or time picker.
+ * @param {DateTimeInputProps} props - The component props.
+ * @param {string} [props.label] - An optional label to display above the input fields.
+ * @param {Date} props.dateValue - The current date value.
+ * @param {Date} props.timeValue - The current time value.
+ * @param {React.Dispatch<React.SetStateAction<Date>>} props.setDateValue - The state dispatch function to update the date.
+ * @param {React.Dispatch<React.SetStateAction<Date>>} props.setTimeValue - The state dispatch function to update the time.
+ * @param {boolean} [props.required] - If true, displays a red asterisk next to the label to indicate a required field.
+ * @returns {JSX.Element} The DateTimeInput component.
+ */
 export default function DateTimeInput({
   label,
   dateValue,

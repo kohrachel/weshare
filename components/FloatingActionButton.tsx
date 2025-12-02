@@ -7,6 +7,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
+/**
+ * Renders a floating action button that navigates to the create ride screen.
+ * This component is positioned at the bottom right of the screen and provides a
+ * quick access point for users to initiate the ride creation process.
+ * @returns {JSX.Element} The FloatingActionButton component.
+ */
 export default function FloatingActionButton() {
   const router = useRouter();
 

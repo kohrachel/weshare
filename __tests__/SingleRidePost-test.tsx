@@ -64,10 +64,23 @@ jest.mock("@react-navigation/native");
 jest.mock("expo-router", () => ({
   useRouter: jest.fn(),
 }));
-jest.mock("@/utils", () => ({
+jest.mock("../utils/DateTime", () => ({
   formatDate: jest.fn((date) => "01/15/2025"),
   formatDateShort: jest.fn((date) => "01/15/2025"),
   formatTime: jest.fn((date) => "10:00 AM"),
+}));
+
+// Mock notifications module to prevent physical device errors
+jest.mock("@/utils/notifications", () => ({
+  registerForPushNotificationsAsync: jest.fn().mockResolvedValue("mock-push-token"),
+  scheduleRideNotification: jest.fn().mockResolvedValue(undefined),
+  cancelRideNotification: jest.fn().mockResolvedValue(undefined),
+}));
+
+// Mock expo-notifications
+jest.mock("expo-notifications", () => ({
+  getExpoPushTokenAsync: jest.fn().mockResolvedValue({ data: "mock-expo-token" }),
+  setExpoPushToken: jest.fn(),
 }));
 
 describe("SingleRidePost", () => {

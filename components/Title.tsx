@@ -10,6 +10,14 @@ type InputProps = {
   text?: string;
 };
 
+/**
+ * Renders a standardized header component with a back button and a centered title.
+ * The layout is designed to keep the title perfectly centered by including a back button
+ * on the left and an invisible spacer of the same width on the right.
+ * @param {InputProps} props The component props.
+ * @param {string} [props.text] The text to display as the title.
+ * @returns {JSX.Element} The Title header component.
+ */
 export default function Title({
   text,
 }: InputProps) {

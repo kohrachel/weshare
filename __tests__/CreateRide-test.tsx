@@ -29,6 +29,14 @@ jest.mock("firebase/firestore", () => ({
 
 jest.mock("@/firebaseConfig", () => ({ db: {} }));
 
+jest.mock("@/utils/notifications", () => ({
+  registerForPushNotificationsAsync: jest
+    .fn()
+    .mockResolvedValue("mock-push-token"),
+  scheduleRideNotification: jest.fn().mockResolvedValue(undefined),
+  cancelRideNotification: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock("../components/buttonGreen", () => {
   return ({ title, onPress }: any) => (
     <button onClick={onPress} testID="create-ride-button">
@@ -252,7 +260,7 @@ describe("CreateRide Ride Creation Screen", () => {
     fireEvent.press(getByTestId("create-ride-button"));
 
     await waitFor(() => expect(global.alert).toHaveBeenCalled());
-    expect(getByTestId("Where to?").props.value).toBe("");
+    await waitFor(() => expect(getByTestId("Where to?").props.value).toBe(""));
     expect(getByTestId("Where to meet?").props.value).toBe("");
     expect(getByTestId("How many people (including you)?").props.value).toBe(
       "",

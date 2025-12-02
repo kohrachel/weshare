@@ -26,6 +26,22 @@ type InputProps = {
   onBlur?: () => void;
 };
 
+/**
+ * Renders a customizable text input field with an optional label.
+ * This component forwards a ref to the underlying TextInput component, allowing for direct interaction.
+ * @param {InputProps} props - The component props.
+ * @param {string} [props.label] - An optional label to display above the input field.
+ * @param {string} [props.value] - The current value of the input.
+ * @param {(text: string) => void} [props.setValue] - A callback function that is called when the text input's text changes.
+ * @param {string} [props.defaultValue] - The placeholder text to display when the input is empty.
+ * @param {string} [props.testID] - An ID for testing purposes.
+ * @param {StyleProp<ViewStyle>} [props.style] - Optional custom styles for the input wrapper.
+ * @param {boolean} [props.required] - If true, displays a red asterisk next to the label.
+ * @param {() => void} [props.onPress] - An optional callback that is called when the input is pressed.
+ * @param {() => void} [props.onBlur] - An optional callback that is called when the input loses focus.
+ * @param {React.Ref<TextInput>} ref - The ref forwarded to the TextInput component.
+ * @returns {JSX.Element} The Input component.
+ */
 const Input = forwardRef<TextInput, InputProps>(
   (
     {

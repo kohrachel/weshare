@@ -1,6 +1,6 @@
 /**
  Contributors
- Emma Reid: 7.5 hours
+ Emma Reid: 9 hours
  Rachel Huiqi: 6 hours
  */
 
@@ -8,12 +8,24 @@ import ButtonGreen from "@/components/buttonGreen";
 import DateTimeInput from "@/components/DateTimeInput";
 import Input from "@/components/Input";
 import { db } from "@/firebaseConfig";
+import {
+  registerForPushNotificationsAsync,
+  scheduleRideNotification,
+} from "@/utils/notifications";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { addDoc, collection, doc, getDoc, Timestamp } from "firebase/firestore";
-import React, { useState } from "react";
-import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  ToastAndroid,
+  View,
+} from "react-native";
 import Title from "../components/Title";
 import { RideDataType } from "./rsvp";
 
@@ -26,6 +38,10 @@ type RideFormData = Omit<RideDataType, "id" | "departs" | "returns"> & {
   numOccurrences: string;
 };
 
+/**
+ * Renders the Create Ride screen, allowing users to create a new ride.
+ * @returns {JSX.Element} The Create Ride component.
+ */
 export default function CreateRide() {
   const router = useRouter();
   // Local state for date and time inputs (to prevent overriding each other)
@@ -33,6 +49,14 @@ export default function CreateRide() {
   const [departTime, setDepartTime] = useState(new Date());
   const [returnDate, setReturnDate] = useState(new Date());
   const [returnTime, setReturnTime] = useState(new Date());
+  const [expoPushToken, setExpoPushToken] = useState("");
+
+  // Setup notifications
+  useEffect(() => {
+    registerForPushNotificationsAsync()
+      .then((token) => setExpoPushToken(token ?? ""))
+      .catch((error: any) => setExpoPushToken(`${error}`));
+  }, []);
 
   const [rideData, setRideData] = useState<RideFormData>({
     destination: "",
@@ -49,6 +73,12 @@ export default function CreateRide() {
     numOccurrences: "4",
   });
 
+  /**
+   * Merges the date part of one Date object with the time part of another.
+   * @param datePart The Date object to take the date from.
+   * @param timePart The Date object to take the time from.
+   * @returns A new Date object with the merged date and time.
+   */
   function mergeDateAndTime(datePart: Date, timePart: Date): Date {
     return new Date(
       datePart.getFullYear(),
@@ -61,6 +91,12 @@ export default function CreateRide() {
     );
   }
 
+  /**
+   * Calculates the next date in a recurring sequence.
+   * @param currentDate The current date.
+   * @param frequency The recurrence frequency ("daily", "weekly", or "monthly").
+   * @returns The next date in the sequence.
+   */
   function getNextDate(
     currentDate: Date,
     frequency: RecurrenceFrequency,
@@ -80,6 +116,10 @@ export default function CreateRide() {
     return nextDate;
   }
 
+  /**
+   * Validates the ride form data.
+   * @returns True if the form is valid, false otherwise.
+   */
   function isFormValid(): boolean {
     // Check mandatory fields
     if (rideData.destination === "") {
@@ -114,6 +154,10 @@ export default function CreateRide() {
     return true;
   }
 
+  /**
+   * Validates and pushes a new ride to the Firebase,
+   * or multiple rides if a recurring schedule is set.
+   */
   const storeRide = async () => {
     try {
       const id = await SecureStore.getItemAsync("userid");
@@ -203,32 +247,20 @@ export default function CreateRide() {
               );
             }
           }
+
+          // set notifications here within recurring ride creation loop
+          await scheduleRideNotification(departsDate);
         }
 
-        alert(
-          (rideData.isRecurringRide
-            ? `${ridesToCreate} rides saved!\n`
-            : "Ride saved!\n") +
-            rideData.destination +
-            "\n" +
-            departDate +
-            "\n" +
-            departTime +
-            "\n" +
-            rideData.departsFrom +
-            "\n" +
-            rideData.maxPpl +
-            "\n" +
-            (rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender) +
-            "\n" +
-            (rideData.hasLuggageSpace ? "Luggage" : "No luggage") +
-            "\n" +
-            (rideData.isRoundTrip ? "Round Trip" : "One Way") +
-            "\n" +
-            returnDate +
-            "\n" +
-            returnTime,
-        );
+        const successMessage = rideData.isRecurringRide
+          ? `${ridesToCreate} rides saved!`
+          : "Ride saved!";
+
+        if (Platform.OS === "android") {
+          ToastAndroid.show(successMessage, ToastAndroid.SHORT);
+        } else {
+          alert(successMessage);
+        }
 
         // Reset form fields
         setDepartDate(new Date());

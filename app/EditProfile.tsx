@@ -19,20 +19,22 @@ import {
   TouchableOpacity,
   ScrollView,
   View,
+  ToastAndroid,
 } from "react-native";
 import { deleteField } from "firebase/firestore";
-
-// Components
 import ButtonGreen from "../components/buttonGreen";
 import Footer from "../components/Footer";
 import Input from "../components/Input";
 import Title from "../components/Title";
-
-// Firebase
 import { db, storage } from "../firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
+/**
+ * Renders the Edit Profile screen, allowing users to view and update their profile information,
+ * including their name, email, phone number, gender, payment methods, and profile picture.
+ * @returns {JSX.Element} The Edit Profile component.
+ */
 export default function EditProfile() {
   const router = useRouter();
 
@@ -54,11 +56,15 @@ export default function EditProfile() {
     })();
   }, []);
 
-  // Fetch info on mount
   useEffect(() => {
     fetchInfo();
   }, []);
 
+  /**
+   * Fetches user profile information from Firestore based on the stored user ID.
+   * It populates the component's state with the fetched data.
+   * Displays an alert if fetching fails.
+   */
   const fetchInfo = async () => {
     setLoading(true);
     try {
@@ -82,6 +88,11 @@ export default function EditProfile() {
     }
   };
 
+  /**
+   * Stores the updated user profile information in Firestore.
+   * It merges the new data with existing user data.
+   * Displays a success or error alert after the operation.
+   */
   const storeInfo = async () => {
     try {
       const id = await SecureStore.getItemAsync("userid");
@@ -93,13 +104,17 @@ export default function EditProfile() {
         { merge: true },
       );
 
-      Alert.alert("Success", "Info saved!");
+      ToastAndroid.show('Success! Info saved.', ToastAndroid.SHORT);
       fetchInfo();
     } catch (error) {
       Alert.alert("Error", "Info not saved, please try again.");
     }
   };
 
+  /**
+   * Opens the device's image library for the user to select a profile picture.
+   * If an image is selected, it updates the profile picture state and uploads the image.
+   */
   const pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -119,6 +134,11 @@ export default function EditProfile() {
     }
   };
 
+  /**
+   * "Uploads" the selected image by saving its URI to Firestore.
+   * In a real-world scenario, this would involve uploading the image file to a cloud storage service.
+   * @param {string} uri The local URI of the image to be saved.
+   */
   const uploadImage = async (uri: string) => {
     try {
       const id = await SecureStore.getItemAsync("userid");
@@ -131,12 +151,15 @@ export default function EditProfile() {
       );
 
       setProfilePic(uri);
-      Alert.alert("Success", "Profile picture saved!");
+      ToastAndroid.show('Success! Profile picture saved.', ToastAndroid.SHORT);
     } catch (error) {
       Alert.alert("Error", "Failed to save profile picture.");
     }
   };
 
+  /**
+   * Handles user logout by clearing the stored user ID and navigating to the login screen.
+   */
   const handleLogout = async () => {
     try {
       await SecureStore.setItemAsync("userid", "");
@@ -163,6 +186,11 @@ export default function EditProfile() {
     "Google Pay",
   ];
 
+  /**
+   * Toggles the selection of a payment method.
+   * If the method is already selected, it will be removed; otherwise, it will be added.
+   * @param {string} method The payment method to toggle.
+   */
   const togglePaymentMethod = (method: string) => {
     setPaymentMethods((prev) =>
       prev.includes(method)
