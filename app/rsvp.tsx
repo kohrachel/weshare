@@ -65,6 +65,13 @@ const unknownUser: UserData = {
   email: "Unknown",
 };
 
+/**
+ * Renders the RSVP page for a specific ride.
+ * This component displays the details of the selected ride and a list of all the users
+ * who have RSVP'd. It fetches ride and user data from Firestore and updates the view
+ * in real-time through context.
+ * @returns {JSX.Element} The RSVP ride page component.
+ */
 export default function RsvpRidePage() {
   const { setRides, getSingleRide } = useContext(RidesContext);
   const { userId } = useContext(UserContext);
@@ -74,16 +81,9 @@ export default function RsvpRidePage() {
 
   const rideCreator = useMemo(() => rideData?.creatorId, [rideData]);
 
-  // Get ride ID from route params
   const route = useRoute();
   let { rideId } = route.params as { rideId: string };
 
-  // TODO: delete this eventually, it's just so you can still click on the RSVP button from the index page
-  if (!rideId) {
-    rideId = "DHbTvTZQQugk83PjwYup";
-  }
-
-  // Get ride data from context (for live updates)
   const contextRideData = useMemo(
     () => getSingleRide(rideId),
     [getSingleRide, rideId],
@@ -97,6 +97,12 @@ export default function RsvpRidePage() {
   }, [contextRideData]);
 
   useEffect(() => {
+    /**
+     * Fetches the details for a single ride from Firestore using the rideId from the route parameters.
+     * It updates the local rideData state and also updates the ride in the global RidesContext to ensure
+     * data consistency across the application.
+     * @async
+     */
     const fetchRideData = async () => {
       const rideDoc = doc(db, "rides", rideId);
       const rideData = await getDoc(rideDoc);
@@ -140,6 +146,13 @@ export default function RsvpRidePage() {
   }, [rideId, setRides]);
 
   useEffect(() => {
+    /**
+     * Fetches the profile data for all users who have RSVP'd to the current ride.
+     * It takes an array of user IDs, queries the 'users' collection in Firestore for each, and
+     * populates the rsvpedUsers state with the retrieved user information.
+     * @param {string[]} rsvpedUserIds An array of user IDs to fetch data for.
+     * @async
+     */
     const fetchRsvpedUsers = async (rsvpedUserIds: string[]) => {
       if (!rideData) return;
 
@@ -171,7 +184,6 @@ export default function RsvpRidePage() {
     fetchRsvpedUsers(rideData?.rsvpedUserIds || []);
   }, [rideData]);
 
-  // Show loading indicator while ride data or ride creator are not loaded
   if (!rideData || !rideCreator) {
     return (
       <View style={styles.loading}>
