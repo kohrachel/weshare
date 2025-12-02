@@ -64,7 +64,7 @@ jest.mock("@react-navigation/native");
 jest.mock("expo-router", () => ({
   useRouter: jest.fn(),
 }));
-jest.mock("@/utils", () => ({
+jest.mock("../utils/DateTime", () => ({
   formatDate: jest.fn((date) => "01/15/2025"),
   formatTime: jest.fn((date) => "10:00 AM"),
 }));

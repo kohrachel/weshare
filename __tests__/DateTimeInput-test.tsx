@@ -7,13 +7,13 @@ import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
 import DateTimeInput from "../components/DateTimeInput";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
-import { formatDate, formatTime } from "@/utils";
+import { formatDate, formatTime } from "../utils/DateTime";
 import { act } from 'react';
 
 // Mock dependencies
 jest.mock("@react-native-community/datetimepicker", () => jest.fn(() => null));
 
-jest.mock("@/utils", () => ({
+jest.mock("../utils/DateTime", () => ({
   formatDate: jest.fn(),
   formatTime: jest.fn(),
 }));

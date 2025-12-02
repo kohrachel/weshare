@@ -9,7 +9,7 @@ import { RideDataType, UserData } from "@/app/rsvp";
 import { RidesContext } from "@/contexts/RidesContext";
 import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
-import { formatDate, formatTime } from "@/utils";
+import { formatDate, formatTime } from "../utils/DateTime";
 import { useRouter } from "expo-router";
 import {
   arrayRemove,

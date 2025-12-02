@@ -3,7 +3,7 @@
  Rachel Huiqi: 6 hours
  */
 
-import { formatDate, formatTime } from "@/utils";
+import { formatDate, formatTime } from "../utils/DateTime";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
