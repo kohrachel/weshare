@@ -33,6 +33,13 @@ import Input from "../components/Input";
 import SingleRidePost from "../components/SingleRidePost";
 import { RideDataType, RideWithCreatorName } from "./rsvp";
 
+/**
+ * Creates a debounced function that delays invoking `callback` until after `wait` milliseconds have elapsed
+ * since the last time the debounced function was invoked.
+ * @param callback The function to debounce.
+ * @param wait The number of milliseconds to delay.
+ * @returns A new debounced function.
+ */
 const debounce = (callback: (...args: any[]) => void, wait: number) => {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
@@ -47,6 +54,12 @@ const debounce = (callback: (...args: any[]) => void, wait: number) => {
   };
 };
 
+/**
+ * Renders the main feed of available rides.
+ * It allows users to search for rides, view a list of upcoming rides,
+ * and save their searches for future use.
+ * @returns {JSX.Element} The FeedPage component.
+ */
 export default function FeedPage() {
   const { rides, setRides } = useContext(RidesContext);
   const [loading, setLoading] = useState(true);
@@ -66,6 +79,9 @@ export default function FeedPage() {
     }
   }, [params.focusSearch]);
 
+  /**
+   * Fetches the current user's saved searches from Firestore.
+   */
   const fetchInfo = async () => {
     try {
       const id = await SecureStore.getItemAsync("userid");
@@ -82,6 +98,9 @@ export default function FeedPage() {
 
   // Debounce search input
   useEffect(() => {
+    /**
+     * Debounce search input to prevent unnecessary API calls.
+     */
     const debouncedSetSearch = debounce((value: string) => {
       setDebouncedSearchQuery(value);
     }, 300);
@@ -95,6 +114,13 @@ export default function FeedPage() {
 
   // fetch rides from db and set in context
   useEffect(() => {
+    /**
+     * Fetches all rides from the 'rides' collection in Firestore.
+     * It also fetches user data to include the creator's name with each ride.
+     * Rides older than 7 days are deleted.
+     * The rides are then filtered to show only upcoming rides, sorted by departure time,
+     * and stored in the global RidesContext.
+     */
     const fetchRides = async () => {
       try {
         const usersSnapshot = await getDocs(collection(db, "users"));
@@ -172,6 +198,10 @@ export default function FeedPage() {
     fetchRides();
   }, [setRides, rides.length]);
 
+  /**
+   * Saves or unsaves the current search query to the user's profile in Firestore.
+   * If the query is already saved, it's removed. If it's not saved and not empty, it's added.
+   */
   const onSave = async () => {
     let updatedSearches: string[] = searches;
 

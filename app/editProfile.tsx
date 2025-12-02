@@ -55,7 +55,6 @@ export default function EditProfile() {
     })();
   }, []);
 
-  // Fetch info on mount
   useEffect(() => {
     fetchInfo();
   }, []);
