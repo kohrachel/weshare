@@ -3,6 +3,12 @@
  Rachel Huiqi: 1 hour
  */
 
+/**
+ * Formats a Date object into a string (e.g., "MM/DD/YYYY").
+ * If no date is provided, it defaults to the current date.
+ * @param {Date} date The date to format.
+ * @returns {string} The formatted date string.
+ */
 export const formatDate = (date: Date) => {
   if (!date) {
     date = new Date();
@@ -14,6 +20,12 @@ export const formatDate = (date: Date) => {
   });
 };
 
+/**
+ * Formats a Date object into a time string (e.g., "HH:MM AM/PM").
+ * If no time is provided, it defaults to the current time.
+ * @param {Date} time The date object containing the time to format.
+ * @returns {string} The formatted time string.
+ */
 export const formatTime = (time: Date) => {
   if (!time) {
     time = new Date();

@@ -18,16 +18,24 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// Handles notification related errors
+/**
+ * Handles errors that occur during the push notification registration process.
+ * It displays an alert with the error message and then throws an error to stop execution.
+ * @param {string} errorMessage The error message to be displayed and thrown.
+ */
 function handleRegistrationError(errorMessage: string) {
   // uses alert and not console.log because testing is done entirely on .apk
   alert(errorMessage);
   throw new Error(errorMessage);
 }
 
-// EXPORT THIS
+/**
+ * Registers the device to receive push notifications.
+ * This function handles Android-specific channel setup, requests user permission for notifications,
+ * and retrieves the Expo push token associated with the device.
+ * @returns {Promise<string | null>} A promise that resolves to the Expo push token if registration is successful, or null otherwise.
+ */
 export async function registerForPushNotificationsAsync() {
-  // Android channel setup
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("default", {
       name: "default",
@@ -37,7 +45,6 @@ export async function registerForPushNotificationsAsync() {
     });
   }
 
-  // Device permission request
   if (Device.isDevice) {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
@@ -77,7 +84,12 @@ export async function registerForPushNotificationsAsync() {
   }
 }
 
-// Schedules a notification for 10 minutes before Date
+/**
+ * Schedules a local notification to be sent 10 minutes before a ride's departure time.
+ * If the calculated notification time is in the past, no notification will be scheduled.
+ * @param {Date} departsDate The departure date and time for the ride.
+ * @returns {Promise<void>}
+ */
 export async function scheduleRideNotification(departsDate: Date) {
   const triggerTime = new Date(departsDate.getTime() - 10 * 60 * 1000);
 
@@ -101,7 +113,13 @@ export async function scheduleRideNotification(departsDate: Date) {
   console.log("Notification scheduled for:", triggerTime.toString());
 }
 
-// Cancel the notification scheduled exactly 10 minutes before the given date/time.
+/**
+ * Cancels a scheduled ride reminder notification.
+ * It identifies the correct notification by finding one scheduled to trigger exactly
+ * 10 minutes before the provided target date and time.
+ * @param {Date} targetDateTime The original departure date and time of the ride.
+ * @returns {Promise<boolean>} A promise that resolves to true if a notification was successfully canceled, and false otherwise.
+ */
 export async function cancelRideNotification(targetDateTime: Date) {
   try {
     const tenMinutesBefore = new Date(targetDateTime.getTime() - 10 * 60 * 1000);
@@ -116,7 +134,7 @@ export async function cancelRideNotification(targetDateTime: Date) {
         const triggerDate = new Date(trigger);
 
         if (Math.abs(triggerDate.getTime() - tenMinutesBefore.getTime()) < 1000) {
-          // match within 1 second - likely necessary for current use cases,
+          // match within 1 second - likely unnecessary for current use cases,
           // but built in to work with as many other use cases as possible
           await Notifications.cancelScheduledNotificationAsync(notif.identifier);
           return true;
