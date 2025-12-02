@@ -19,6 +19,7 @@ import {
   TouchableOpacity,
   ScrollView,
   View,
+  ToastAndroid,
 } from "react-native";
 import { deleteField } from "firebase/firestore";
 import ButtonGreen from "../components/buttonGreen";
@@ -103,7 +104,7 @@ export default function EditProfile() {
         { merge: true },
       );
 
-      Alert.alert("Success", "Info saved!");
+      ToastAndroid.show('Success! Info saved.', ToastAndroid.SHORT);
       fetchInfo();
     } catch (error) {
       Alert.alert("Error", "Info not saved, please try again.");
@@ -150,7 +151,7 @@ export default function EditProfile() {
       );
 
       setProfilePic(uri);
-      Alert.alert("Success", "Profile picture saved!");
+      ToastAndroid.show('Success! Profile picture saved.', ToastAndroid.SHORT);
     } catch (error) {
       Alert.alert("Error", "Failed to save profile picture.");
     }

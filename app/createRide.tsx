@@ -12,7 +12,7 @@ import { Picker } from "@react-native-picker/picker";
 import * as SecureStore from "expo-secure-store";
 import { addDoc, collection, doc, getDoc, Timestamp } from "firebase/firestore";
 import React, { useState, useEffect, useRef } from "react";
-import { ScrollView, StyleSheet, Switch, Text, View, Button, Platform } from "react-native";
+import { ScrollView, StyleSheet, Switch, Text, View, Button, Platform, ToastAndroid } from "react-native";
 import Title from "../components/Title";
 import { RideDataType } from "./rsvp";
 import {
@@ -242,29 +242,11 @@ export default function CreateRide() {
           await scheduleRideNotification(departsDate);
         }
 
-        alert(
+        ToastAndroid.show(
           (rideData.isRecurringRide
             ? `${ridesToCreate} rides saved!\n`
-            : "Ride saved!\n") +
-            rideData.destination +
-            "\n" +
-            departDate +
-            "\n" +
-            departTime +
-            "\n" +
-            rideData.departsFrom +
-            "\n" +
-            rideData.maxPpl +
-            "\n" +
-            (rideData.gender === "Co-ed" ? "Co-ed" : rideData.gender) +
-            "\n" +
-            (rideData.hasLuggageSpace ? "Luggage" : "No luggage") +
-            "\n" +
-            (rideData.isRoundTrip ? "Round Trip" : "One Way") +
-            "\n" +
-            returnDate +
-            "\n" +
-            returnTime,
+            : "Ride saved!\n"),
+          ToastAndroid.SHORT
         );
 
         // Reset form fields
