@@ -1,14 +1,14 @@
 /**
  Contributors
  Kevin Song: 3 hours
- Rachel Huiqi: 10 hours
+ Rachel Huiqi: 11 hours
  */
 
 import { RideDataType, UserData } from "@/app/rsvp";
 import { RidesContext } from "@/contexts/RidesContext";
 import { UserContext } from "@/contexts/UserContext";
 import { db } from "@/firebaseConfig";
-import { formatDate, formatTime } from "@/utils";
+import { formatDateShort, formatTime } from "@/utils";
 import { useRouter } from "expo-router";
 import {
   arrayRemove,
@@ -27,8 +27,6 @@ type SingleRidePostProps = {
   rideId: string;
 };
 
-const CAPACITY_BAR_WIDTH = 330;
-
 export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   const router = useRouter();
 
@@ -46,6 +44,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
   const [rideCreator, setRideCreator] = useState<string>("Loading...");
   const [userData, setUserData] = useState<UserData | undefined>(undefined);
+  const [capacityBarWidth, setCapacityBarWidth] = useState<number>(330);
 
   useEffect(() => {
     if (!userId) return;
@@ -149,23 +148,38 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         <Text style={styles.headerIcon}>📍</Text>
         <View style={styles.headerText}>
           <Text style={styles.title}>{rideData.destination}</Text>
+          <Text style={styles.createdBy}>Created by: {rideCreator || "Loading..."}</Text>
           <Text style={styles.createdBy}>
-            Created by: {rideCreator || "Loading..."}
+            {formatDateShort(rideData.departs.toDate()) +
+              ", " +
+              formatTime(rideData.departs.toDate())}
+            {rideData.isRoundTrip &&
+              rideData.returns &&
+              " — " +
+                formatDateShort(rideData.returns.toDate()) +
+                ", " +
+                formatTime(rideData.returns.toDate())}
           </Text>
         </View>
       </View>
 
       {/* Capacity Section */}
-      <View style={styles.capacityContainer}>
+      <View
+        style={styles.capacityContainer}
+        onLayout={(event) => {
+          const { width } = event.nativeEvent.layout;
+          setCapacityBarWidth(width);
+        }}
+      >
         <Text style={styles.capacityText}>
           {rideData.numRsvpedUsers} / {rideData.maxPpl} seats taken
         </Text>
-        <Svg width={CAPACITY_BAR_WIDTH} height="10" style={styles.capacityBar}>
+        <Svg width={capacityBarWidth} height="10" style={styles.capacityBar}>
           {/* Background bar (gray for full capacity) */}
           <Rect
             x="0"
             y="0"
-            width={CAPACITY_BAR_WIDTH}
+            width={capacityBarWidth}
             height="10"
             fill="#5f5f5f"
             rx="5"
@@ -175,7 +189,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
           <Rect
             x="0"
             y="0"
-            width={`${(rideData.numRsvpedUsers / (rideData.maxPpl || 1)) * CAPACITY_BAR_WIDTH}`}
+            width={`${(rideData.numRsvpedUsers / (rideData.maxPpl || 1)) * capacityBarWidth}`}
             height="10"
             fill="#a0fca1"
             rx="5"
@@ -186,14 +200,25 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
       {/* Time & Location Section */}
       <View style={styles.timeLocationSection}>
-        <View style={styles.detailRow}>
+        {/* <View style={styles.detailRow}>
           <Text style={styles.label}>📅 Leaves </Text>
           <Text style={styles.value}>
-            {formatDate(rideData.departs.toDate()) +
+            {formatDateShort(rideData.departs.toDate()) +
               " @ " +
               formatTime(rideData.departs.toDate())}
           </Text>
         </View>
+
+        {rideData.isRoundTrip && rideData.returns && (
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>🏠 Returns </Text>
+            <Text style={styles.value}>
+              {formatDateShort(rideData.returns.toDate()) +
+                " @ " +
+                formatTime(rideData.returns.toDate())}
+            </Text>
+          </View>
+        )} */}
 
         <View style={styles.detailRow}>
           <Text style={styles.label}>🤝🏻 Departs from </Text>
@@ -313,7 +338,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   capacityBar: {
-    alignSelf: "center",
     borderRadius: 5,
   },
 });

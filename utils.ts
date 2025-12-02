@@ -1,6 +1,6 @@
 /**
  Contributors
- Rachel Huiqi: 1 hour
+ Rachel Huiqi: 2 hours
  */
 
 export const formatDate = (date: Date) => {
@@ -11,6 +11,16 @@ export const formatDate = (date: Date) => {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
+  });
+};
+
+export const formatDateShort = (date: Date) => {
+  if (!date) {
+    date = new Date();
+  }
+  return date.toLocaleDateString([], {
+    day: "numeric",
+    month: "short",
   });
 };
 

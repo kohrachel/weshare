@@ -9,6 +9,7 @@ import DateTimeInput from "@/components/DateTimeInput";
 import Input from "@/components/Input";
 import { db } from "@/firebaseConfig";
 import { Picker } from "@react-native-picker/picker";
+import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { addDoc, collection, doc, getDoc, Timestamp } from "firebase/firestore";
 import React, { useState } from "react";
@@ -26,6 +27,7 @@ type RideFormData = Omit<RideDataType, "id" | "departs" | "returns"> & {
 };
 
 export default function CreateRide() {
+  const router = useRouter();
   // Local state for date and time inputs (to prevent overriding each other)
   const [departDate, setDepartDate] = useState(new Date());
   const [departTime, setDepartTime] = useState(new Date());
@@ -247,6 +249,9 @@ export default function CreateRide() {
           recurrenceFrequency: "weekly",
           numOccurrences: "4",
         });
+
+        // Navigate to feedPage after successful save
+        router.push("/feedPage");
       } else {
         alert("Ride not saved, please fix error(s):\n" + error);
         error = "";
