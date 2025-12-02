@@ -29,6 +29,10 @@ type RideFormData = Omit<RideDataType, "id" | "departs" | "returns"> & {
   numOccurrences: string;
 };
 
+/**
+ * Renders the Create Ride screen, allowing users to create a new ride.
+ * @returns {JSX.Element} The Create Ride component.
+ */
 export default function CreateRide() {
   // Local state for date and time inputs (to prevent overriding each other)
   const [departDate, setDepartDate] = useState(new Date());
