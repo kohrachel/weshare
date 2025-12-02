@@ -19,6 +19,11 @@ To access it:
 > [!IMPORTANT]
 > You cannot run the app on an iOS device.
 
+To run unit tests and grade static code:
+
+We have included a zip file of the latest code on GitHub. The zip file is not the entire local repository as that is too large a zip file to submit (Gradescope limits file sizes to 2GB).
+We strongly recommend that you git clone our repo from GitHub rather than try to work with this zip file.
+
 ## Project Description
 The current Vanderbilt student solution to sharing Ubers or Lyfts is an unwieldy group chat on 
 GroupMe. During school breaks, it requires users to scroll through a random assortment of messages, 
