@@ -69,6 +69,19 @@ jest.mock("@/utils", () => ({
   formatTime: jest.fn((date) => "10:00 AM"),
 }));
 
+// Mock notifications module to prevent physical device errors
+jest.mock("@/utils/notifications", () => ({
+  registerForPushNotificationsAsync: jest.fn().mockResolvedValue("mock-push-token"),
+  scheduleRideNotification: jest.fn().mockResolvedValue(undefined),
+  cancelRideNotification: jest.fn().mockResolvedValue(undefined),
+}));
+
+// Mock expo-notifications
+jest.mock("expo-notifications", () => ({
+  getExpoPushTokenAsync: jest.fn().mockResolvedValue({ data: "mock-expo-token" }),
+  setExpoPushToken: jest.fn(),
+}));
+
 describe("SingleRidePost", () => {
   const mockRouter = {
     navigate: jest.fn(),
