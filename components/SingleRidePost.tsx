@@ -148,6 +148,7 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
         <Text style={styles.headerIcon}>📍</Text>
         <View style={styles.headerText}>
           <Text style={styles.title}>{rideData.destination}</Text>
+          <Text style={styles.createdBy}>Created by: {rideCreator || "Loading..."}</Text>
           <Text style={styles.createdBy}>
             {formatDateShort(rideData.departs.toDate()) +
               ", " +
