@@ -14,6 +14,15 @@ type ButtonGreenProps = {
   testID?: string;
 }
 
+/**
+ * Renders a reusable green button component.
+ * @param {ButtonGreenProps} props - The component props.
+ * @param {string} props.title - The text to display inside the button.
+ * @param {() => void} props.onPress - The function to call when the button is pressed.
+ * @param {boolean} [props.disabled=false] - If true, the button will be disabled and styled differently.
+ * @param {string} [props.testID] - An optional ID for testing purposes.
+ * @returns {JSX.Element} The ButtonGreen component.
+ */
 export default function ButtonGreen({
   title,
   onPress,

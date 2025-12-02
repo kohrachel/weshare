@@ -7,6 +7,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
+/**
+ * Renders the footer component for the application.
+ * The footer contains navigation links to the Home (feed), Search, and Profile pages,
+ * allowing for easy access to the main sections of the app.
+ * @returns {JSX.Element} The Footer component.
+ */
 export default function Footer() {
   return (
     <View style={styles.footerWrapper}>

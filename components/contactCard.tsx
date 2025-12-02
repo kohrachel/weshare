@@ -18,6 +18,17 @@ type ContactCardProps = {
 };
 type IconGlyphs = "male" | "female" | "male-female";
 
+/**
+ * Renders a card component displaying a user's contact information.
+ * This includes their name, gender icon, phone number, email, and accepted payment methods.
+ * @param {ContactCardProps} props - The component props.
+ * @param {string} props.name - The user's full name.
+ * @param {string} props.phoneNum - The user's phone number.
+ * @param {string} props.email - The user's email address.
+ * @param {UserGenderType} props.gender - The user's gender, used to display an icon.
+ * @param {AllowedPaymentMethodsType[]} props.paymentMethods - An array of the user's accepted payment methods.
+ * @returns {JSX.Element} The ContactCard component.
+ */
 export default function ContactCard({
   name,
   phoneNum,
@@ -25,11 +36,22 @@ export default function ContactCard({
   gender,
   paymentMethods,
 }: ContactCardProps) {
+  /**
+   * Formats a raw phone number string into a more readable format (e.g., (123) 456-7890).
+   * If the phone number is "Not set", it returns "Not set".
+   * @param {string} phoneNum The raw phone number string.
+   * @returns {string} The formatted phone number.
+   */
   const formatPhoneNumber = (phoneNum: string) => {
     if (phoneNum === "Not set") return "Not set";
     return phoneNum.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
   };
 
+  /**
+   * Determines the appropriate icon and color based on the user's gender.
+   * @param {UserGenderType} gender The user's gender.
+   * @returns {{ icon: IconGlyphs; color: string }} An object containing the icon name and color.
+   */
   const getGenderStyles = (
     gender: UserGenderType,
   ): { icon: IconGlyphs; color: string } => {

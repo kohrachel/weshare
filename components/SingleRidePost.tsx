@@ -36,6 +36,15 @@ type SingleRidePostProps = {
 
 const CAPACITY_BAR_WIDTH = 330;
 
+/**
+ * Renders a single ride post component, displaying detailed information about a ride.
+ * It allows a user to RSVP, see the ride's capacity, and view key details like
+ * destination, departure time, and creator.
+ *
+ * @param {SingleRidePostProps} props The component props.
+ * @param {string} props.rideId The unique identifier for the ride to be displayed.
+ * @returns {JSX.Element} The SingleRidePost component.
+ */
 export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   const router = useRouter();
 
@@ -63,6 +72,10 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
 
   useEffect(() => {
     if (!userId) return;
+    /**
+     * Fetches the current user's data from Firestore and updates the component's state.
+     * @async
+     */
     const fetchUserData = async () => {
       const userDoc = await getDoc(doc(db, "users", userId));
       if (!userDoc.exists()) return;
@@ -71,6 +84,12 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     fetchUserData();
   }, [userId]);
 
+  /**
+   * Fetches the name of the ride's creator from Firestore.
+   * This function is memoized with useCallback to prevent unnecessary re-fetching.
+   * @async
+   * @returns {Promise<string | undefined>} A promise that resolves to the creator's name, or undefined if not found.
+   */
   const fetchCreatorInfo = useCallback(async () => {
     if (!rideData?.creatorId) return;
     const creatorDoc = doc(db, "users", rideData.creatorId);
@@ -87,7 +106,10 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
   }, [fetchCreatorInfo]);
 
   useEffect(() => {
-    // fetch the ride of the user
+    /**
+     * Fetches the full data for the current ride from Firestore and updates the global RidesContext.
+     * @async
+     */
     const fetchRideData = async () => {
       if (!rideId) return;
 
@@ -106,6 +128,12 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     fetchRideData();
   }, [rideId, setSingleRide]);
 
+  /**
+   * Toggles the user's RSVP status for the current ride.
+   * It updates the RSVP status in Firestore, adjusts the count of RSVP'd users,
+   * schedules or cancels push notifications accordingly, and updates the local state via the RidesContext.
+   * @async
+   */
   const toggleRSVP = async () => {
     if (!rideId || !userId) return;
 
@@ -153,6 +181,10 @@ export default function SingleRidePost({ rideId }: SingleRidePostProps) {
     );
   }
 
+  /**
+   * Determines if the RSVP button should be disabled based on ride capacity and gender restrictions.
+   * @returns {boolean} True if the button should be disabled, false otherwise.
+   */
   const isRsvpDisabled = () => {
     if (rideData?.numRsvpedUsers >= (rideData?.maxPpl || 0) && !isUserRsvped)
       return true;
