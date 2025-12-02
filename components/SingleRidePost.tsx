@@ -28,6 +28,7 @@ import {
   scheduleRideNotification,
   cancelRideNotification
 } from "@/utils/notifications";
+import { getExpoPushTokenAsync,  setExpoPushToken } from 'expo-notifications';
 
 type SingleRidePostProps = {
   rideId: string;

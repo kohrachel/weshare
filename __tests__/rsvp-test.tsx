@@ -36,6 +36,19 @@ jest.mock("@react-navigation/native", () => ({
 // Mock firebase config so the SDK isn't initialized in tests
 jest.mock("@/firebaseConfig", () => require("../__mocks__/firebaseConfig.js"));
 
+// Mock notifications module to prevent physical device errors
+jest.mock("@/utils/notifications", () => ({
+  registerForPushNotificationsAsync: jest.fn().mockResolvedValue("mock-push-token"),
+  scheduleRideNotification: jest.fn().mockResolvedValue(undefined),
+  cancelRideNotification: jest.fn().mockResolvedValue(undefined),
+}));
+
+// Mock expo-notifications
+jest.mock("expo-notifications", () => ({
+  getExpoPushTokenAsync: jest.fn().mockResolvedValue({ data: "mock-expo-token" }),
+  setExpoPushToken: jest.fn(),
+}));
+
 // Fully mock firebase/firestore without requireActual (avoids ESM import issue)
 jest.mock("firebase/firestore", () => {
   // Minimal Firestore mock matching the API used in RSVP
