@@ -258,8 +258,9 @@ export default function CreateRide() {
 
         if (Platform.OS === "android") {
           ToastAndroid.show(successMessage, ToastAndroid.SHORT);
+        } else {
+          alert(successMessage);
         }
-        alert(successMessage);
 
         // Reset form fields
         setDepartDate(new Date());
