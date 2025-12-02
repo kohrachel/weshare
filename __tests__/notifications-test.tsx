@@ -94,6 +94,51 @@
       expect(global.alert).toHaveBeenCalledWith("explode");
     });
 
+    it("throws error when project ID is missing", async () => {
+      const Constants = require("expo-constants");
+      const originalConfig = Constants.expoConfig;
+      Constants.expoConfig = { extra: { eas: {} } };
+      Constants.easConfig = undefined;
+
+      await expect(registerForPushNotificationsAsync()).rejects.toThrow(
+        "Project ID not found"
+      );
+
+      expect(global.alert).toHaveBeenCalledWith("Project ID not found");
+
+      // Reset for other tests
+      Constants.expoConfig = originalConfig;
+    });
+
+    it("sets up Android notification channel on Android platform", async () => {
+      const Notifications = require("expo-notifications");
+      const Platform = require("react-native").Platform;
+      Platform.OS = "android";
+
+      await registerForPushNotificationsAsync();
+
+      expect(Notifications.setNotificationChannelAsync).toHaveBeenCalledWith(
+        "default",
+        expect.objectContaining({
+          name: "default",
+          importance: 5,
+        })
+      );
+    });
+
+    it("skips Android channel setup on iOS platform", async () => {
+      const Notifications = require("expo-notifications");
+      const Platform = require("react-native").Platform;
+      Platform.OS = "ios";
+
+      jest.clearAllMocks();
+      await registerForPushNotificationsAsync();
+
+      expect(Notifications.setNotificationChannelAsync).not.toHaveBeenCalled();
+
+      // Reset for other tests
+      Platform.OS = "android";
+    });
 
   });
 
@@ -158,6 +203,142 @@
       const result = await cancelRideNotification(target);
       expect(result).toBe(true);
       expect(mockScheduled.length).toBe(0);
+    });
+
+    it("cancels a matching date trigger with type and value (Expo format)", async () => {
+      const target = new Date(Date.now() + 30 * 60 * 1000);
+      const tenBefore = new Date(target.getTime() - 10 * 60 * 1000);
+
+      mockScheduled.push({
+        identifier: "id-date-trigger",
+        trigger: {
+          type: "date",
+          value: tenBefore.getTime(),
+          channelId: null,
+          repeats: false,
+        },
+      });
+
+      const result = await cancelRideNotification(target);
+      expect(result).toBe(true);
+      expect(mockScheduled.length).toBe(0);
+    });
+
+    it("cancels date trigger within 60 second tolerance", async () => {
+      const target = new Date(Date.now() + 30 * 60 * 1000);
+      const tenBefore = new Date(target.getTime() - 10 * 60 * 1000);
+      const slightlyOff = new Date(tenBefore.getTime() + 30000); // 30 seconds off
+
+      mockScheduled.push({
+        identifier: "id-tolerance",
+        trigger: {
+          type: "date",
+          value: slightlyOff.getTime(),
+          channelId: null,
+          repeats: false,
+        },
+      });
+
+      const result = await cancelRideNotification(target);
+      expect(result).toBe(true);
+      expect(mockScheduled.length).toBe(0);
+    });
+
+    it("does not cancel date trigger outside 60 second tolerance", async () => {
+      const target = new Date(Date.now() + 30 * 60 * 1000);
+      const tenBefore = new Date(target.getTime() - 10 * 60 * 1000);
+      const wayOff = new Date(tenBefore.getTime() + 120000); // 2 minutes off
+
+      mockScheduled.push({
+        identifier: "id-no-match",
+        trigger: {
+          type: "date",
+          value: wayOff.getTime(),
+          channelId: null,
+          repeats: false,
+        },
+      });
+
+      const result = await cancelRideNotification(target);
+      expect(result).toBe(false);
+      expect(mockScheduled.length).toBe(1);
+    });
+
+    it("does not cancel timestamp trigger outside 60 second tolerance", async () => {
+      const target = new Date(Date.now() + 30 * 60 * 1000);
+      const tenBefore = new Date(target.getTime() - 10 * 60 * 1000);
+      const wayOff = new Date(tenBefore.getTime() + 120000); // 2 minutes off
+
+      mockScheduled.push({
+        identifier: "id-timestamp-no-match",
+        trigger: wayOff.getTime(),
+      });
+
+      const result = await cancelRideNotification(target);
+      expect(result).toBe(false);
+      expect(mockScheduled.length).toBe(1);
+    });
+
+    it("skips non-matching calendar trigger", async () => {
+      const target = new Date(Date.now() + 2 * 60 * 60 * 1000);
+      const tenBefore = new Date(target.getTime() - 10 * 60 * 1000);
+      const different = new Date(tenBefore.getTime() + 60 * 60 * 1000); // 1 hour different
+
+      mockScheduled.push({
+        identifier: "id-calendar-no-match",
+        trigger: {
+          year: different.getFullYear(),
+          month: different.getMonth() + 1,
+          day: different.getDate(),
+          hour: different.getHours(),
+          minute: different.getMinutes(),
+        },
+      });
+
+      const result = await cancelRideNotification(target);
+      expect(result).toBe(false);
+      expect(mockScheduled.length).toBe(1);
+    });
+
+    it("handles multiple notifications and cancels the correct one", async () => {
+      const target = new Date(Date.now() + 30 * 60 * 1000);
+      const tenBefore = new Date(target.getTime() - 10 * 60 * 1000);
+
+      // Add multiple notifications
+      mockScheduled.push({
+        identifier: "id-wrong-1",
+        trigger: {
+          type: "date",
+          value: Date.now() + 5000,
+          channelId: null,
+          repeats: false,
+        },
+      });
+
+      mockScheduled.push({
+        identifier: "id-correct",
+        trigger: {
+          type: "date",
+          value: tenBefore.getTime(),
+          channelId: null,
+          repeats: false,
+        },
+      });
+
+      mockScheduled.push({
+        identifier: "id-wrong-2",
+        trigger: {
+          type: "date",
+          value: Date.now() + 999999,
+          channelId: null,
+          repeats: false,
+        },
+      });
+
+      const result = await cancelRideNotification(target);
+      expect(result).toBe(true);
+      expect(mockScheduled.length).toBe(2);
+      expect(mockScheduled.find(n => n.identifier === "id-correct")).toBeUndefined();
     });
 
     it("returns false when no match found", async () => {

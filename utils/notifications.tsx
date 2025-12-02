@@ -129,13 +129,15 @@ export async function cancelRideNotification(targetDateTime: Date) {
     for (const notif of scheduled) {
       const trigger = notif.trigger;
 
-      // ---- Case 1: Timestamp trigger ----
-      if (typeof trigger === "number") {
-        const triggerDate = new Date(trigger);
 
-        if (Math.abs(triggerDate.getTime() - tenMinutesBefore.getTime()) < 1000) {
-          // match within 1 second - likely unnecessary for current use cases,
-          // but built in to work with as many other use cases as possible
+      // ---- Case 1: Date trigger object with type and value (Expo's actual format) ----
+      if (trigger && typeof trigger === "object" && "type" in trigger && trigger.type === "date" && "value" in trigger) {
+        const triggerDate = new Date(trigger.value);
+        const timeDiff = Math.abs(triggerDate.getTime() - tenMinutesBefore.getTime());
+
+
+        // Match within 60 seconds to account for any slight variations
+        if (timeDiff < 60000) {
           await Notifications.cancelScheduledNotificationAsync(notif.identifier);
           return true;
         }
@@ -149,8 +151,22 @@ export async function cancelRideNotification(targetDateTime: Date) {
           trigger.day === tenMinutesBefore.getDate() &&
           trigger.hour === tenMinutesBefore.getHours() &&
           trigger.minute === tenMinutesBefore.getMinutes();
+          // Note: Not checking seconds since they may vary slightly
+
 
         if (matches) {
+          await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+          return true;
+        }
+      }
+
+      // ---- Case 3: Timestamp trigger ----
+      if (typeof trigger === "number") {
+        const triggerDate = new Date(trigger);
+        const timeDiff = Math.abs(triggerDate.getTime() - tenMinutesBefore.getTime());
+
+
+        if (timeDiff < 60000) {
           await Notifications.cancelScheduledNotificationAsync(notif.identifier);
           return true;
         }
