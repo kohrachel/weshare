@@ -3,7 +3,7 @@
  Emma Reid: 5 hours
  */
 
-import { Platform, Alert } from "react-native";
+import { Platform } from "react-native";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
@@ -21,7 +21,7 @@ Notifications.setNotificationHandler({
 // Handles notification related errors
 function handleRegistrationError(errorMessage: string) {
   // uses alert and not console.log because testing is done entirely on .apk
-  Alert.alert(errorMessage);
+  alert(errorMessage);
   throw new Error(errorMessage);
 }
 
